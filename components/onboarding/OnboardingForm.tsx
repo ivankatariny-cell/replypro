@@ -40,7 +40,6 @@ export function OnboardingForm() {
     const supabase = createClient()
     const { error } = await supabase.from('profiles').upsert({
       id: user.id,
-      user_id: user.id,
       full_name: data.full_name,
       agency_name: data.agency_name,
       city: data.city,
