@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { useSubscription } from '@/hooks/useSubscription'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Check, Loader2 } from 'lucide-react'
+import { Check, Loader2, Crown, Infinity } from 'lucide-react'
 
 export function PricingCard() {
   const { t } = useTranslation()
@@ -27,28 +27,43 @@ export function PricingCard() {
   const isActive = subscription?.status === 'active'
   const isCancelled = subscription?.status === 'cancelled'
 
-  const features = [
-    t('landing.pricing_feature_1'),
-    t('landing.pricing_feature_2'),
-    t('landing.pricing_feature_3'),
-    t('landing.pricing_feature_4'),
+  const proFeatures = [
+    'Neograničene generacije',
+    '3 tona odgovora (Professional, Friendly, Direct)',
+    'Automatska detekcija jezika (HR/EN)',
+    'Personalizirani potpis agenta',
+    'Povijest svih generacija',
+    'Prioritetna podrška',
   ]
 
   if (isActive) {
     return (
-      <Card className="max-w-md mx-auto">
-        <CardHeader>
+      <Card className="max-w-md mx-auto border-green-300">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+            <Crown className="h-6 w-6 text-green-600" />
+          </div>
           <CardTitle className="text-green-600">{t('billing.active_title')}</CardTitle>
+          <p className="text-sm text-muted-foreground">29€/mjesec</p>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-950/20 p-3">
+            <Infinity className="h-5 w-5 text-green-600" />
+            <span className="text-sm font-medium text-green-700">Neograničene generacije aktivne</span>
+          </div>
+          <ul className="space-y-2">
+            {proFeatures.map((f) => (
+              <li key={f} className="flex items-center gap-2 text-sm">
+                <Check className="h-4 w-4 text-green-500" />
+                {f}
+              </li>
+            ))}
+          </ul>
           {subscription?.current_period_end && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground text-center">
               {t('billing.next_billing')}: {new Date(subscription.current_period_end).toLocaleDateString()}
             </p>
           )}
-          <Button variant="destructive" className="cursor-pointer" onClick={handleCheckout}>
-            {t('billing.cancel_btn')}
-          </Button>
         </CardContent>
       </Card>
     )
@@ -61,13 +76,13 @@ export function PricingCard() {
         <p className="text-3xl font-bold text-primary">{t('billing.upgrade_price')}</p>
         {isTrial && subscription && (
           <p className="text-sm text-muted-foreground">
-            {subscription.trial_generations_used} {t('billing.trial_desc')}
+            {subscription.trial_generations_used}/10 {t('billing.trial_desc')}
           </p>
         )}
       </CardHeader>
       <CardContent className="space-y-4">
         <ul className="space-y-2">
-          {features.map((f) => (
+          {proFeatures.map((f) => (
             <li key={f} className="flex items-center gap-2 text-sm">
               <Check className="h-4 w-4 text-primary" />
               {f}

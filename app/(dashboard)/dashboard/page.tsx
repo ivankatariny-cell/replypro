@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useAppStore } from '@/store/app-store'
@@ -14,6 +15,7 @@ import type { GenerateResponse } from '@/types'
 export default function DashboardPage() {
   const { t } = useTranslation()
   const { toast } = useToast()
+  const searchParams = useSearchParams()
   const { subscription } = useSubscription()
   const setSubscription = useAppStore((s) => s.setSubscription)
   const addGeneration = useAppStore((s) => s.addGeneration)
@@ -21,6 +23,23 @@ export default function DashboardPage() {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [replies, setReplies] = useState<GenerateResponse | null>(null)
+
+  // Sync subscription after Stripe checkout redirect
+  useEffect(() => {
+    if (searchParams.get('success') === 'true') {
+      fetch('/api/stripe/sync', { method: 'POST' })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === 'active' && subscription) {
+            setSubscription({ ...subscription, status: 'active' })
+            toast('Pro aktiviran! Neograničene generacije.', 'success')
+          }
+        })
+        .catch(() => {})
+      // Clean URL
+      window.history.replaceState({}, '', '/dashboard')
+    }
+  }, [searchParams, subscription, setSubscription, toast])
 
   const canGenerate = subscription?.status === 'active' ||
     (subscription?.status === 'trial' && (subscription.trial_generations_used < subscription.trial_generations_limit))
@@ -43,14 +62,12 @@ export default function DashboardPage() {
       }
       const data: GenerateResponse = await res.json()
       setReplies(data)
-      // Update subscription count locally
       if (subscription?.status === 'trial') {
         setSubscription({
           ...subscription,
           trial_generations_used: subscription.trial_generations_used + 1,
         })
       }
-      // Add to local generations list
       addGeneration({
         id: crypto.randomUUID(),
         user_id: '',
