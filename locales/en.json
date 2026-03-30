@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "login": "Log in",
+    "signup": "Sign up",
+    "dashboard": "Dashboard",
+    "history": "History",
+    "settings": "Settings",
+    "billing": "Billing",
+    "logout": "Log out"
+  },
+  "landing": {
+    "headline": "Reply to clients 10x faster",
+    "subheadline": "Paste a client message. Get 3 perfect replies in 5 seconds. Copy and send.",
+    "cta_primary": "Start for free",
+    "cta_secondary": "See how it works",
+    "how_it_works": "How it works",
+    "step1_title": "Paste the message",
+    "step1_desc": "Copy a client message from WhatsApp, Viber, or email",
+    "step2_title": "AI generates replies",
+    "step2_desc": "3 perfect replies ready in 5 seconds",
+    "step3_title": "Copy and send",
+    "step3_desc": "Pick a tone, copy, send to your client",
+    "example_title": "See an example",
+    "example_message": "Hi, I'm looking for a 3-bedroom apartment in downtown Zagreb, up to €200,000. Do you have anything?",
+    "pricing_title": "Simple pricing",
+    "pricing_free": "Free",
+    "pricing_free_desc": "10 generations, no credit card",
+    "pricing_pro": "Pro",
+    "pricing_pro_price": "€29/mo",
+    "pricing_pro_desc": "Unlimited generations",
+    "pricing_feature_1": "3 reply tones",
+    "pricing_feature_2": "Automatic language detection",
+    "pricing_feature_3": "Reply history",
+    "pricing_feature_4": "Personalized signature",
+    "footer_terms": "Terms of Service",
+    "footer_privacy": "Privacy Policy",
+    "footer_contact": "Contact"
+  },
+  "dashboard": {
+    "placeholder": "Paste a client message here...",
+    "generate_btn": "Generate replies",
+    "generating": "Generating...",
+    "tone_professional": "Professional",
+    "tone_friendly": "Friendly",
+    "tone_direct": "Direct",
+    "copy_btn": "Copy",
+    "edit_btn": "Edit",
+    "copied": "Copied!",
+    "trial_remaining": "free generations remaining",
+    "upgrade_prompt": "Upgrade to Pro for unlimited generations",
+    "placeholder_note": "Fill in available times and specific details before sending"
+  },
+  "onboarding": {
+    "title": "Set up your profile",
+    "subtitle": "This information personalizes every reply",
+    "full_name": "Your full name",
+    "agency_name": "Agency name",
+    "city": "City",
+    "tone": "Preferred tone",
+    "tone_formal": "Formal",
+    "tone_mixed": "Mixed",
+    "tone_casual": "Casual",
+    "save_btn": "Save and continue"
+  },
+  "history": {
+    "title": "Generation history",
+    "empty": "No generations yet. Go to the dashboard and generate your first!",
+    "original": "Original message",
+    "go_to_dashboard": "Go to dashboard"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile_section": "Profile",
+    "save_btn": "Save changes",
+    "saved": "Saved!"
+  },
+  "billing": {
+    "trial_title": "Free trial",
+    "trial_desc": "generations used of 10",
+    "upgrade_title": "Upgrade to Pro",
+    "upgrade_price": "€29 / month",
+    "upgrade_btn": "Activate Pro",
+    "active_title": "Pro subscription active",
+    "next_billing": "Next billing date",
+    "cancel_btn": "Cancel subscription",
+    "cancelled_title": "Subscription cancelled",
+    "resubscribe_btn": "Resubscribe"
+  },
+  "errors": {
+    "trial_expired": "Your free trial has ended. Upgrade to Pro.",
+    "not_authenticated": "You must be logged in.",
+    "onboarding_required": "Please complete your profile setup.",
+    "generation_failed": "Generation failed. Please try again.",
+    "rate_limited": "Too many requests. Try again in a minute."
+  }
+}

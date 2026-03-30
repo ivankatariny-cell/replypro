@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "login": "Prijava",
+    "signup": "Registracija",
+    "dashboard": "Nadzorna ploča",
+    "history": "Povijest",
+    "settings": "Postavke",
+    "billing": "Pretplata",
+    "logout": "Odjava"
+  },
+  "landing": {
+    "headline": "Odgovaraj klijentima 10x brže",
+    "subheadline": "Zalijepite poruku klijenta. Dobijte 3 savršena odgovora za 5 sekundi.",
+    "cta_primary": "Počnite besplatno",
+    "cta_secondary": "Pogledajte kako radi",
+    "how_it_works": "Kako radi",
+    "step1_title": "Zalijepite poruku",
+    "step1_desc": "Kopirajte poruku klijenta iz WhatsAppa, Vibera ili emaila",
+    "step2_title": "AI generira odgovore",
+    "step2_desc": "3 savršena odgovora su gotova za 5 sekundi",
+    "step3_title": "Kopirajte i pošaljite",
+    "step3_desc": "Odaberite ton, kopirajte, pošaljite klijentu",
+    "example_title": "Pogledajte primjer",
+    "example_message": "Dobar dan, zanima me stan u centru Zagreba, 3 sobe, do 200.000€. Imate li nešto?",
+    "pricing_title": "Jednostavne cijene",
+    "pricing_free": "Besplatno",
+    "pricing_free_desc": "10 generacija, bez kreditne kartice",
+    "pricing_pro": "Pro",
+    "pricing_pro_price": "29€/mj",
+    "pricing_pro_desc": "Neograničene generacije",
+    "pricing_feature_1": "3 tona odgovora",
+    "pricing_feature_2": "Automatska detekcija jezika",
+    "pricing_feature_3": "Povijest odgovora",
+    "pricing_feature_4": "Personalizirani potpis",
+    "footer_terms": "Uvjeti korištenja",
+    "footer_privacy": "Privatnost",
+    "footer_contact": "Kontakt"
+  },
+  "dashboard": {
+    "placeholder": "Zalijepite poruku klijenta ovdje...",
+    "generate_btn": "Generiraj odgovore",
+    "generating": "Generiranje...",
+    "tone_professional": "Profesionalno",
+    "tone_friendly": "Prijateljski",
+    "tone_direct": "Direktno",
+    "copy_btn": "Kopiraj",
+    "edit_btn": "Uredi",
+    "copied": "Kopirano!",
+    "trial_remaining": "besplatnih generacija preostalo",
+    "upgrade_prompt": "Nadogradite na Pro za neograničene generacije",
+    "placeholder_note": "Ispunite slobodne termine i specifične detalje prije slanja"
+  },
+  "onboarding": {
+    "title": "Postavite vaš profil",
+    "subtitle": "Ove informacije personaliziraju svaki vaš odgovor",
+    "full_name": "Vaše ime i prezime",
+    "agency_name": "Naziv agencije",
+    "city": "Grad",
+    "tone": "Preferirani ton",
+    "tone_formal": "Formalno",
+    "tone_mixed": "Mješovito",
+    "tone_casual": "Opušteno",
+    "save_btn": "Spremi i nastavi"
+  },
+  "history": {
+    "title": "Povijest generacija",
+    "empty": "Još nemate generiranih odgovora. Idite na nadzornu ploču i generirajte prvi!",
+    "original": "Originalna poruka",
+    "go_to_dashboard": "Idi na nadzornu ploču"
+  },
+  "settings": {
+    "title": "Postavke",
+    "profile_section": "Profil",
+    "save_btn": "Spremi promjene",
+    "saved": "Spremljeno!"
+  },
+  "billing": {
+    "trial_title": "Besplatni period",
+    "trial_desc": "generacija iskorišteno od 10",
+    "upgrade_title": "Nadogradite na Pro",
+    "upgrade_price": "29€ / mjesec",
+    "upgrade_btn": "Aktiviraj Pro",
+    "active_title": "Pro pretplata aktivna",
+    "next_billing": "Sljedeće plaćanje",
+    "cancel_btn": "Otkaži pretplatu",
+    "cancelled_title": "Pretplata otkazana",
+    "resubscribe_btn": "Ponovo se pretplatite"
+  },
+  "errors": {
+    "trial_expired": "Vaš besplatni period je završio. Nadogradite na Pro.",
+    "not_authenticated": "Morate biti prijavljeni.",
+    "onboarding_required": "Molimo dovršite postavljanje profila.",
+    "generation_failed": "Generiranje nije uspjelo. Pokušajte ponovo.",
+    "rate_limited": "Previše zahtjeva. Pokušajte za minutu."
+  }
+}
