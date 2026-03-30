@@ -21,11 +21,11 @@ export async function generateReplies(
   const completion = await getGroq().chat.completions.create({
     messages: [
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: `CLIENT MESSAGE:\n${userMessage}` },
+      { role: 'user', content: `PORUKA KLIJENTA:\n${userMessage}` },
     ],
-    model: 'llama-3.1-8b-instant',
-    temperature: 0.7,
-    max_tokens: 1500,
+    model: 'llama-3.3-70b-versatile',
+    temperature: 0.8,
+    max_tokens: 2000,
     response_format: { type: 'json_object' },
   })
 
