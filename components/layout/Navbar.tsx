@@ -14,31 +14,35 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50)
+    const onScroll = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   return (
-    <nav className={cn(
-      'fixed top-4 left-4 right-4 z-50 mx-auto max-w-7xl rounded-xl border px-4 md:px-6 py-3 transition-all duration-300',
-      scrolled
-        ? 'bg-card/90 backdrop-blur-lg shadow-lg border-border'
-        : 'bg-card/60 backdrop-blur-md border-transparent'
-    )}>
+    <nav
+      className={cn(
+        'fixed top-3 left-3 right-3 z-50 mx-auto max-w-6xl rounded-xl border px-4 md:px-5 py-2.5 transition-all duration-300',
+        scrolled
+          ? 'bg-card/95 backdrop-blur-xl shadow-md border-border'
+          : 'bg-card/70 backdrop-blur-lg border-border/50'
+      )}
+    >
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 cursor-pointer">
-          <MessageSquare className="h-6 w-6 text-primary" />
-          <span className="text-lg font-bold font-heading text-foreground">ReplyPro</span>
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <MessageSquare className="h-4 w-4" />
+          </div>
+          <span className="text-base font-bold font-heading">ReplyPro</span>
         </Link>
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-1">
           <LanguageSwitcher />
           <ThemeToggle />
           <Link href="/login">
-            <Button variant="ghost" size="sm" className="cursor-pointer">{t('nav.login')}</Button>
+            <Button variant="ghost" size="sm" className="cursor-pointer text-sm">{t('nav.login')}</Button>
           </Link>
           <Link href="/signup">
-            <Button size="sm" className="cursor-pointer">{t('landing.cta_primary')}</Button>
+            <Button size="sm" className="cursor-pointer text-sm">{t('landing.cta_primary')}</Button>
           </Link>
         </div>
       </div>

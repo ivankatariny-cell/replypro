@@ -36,16 +36,21 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-heading font-bold">{t('nav.billing')}</h1>
+        <div>
+          <h1 className="text-xl font-bold">{t('nav.billing')}</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Manage your subscription</p>
+        </div>
         {subscription?.status !== 'active' && (
-          <Button variant="ghost" size="sm" onClick={handleSync} disabled={syncing} className="cursor-pointer">
-            <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+          <Button variant="outline" size="sm" onClick={handleSync} disabled={syncing} className="cursor-pointer">
+            <RefreshCw className={`h-4 w-4 mr-1.5 ${syncing ? 'animate-spin' : ''}`} />
             {syncing ? t('billing.syncing') : t('billing.sync_btn')}
           </Button>
         )}
       </div>
+
       <PricingCard />
     </div>
   )

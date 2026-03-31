@@ -8,7 +8,6 @@ import { useGenerations } from '@/hooks/useGenerations'
 import { HistoryItem } from '@/components/history/HistoryItem'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { MessageSquare, Search, Calendar } from 'lucide-react'
 
 export default function HistoryPage() {
@@ -36,21 +35,36 @@ export default function HistoryPage() {
   }, [filtered])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-heading font-bold">{t('history.title')}</h1>
-        <Badge variant="outline">{generations.length} {t('history.total')}</Badge>
+        <div>
+          <h1 className="text-xl font-bold">{t('history.title')}</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{generations.length} {t('history.total')}</p>
+        </div>
       </div>
 
+      {/* Filters */}
       {generations.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('history.search')} className="pl-9" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('history.search')}
+              className="pl-9"
+            />
           </div>
           <div className="flex gap-1">
             {(['all', 'hr', 'en'] as const).map((l) => (
-              <Button key={l} variant={langFilter === l ? 'default' : 'outline'} size="sm" onClick={() => setLangFilter(l)} className="cursor-pointer">
+              <Button
+                key={l}
+                variant={langFilter === l ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setLangFilter(l)}
+                className="cursor-pointer"
+              >
                 {l === 'all' ? t('history.all_langs') : l.toUpperCase()}
               </Button>
             ))}
@@ -58,13 +72,18 @@ export default function HistoryPage() {
         </div>
       )}
 
+      {/* Content */}
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <MessageSquare className="h-12 w-12 text-muted-foreground/30 mb-4" />
-          <p className="text-muted-foreground mb-4">{generations.length === 0 ? t('history.empty') : t('history.no_results')}</p>
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted mb-4">
+            <MessageSquare className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <p className="text-sm font-medium mb-1">
+            {generations.length === 0 ? t('history.empty') : t('history.no_results')}
+          </p>
           {generations.length === 0 && (
-            <Link href="/dashboard">
-              <Button className="cursor-pointer">{t('history.go_to_dashboard')}</Button>
+            <Link href="/dashboard" className="mt-3">
+              <Button size="sm" className="cursor-pointer">{t('history.go_to_dashboard')}</Button>
             </Link>
           )}
         </div>
@@ -73,14 +92,19 @@ export default function HistoryPage() {
           {Object.entries(grouped).map(([date, items]) => (
             <div key={date}>
               <div className="flex items-center gap-2 mb-3">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                <p className="text-xs font-medium text-muted-foreground">{date}</p>
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <p className="text-xs font-semibold text-muted-foreground">{date}</p>
                 <div className="flex-1 h-px bg-border" />
-                <Badge variant="outline" className="text-[10px]">{items.length}</Badge>
+                <span className="text-xs text-muted-foreground tabular-nums">{items.length}</span>
               </div>
               <div className="space-y-2">
                 {items.map((gen, i) => (
-                  <motion.div key={gen.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
+                  <motion.div
+                    key={gen.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                  >
                     <HistoryItem gen={gen} />
                   </motion.div>
                 ))}

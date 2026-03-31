@@ -4,8 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useSubscription } from '@/hooks/useSubscription'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Check, Loader2, Crown, Infinity } from 'lucide-react'
+import { Check, Loader2, Crown, Infinity, Zap } from 'lucide-react'
 
 export function PricingCard() {
   const { t } = useTranslation()
@@ -38,52 +37,73 @@ export function PricingCard() {
 
   if (isActive) {
     return (
-      <Card className="max-w-md mx-auto border-green-300 dark:border-green-700">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-            <Crown className="h-6 w-6 text-green-600" />
+      <div className="max-w-md rounded-xl border border-green-200 dark:border-green-800/60 bg-card overflow-hidden">
+        <div className="px-6 py-5 border-b bg-green-50 dark:bg-green-950/20">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/40">
+              <Crown className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <p className="font-semibold text-green-700 dark:text-green-400">{t('billing.active_title')}</p>
+              <p className="text-xs text-green-600/80 dark:text-green-500">{t('billing.upgrade_price')}</p>
+            </div>
           </div>
-          <CardTitle className="text-green-600">{t('billing.active_title')}</CardTitle>
-          <p className="text-sm text-muted-foreground">{t('billing.upgrade_price')}</p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-950/20 p-3">
-            <Infinity className="h-5 w-5 text-green-600" />
+        </div>
+        <div className="px-6 py-5 space-y-4">
+          <div className="flex items-center gap-2.5 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/40 px-3 py-2.5">
+            <Infinity className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
             <span className="text-sm font-medium text-green-700 dark:text-green-400">{t('landing.pricing_pro_desc')}</span>
           </div>
-          <ul className="space-y-2">
+          <ul className="space-y-2.5">
             {proFeatures.map((f) => (
-              <li key={f} className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />{f}
+              <li key={f} className="flex items-center gap-2.5 text-sm">
+                <Check className="h-4 w-4 text-green-500 shrink-0" />
+                {f}
               </li>
             ))}
           </ul>
           {subscription?.current_period_end && (
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-xs text-muted-foreground pt-2 border-t">
               {t('billing.next_billing')}: {new Date(subscription.current_period_end).toLocaleDateString()}
             </p>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     )
   }
 
   return (
-    <Card className="max-w-md mx-auto border-primary">
-      <CardHeader>
-        <CardTitle>{isCancelled ? t('billing.cancelled_title') : t('billing.upgrade_title')}</CardTitle>
-        <p className="text-3xl font-bold text-primary">{t('billing.upgrade_price')}</p>
+    <div className="max-w-md rounded-xl border border-primary/40 bg-card overflow-hidden">
+      <div className="px-6 py-5 border-b bg-primary/5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+            <Zap className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="font-semibold">{isCancelled ? t('billing.cancelled_title') : t('billing.upgrade_title')}</p>
+            <p className="text-2xl font-bold text-primary leading-tight">{t('billing.upgrade_price')}</p>
+          </div>
+        </div>
         {isTrial && subscription && (
-          <p className="text-sm text-muted-foreground">
-            {subscription.trial_generations_used}/10 {t('billing.trial_desc')}
-          </p>
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full bg-primary/60"
+                style={{ width: `${(subscription.trial_generations_used / subscription.trial_generations_limit) * 100}%` }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground shrink-0">
+              {subscription.trial_generations_used}/{subscription.trial_generations_limit} {t('billing.trial_desc')}
+            </p>
+          </div>
         )}
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <ul className="space-y-2">
+      </div>
+      <div className="px-6 py-5 space-y-4">
+        <ul className="space-y-2.5">
           {proFeatures.map((f) => (
-            <li key={f} className="flex items-center gap-2 text-sm">
-              <Check className="h-4 w-4 text-primary" />{f}
+            <li key={f} className="flex items-center gap-2.5 text-sm">
+              <Check className="h-4 w-4 text-primary shrink-0" />
+              {f}
             </li>
           ))}
         </ul>
@@ -92,7 +112,7 @@ export function PricingCard() {
           {isCancelled ? t('billing.resubscribe_btn') : t('billing.upgrade_btn')}
         </Button>
         <p className="text-xs text-muted-foreground text-center">{t('landing.guarantee')}</p>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
