@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { motion } from 'motion/react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useAppStore } from '@/store/app-store'
 import { useToast } from '@/components/ui/toast'
 import { PricingCard } from '@/components/billing/PricingCard'
-import { Button } from '@/components/ui/button'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, CreditCard } from 'lucide-react'
 
 export default function BillingPage() {
   const { t } = useTranslation()
@@ -36,22 +36,27 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold">{t('nav.billing')}</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Manage your subscription</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('nav.billing')}</h1>
+          <p className="text-sm text-muted-foreground mt-1">Manage your subscription and plan</p>
         </div>
         {subscription?.status !== 'active' && (
-          <Button variant="outline" size="sm" onClick={handleSync} disabled={syncing} className="cursor-pointer">
-            <RefreshCw className={`h-4 w-4 mr-1.5 ${syncing ? 'animate-spin' : ''}`} />
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-accent disabled:opacity-50 transition-colors cursor-pointer"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
             {syncing ? t('billing.syncing') : t('billing.sync_btn')}
-          </Button>
+          </button>
         )}
       </div>
 
-      <PricingCard />
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+        <PricingCard />
+      </motion.div>
     </div>
   )
 }

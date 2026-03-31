@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
@@ -8,8 +8,7 @@ import { useAppStore } from '@/store/app-store'
 import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/hooks/useUser'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Copy, Check, Pencil, Star, Save } from 'lucide-react'
+import { Copy, Check, Pencil, Star, Save, X } from 'lucide-react'
 
 interface Props {
   tone: 'professional' | 'friendly' | 'direct'
@@ -19,9 +18,9 @@ interface Props {
 }
 
 const toneConfig = {
-  professional: { key: 'dashboard.tone_professional', variant: 'professional' as const },
-  friendly: { key: 'dashboard.tone_friendly', variant: 'friendly' as const },
-  direct: { key: 'dashboard.tone_direct', variant: 'direct' as const },
+  professional: { key: 'dashboard.tone_professional', variant: 'professional' as const, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/30' },
+  friendly: { key: 'dashboard.tone_friendly', variant: 'friendly' as const, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-950/30' },
+  direct: { key: 'dashboard.tone_direct', variant: 'direct' as const, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/30' },
 }
 
 export function ReplyCard({ tone, content, index = 0, generationId }: Props) {
@@ -61,108 +60,76 @@ export function ReplyCard({ tone, content, index = 0, generationId }: Props) {
     setSaving(false)
   }
 
-  const handleSaveEdit = () => {
-    setEditing(false)
-  }
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.4, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -3, boxShadow: '0 12px 32px hsl(var(--primary)/0.08)' }}
-      className="flex flex-col rounded-xl border bg-card overflow-hidden transition-shadow duration-200 shimmer-hover"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+      className="flex flex-col rounded-2xl border bg-card overflow-hidden hover:shadow-md transition-shadow duration-200"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/30">
-        <motion.div whileHover={{ scale: 1.03 }}>
-          <Badge variant={config.variant}>{t(config.key)}</Badge>
-        </motion.div>
+      {/* Tone header strip */}
+      <div className={`px-4 py-2.5 flex items-center justify-between ${config.bg} border-b`}>
+        <Badge variant={config.variant} className="text-xs">{t(config.key)}</Badge>
         <div className="flex items-center gap-0.5">
-          <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }}>
-            <Button
-              variant="ghost" size="icon"
-              onClick={handleFavorite}
-              disabled={saving || starred}
-              className={`h-8 w-8 cursor-pointer transition-colors ${starred ? 'text-amber-500' : 'text-muted-foreground hover:text-amber-500'}`}
-              aria-label={t('dashboard.save_favorite')}
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={starred ? 'filled' : 'empty'}
-                  initial={{ scale: 0, rotate: -30 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  exit={{ scale: 0, rotate: 30 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Star className={`h-4 w-4 ${starred ? 'fill-current' : ''}`} />
-                </motion.div>
-              </AnimatePresence>
-            </Button>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }}>
-            <Button
-              variant="ghost" size="icon"
-              onClick={() => setEditing(!editing)}
-              className={`h-8 w-8 cursor-pointer ${editing ? 'text-primary bg-primary/10' : 'text-muted-foreground'}`}
-              aria-label={t('dashboard.edit_btn')}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }}>
-            <Button
-              variant="ghost" size="icon"
-              onClick={handleCopy}
-              className={`h-8 w-8 cursor-pointer transition-colors ${copied ? 'text-green-600' : 'text-muted-foreground hover:text-foreground'}`}
-              aria-label={t('dashboard.copy_btn')}
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={copied ? 'check' : 'copy'}
-                  initial={{ scale: 0, rotate: -20 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  exit={{ scale: 0, rotate: 20 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </motion.div>
-              </AnimatePresence>
-            </Button>
-          </motion.div>
+          <ActionBtn
+            onClick={handleFavorite}
+            disabled={saving || starred}
+            active={starred}
+            activeClass="text-amber-500"
+            label={t('dashboard.save_favorite')}
+          >
+            <Star className={`h-3.5 w-3.5 ${starred ? 'fill-current' : ''}`} />
+          </ActionBtn>
+          <ActionBtn
+            onClick={() => setEditing(!editing)}
+            active={editing}
+            activeClass="text-primary"
+            label={t('dashboard.edit_btn')}
+          >
+            {editing ? <X className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
+          </ActionBtn>
+          <ActionBtn
+            onClick={handleCopy}
+            active={copied}
+            activeClass="text-green-600"
+            label={t('dashboard.copy_btn')}
+          >
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={copied ? 'check' : 'copy'}
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ duration: 0.12 }}
+              >
+                {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              </motion.span>
+            </AnimatePresence>
+          </ActionBtn>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 px-4 py-3">
+      {/* Body */}
+      <div className="flex-1 p-4">
         <AnimatePresence mode="wait">
           {editing ? (
-            <motion.div
-              key="edit"
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="space-y-2"
-            >
+            <motion.div key="edit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-2">
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 className="w-full min-h-[120px] rounded-lg border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-                aria-label="Edit reply"
                 autoFocus
               />
-              <Button size="sm" onClick={handleSaveEdit} className="cursor-pointer h-7 text-xs">
-                <Save className="h-3 w-3 mr-1.5" />
+              <button
+                onClick={() => setEditing(false)}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground cursor-pointer hover:bg-primary/90 transition-colors"
+              >
+                <Save className="h-3 w-3" />
                 {t('clients.save')}
-              </Button>
+              </button>
             </motion.div>
           ) : (
-            <motion.p
-              key="view"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/90"
-            >
+            <motion.p key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
               {text}
             </motion.p>
           )}
@@ -171,8 +138,29 @@ export function ReplyCard({ tone, content, index = 0, generationId }: Props) {
 
       {/* Footer */}
       <div className="px-4 py-2 border-t bg-muted/20">
-        <p className="text-xs text-muted-foreground italic">{t('dashboard.placeholder_note')}</p>
+        <p className="text-[11px] text-muted-foreground italic">{t('dashboard.placeholder_note')}</p>
       </div>
     </motion.div>
+  )
+}
+
+function ActionBtn({ children, onClick, disabled, active, activeClass, label }: {
+  children: React.ReactNode
+  onClick: () => void
+  disabled?: boolean
+  active?: boolean
+  activeClass?: string
+  label: string
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed
+        ${active ? activeClass : 'text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5'}`}
+    >
+      {children}
+    </button>
   )
 }
