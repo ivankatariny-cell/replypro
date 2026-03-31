@@ -1,5 +1,3 @@
-'use client'
-
 import { create } from 'zustand'
 import type { UserProfile, Subscription, Generation, Client, Property, Template, Favorite } from '@/types'
 
