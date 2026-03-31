@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/client'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { cn } from '@/lib/utils/cn'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
 import {
   LayoutDashboard, History, Settings, CreditCard, LogOut,
   MessageSquare, Users, Building2, Star,
