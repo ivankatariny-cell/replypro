@@ -1,7 +1,6 @@
 'use client'
 
 import { ReplyCard } from './ReplyCard'
-import { Skeleton } from '@/components/ui/skeleton'
 
 interface Props {
   professional: string | null
@@ -15,16 +14,19 @@ export function ReplyGrid({ professional, friendly, direct, loading, generationI
   if (loading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="rounded-xl border bg-card overflow-hidden">
-            <div className="px-4 py-3 border-b bg-muted/30">
-              <Skeleton className="h-5 w-24 rounded-full" />
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="rounded-2xl border bg-card overflow-hidden animate-pulse">
+            <div className="px-4 py-3 border-b bg-muted/20">
+              <div className="h-5 w-20 rounded-full bg-muted" />
             </div>
-            <div className="px-4 py-3 space-y-2">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-5/6" />
+            <div className="p-4 space-y-2.5">
+              <div className="h-3.5 w-full rounded bg-muted" />
+              <div className="h-3.5 w-full rounded bg-muted" />
+              <div className="h-3.5 w-3/4 rounded bg-muted" />
+              <div className="h-3.5 w-5/6 rounded bg-muted" />
+            </div>
+            <div className="px-4 py-2 border-t bg-muted/10">
+              <div className="h-3 w-32 rounded bg-muted" />
             </div>
           </div>
         ))}

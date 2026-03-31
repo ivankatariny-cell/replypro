@@ -9,10 +9,9 @@ import { createClient } from '@/lib/supabase/client'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { cn } from '@/lib/utils/cn'
-import { motion } from 'motion/react'
 import {
   LayoutDashboard, History, Settings, CreditCard, LogOut,
-  MessageSquare, Users, Building2, Star, ChevronRight,
+  MessageSquare, Users, Building2, Star,
 } from 'lucide-react'
 
 const navItems = [
@@ -41,81 +40,84 @@ export function Sidebar() {
     router.push('/')
   }
 
-  const NavLink = ({ item, index }: { item: typeof navItems[0]; index: number }) => {
-    const Icon = item.icon
-    const active = pathname === item.href
-    return (
-      <motion.div
-        initial={{ opacity: 0, x: -8 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.25, delay: index * 0.04 }}
-      >
-        <Link
-          href={item.href}
-          className={cn(
-            'group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 cursor-pointer',
-            active
-              ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20'
-              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-          )}
-        >
-          <Icon className="h-4 w-4 shrink-0" />
-          <span className="flex-1 truncate">{t(item.key)}</span>
-          {active && <ChevronRight className="h-3 w-3 opacity-60" />}
-        </Link>
-      </motion.div>
-    )
-  }
-
   const initials = profile?.full_name
     ? profile.full_name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()
     : user?.email?.[0]?.toUpperCase() ?? '?'
 
   return (
-    <aside className="hidden md:flex flex-col w-60 shrink-0 border-r bg-card h-screen overflow-hidden">
+    <aside className="hidden md:flex flex-col w-[220px] shrink-0 border-r bg-card/50 h-screen overflow-hidden">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 h-[60px] border-b shrink-0">
+      <div className="flex items-center gap-2.5 px-4 h-14 border-b shrink-0">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <MessageSquare className="h-4 w-4" />
+          <MessageSquare className="h-3.5 w-3.5" />
         </div>
-        <span className="text-sm font-bold font-heading tracking-tight">ReplyPro</span>
+        <span className="text-sm font-bold font-heading">ReplyPro</span>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-          Menu
-        </p>
-        {navItems.map((item, i) => <NavLink key={item.href} item={item} index={i} />)}
+      <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
+        <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">Menu</p>
+        {navItems.map((item) => {
+          const Icon = item.icon
+          const active = pathname === item.href
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                'flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-100 cursor-pointer',
+                active
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              )}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              <span className="truncate">{t(item.key)}</span>
+            </Link>
+          )
+        })}
 
-        <div className="pt-3 mt-3 border-t space-y-0.5">
-          <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-            Account
-          </p>
-          {bottomItems.map((item, i) => <NavLink key={item.href} item={item} index={navItems.length + i} />)}
+        <div className="pt-2.5 mt-2.5 border-t space-y-0.5">
+          <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">Account</p>
+          {bottomItems.map((item) => {
+            const Icon = item.icon
+            const active = pathname === item.href
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-100 cursor-pointer',
+                  active
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                )}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="truncate">{t(item.key)}</span>
+              </Link>
+            )
+          })}
         </div>
       </nav>
 
       {/* Footer */}
-      <div className="border-t px-3 py-3 shrink-0">
-        <div className="flex items-center gap-1 mb-2">
+      <div className="border-t px-2 py-2.5 shrink-0 space-y-1">
+        <div className="flex items-center gap-1 px-1">
           <LanguageSwitcher />
           <ThemeToggle />
         </div>
-        <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-accent transition-colors">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
+        <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px] font-bold">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold truncate">{profile?.full_name || user?.email}</p>
-            {profile?.full_name && (
-              <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
-            )}
+            <p className="text-[11px] font-semibold truncate leading-tight">{profile?.full_name || user?.email}</p>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="mt-1 flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-xs font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
+          className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[11px] font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors duration-100 cursor-pointer"
         >
           <LogOut className="h-3.5 w-3.5 shrink-0" />
           {t('nav.logout')}

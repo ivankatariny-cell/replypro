@@ -4,8 +4,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { useGenerations } from '@/hooks/useGenerations'
 import { useClients } from '@/hooks/useClients'
 import { useSubscription } from '@/hooks/useSubscription'
-import { motion } from 'motion/react'
-import { MessageSquare, Users, Zap, TrendingUp } from 'lucide-react'
+import { MessageSquare, Users, Zap } from 'lucide-react'
 
 export function StatsCards() {
   const { t } = useTranslation()
@@ -21,54 +20,25 @@ export function StatsCards() {
       : '-'
 
   const stats = [
-    {
-      label: t('stats.total_generated'),
-      value: generations.length,
-      icon: MessageSquare,
-      iconClass: 'text-primary',
-      bgClass: 'bg-primary/8',
-      trend: null,
-    },
-    {
-      label: t('stats.active_clients'),
-      value: clients.length,
-      icon: Users,
-      iconClass: 'text-blue-500',
-      bgClass: 'bg-blue-500/8',
-      trend: null,
-    },
-    {
-      label: t('dashboard.trial_remaining'),
-      value: remaining,
-      icon: Zap,
-      iconClass: 'text-amber-500',
-      bgClass: 'bg-amber-500/8',
-      trend: null,
-    },
+    { label: t('stats.total_generated'), value: generations.length, icon: MessageSquare, accent: 'bg-primary/10 text-primary' },
+    { label: t('stats.active_clients'), value: clients.length, icon: Users, accent: 'bg-blue-500/10 text-blue-500' },
+    { label: t('dashboard.trial_remaining'), value: remaining, icon: Zap, accent: 'bg-amber-500/10 text-amber-500' },
   ]
 
   return (
-    <div className="grid grid-cols-3 gap-4">
-      {stats.map((stat, i) => {
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {stats.map((stat) => {
         const Icon = stat.icon
         return (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.07 }}
-            className="rounded-2xl border bg-card p-5 space-y-3"
-          >
-            <div className="flex items-center justify-between">
-              <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${stat.bgClass}`}>
-                <Icon className={`h-4 w-4 ${stat.iconClass}`} />
-              </div>
+          <div key={stat.label} className="rounded-xl border bg-card p-4 flex items-center gap-3.5">
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${stat.accent.split(' ')[0]}`}>
+              <Icon className={`h-[18px] w-[18px] ${stat.accent.split(' ')[1]}`} />
             </div>
-            <div>
-              <p className="text-2xl font-bold tabular-nums leading-none">{stat.value}</p>
-              <p className="text-xs text-muted-foreground mt-1.5 leading-snug">{stat.label}</p>
+            <div className="min-w-0">
+              <p className="text-2xl font-bold tabular-nums leading-none tracking-tight">{stat.value}</p>
+              <p className="text-[11px] text-muted-foreground mt-1 truncate">{stat.label}</p>
             </div>
-          </motion.div>
+          </div>
         )
       })}
     </div>
