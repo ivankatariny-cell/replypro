@@ -36,13 +36,16 @@ export function Navbar() {
           <span className="text-base font-bold font-heading">ReplyPro</span>
         </Link>
         <div className="flex items-center gap-1">
-          <LanguageSwitcher />
-          <ThemeToggle />
-          <Link href="/login">
+          {/* Hide language/theme/login on small screens to give CTA room */}
+          <span className="hidden sm:flex items-center gap-1">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </span>
+          <Link href="/login" className="hidden sm:block">
             <Button variant="ghost" size="sm" className="cursor-pointer text-sm">{t('nav.login')}</Button>
           </Link>
           <Link href="/signup">
-            <Button size="sm" className="cursor-pointer text-sm">{t('landing.cta_primary')}</Button>
+            <Button size="sm" className="cursor-pointer text-sm whitespace-nowrap">{t('landing.cta_primary')}</Button>
           </Link>
         </div>
       </div>
