@@ -8,7 +8,6 @@ import type { GenerateResponse, ApiError } from '@/types'
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Auth check
     const supabase = createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
@@ -18,7 +17,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 2. Rate limit
     const { allowed, retryAfter } = rateLimit(user.id)
     if (!allowed) {
       return NextResponse.json(
@@ -27,16 +25,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 3. Check subscription
     const serviceClient = createServiceRoleClient()
     const { data: sub } = await serviceClient
-      .from('rp_subscriptions')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
+      .from('rp_subscriptions').select('*').eq('user_id', user.id).single()
 
     if (!sub) {
-      // Auto-create if missing
       await serviceClient.from('rp_subscriptions').insert({ user_id: user.id })
       return NextResponse.json(
         { error: 'Subscription initialized, please retry', code: 'RETRY' } satisfies ApiError,
@@ -46,24 +39,20 @@ export async function POST(req: NextRequest) {
 
     if (sub.status === 'cancelled') {
       return NextResponse.json(
-        { error: 'Subscription cancelled. Please resubscribe.', code: 'SUBSCRIPTION_CANCELLED' } satisfies ApiError,
+        { error: 'Subscription cancelled', code: 'SUBSCRIPTION_CANCELLED' } satisfies ApiError,
         { status: 402 }
       )
     }
 
     if (sub.status === 'trial' && sub.trial_generations_used >= sub.trial_generations_limit) {
       return NextResponse.json(
-        { error: 'Trial limit reached. Upgrade to Pro.', code: 'TRIAL_EXPIRED' } satisfies ApiError,
+        { error: 'Trial limit reached', code: 'TRIAL_EXPIRED' } satisfies ApiError,
         { status: 402 }
       )
     }
 
-    // 4. Get profile
     const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single()
+      .from('profiles').select('*').eq('id', user.id).single()
 
     if (!profile || !profile.onboarding_completed) {
       return NextResponse.json(
@@ -72,17 +61,50 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 5. Validate input
     const body = await req.json()
     const message = sanitizeMessage(body.message || '')
     if (!message || message.length < 1) {
       return NextResponse.json(
-        { error: 'Message is required (1-2000 chars)', code: 'INVALID_INPUT' } satisfies ApiError,
+        { error: 'Message is required', code: 'INVALID_INPUT' } satisfies ApiError,
         { status: 400 }
       )
     }
 
-    // 6. Build prompt and call AI
+    // Fetch optional client context
+    let clientContext = ''
+    if (body.client_id) {
+      const { data: client } = await supabase
+        .from('rp_clients').select('*').eq('id', body.client_id).single()
+      if (client) {
+        clientContext = `\n\nKLIJENT: ${client.full_name}`
+        if (client.city) clientContext += `, ${client.city}`
+        if (client.property_interest) clientContext += `. Traži: ${client.property_interest}`
+        if (client.budget_min || client.budget_max) {
+          clientContext += `. Budžet: ${client.budget_min ? `€${client.budget_min}` : '?'} - ${client.budget_max ? `€${client.budget_max}` : '?'}`
+        }
+        if (client.notes) clientContext += `. Napomene: ${client.notes}`
+      }
+    }
+
+    // Fetch optional property context
+    let propertyContext = ''
+    if (body.property_id) {
+      const { data: property } = await supabase
+        .from('rp_properties').select('*').eq('id', body.property_id).single()
+      if (property) {
+        propertyContext = `\n\nNEKRETNINA: ${property.title}`
+        if (property.address) propertyContext += `, ${property.address}`
+        if (property.city) propertyContext += `, ${property.city}`
+        if (property.price) propertyContext += `. Cijena: €${property.price}`
+        if (property.sqm) propertyContext += `, ${property.sqm}m²`
+        if (property.rooms) propertyContext += `, ${property.rooms} soba`
+        if (property.description) propertyContext += `. ${property.description}`
+      }
+    }
+
+    // Template context
+    const templateCtx = body.template_context ? `\n\nKONTEKST PREDLOŠKA: ${body.template_context}` : ''
+
     const systemPrompt = buildSystemPrompt({
       agentName: profile.full_name,
       agencyName: profile.agency_name,
@@ -90,9 +112,9 @@ export async function POST(req: NextRequest) {
       preferredTone: profile.preferred_tone,
     })
 
-    const aiResult = await generateReplies(systemPrompt, message)
+    const enrichedPrompt = systemPrompt + clientContext + propertyContext + templateCtx
+    const aiResult = await generateReplies(enrichedPrompt, message)
 
-    // 7. Save generation
     await serviceClient.from('rp_generations').insert({
       user_id: user.id,
       original_message: message,
@@ -100,9 +122,9 @@ export async function POST(req: NextRequest) {
       reply_friendly: aiResult.friendly,
       reply_direct: aiResult.direct,
       detected_language: aiResult.detected_language,
+      client_id: body.client_id || null,
     })
 
-    // 8. Increment trial count
     if (sub.status === 'trial') {
       await serviceClient
         .from('rp_subscriptions')
@@ -110,7 +132,6 @@ export async function POST(req: NextRequest) {
         .eq('user_id', user.id)
     }
 
-    // 9. Calculate remaining
     let generationsRemaining: number | null = null
     if (sub.status === 'trial') {
       generationsRemaining = sub.trial_generations_limit - sub.trial_generations_used - 1

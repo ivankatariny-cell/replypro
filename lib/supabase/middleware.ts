@@ -43,7 +43,10 @@ export async function updateSession(request: NextRequest) {
       path.startsWith('/history') ||
       path.startsWith('/settings') ||
       path.startsWith('/billing') ||
-      path.startsWith('/onboarding')
+      path.startsWith('/onboarding') ||
+      path.startsWith('/clients') ||
+      path.startsWith('/properties') ||
+      path.startsWith('/favorites')
 
     if (isDashboardRoute && !user) {
       return NextResponse.redirect(new URL('/login', request.url))

@@ -23,14 +23,14 @@ export default function BillingPage() {
       const data = await res.json()
       if (data.status === 'active' && subscription) {
         setSubscription({ ...subscription, status: 'active' })
-        toast('Pro plan aktiviran!', 'success')
+        toast(t('billing.pro_activated'), 'success')
       } else if (data.status === 'no_payment') {
-        toast('Nema pronađenog plaćanja', 'info')
+        toast(t('billing.no_payment'), 'info')
       } else if (data.error) {
         toast(data.error, 'error')
       }
     } catch {
-      toast('Sync nije uspio', 'error')
+      toast(t('errors.generation_failed'), 'error')
     }
     setSyncing(false)
   }
@@ -42,7 +42,7 @@ export default function BillingPage() {
         {subscription?.status !== 'active' && (
           <Button variant="ghost" size="sm" onClick={handleSync} disabled={syncing} className="cursor-pointer">
             <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Sinkronizacija...' : 'Već ste platili?'}
+            {syncing ? t('billing.syncing') : t('billing.sync_btn')}
           </Button>
         )}
       </div>

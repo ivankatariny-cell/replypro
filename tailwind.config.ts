@@ -39,6 +39,9 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
+        info: "hsl(var(--info))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -46,8 +49,42 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        heading: ["Cinzel", "serif"],
-        sans: ["Josefin Sans", "sans-serif"],
+        heading: ["var(--font-inter)", "Inter", "sans-serif"],
+        sans: ["var(--font-inter)", "Inter", "sans-serif"],
+      },
+      keyframes: {
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        "slide-in-right": {
+          "0%": { opacity: "0", transform: "translateX(20px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        "slide-in-bottom": {
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "gradient-shift": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+      },
+      animation: {
+        "fade-up": "fade-up 0.5s ease-out forwards",
+        "fade-in": "fade-in 0.3s ease-out forwards",
+        "slide-in-right": "slide-in-right 0.4s ease-out forwards",
+        "slide-in-bottom": "slide-in-bottom 0.3s ease-out forwards",
+        shimmer: "shimmer 2s linear infinite",
+        "gradient-shift": "gradient-shift 8s ease infinite",
       },
     },
   },

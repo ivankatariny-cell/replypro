@@ -28,34 +28,33 @@ export function PricingCard() {
   const isCancelled = subscription?.status === 'cancelled'
 
   const proFeatures = [
-    'Neograničene generacije',
-    '3 tona odgovora (Professional, Friendly, Direct)',
-    'Automatska detekcija jezika (HR/EN)',
-    'Personalizirani potpis agenta',
-    'Povijest svih generacija',
-    'Prioritetna podrška',
+    t('landing.pricing_feature_1'),
+    t('landing.pricing_feature_2'),
+    t('landing.pricing_feature_3'),
+    t('landing.pricing_feature_4'),
+    t('landing.pricing_feature_5'),
+    t('landing.pricing_feature_6'),
   ]
 
   if (isActive) {
     return (
-      <Card className="max-w-md mx-auto border-green-300">
+      <Card className="max-w-md mx-auto border-green-300 dark:border-green-700">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
             <Crown className="h-6 w-6 text-green-600" />
           </div>
           <CardTitle className="text-green-600">{t('billing.active_title')}</CardTitle>
-          <p className="text-sm text-muted-foreground">29€/mjesec</p>
+          <p className="text-sm text-muted-foreground">{t('billing.upgrade_price')}</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-950/20 p-3">
             <Infinity className="h-5 w-5 text-green-600" />
-            <span className="text-sm font-medium text-green-700">Neograničene generacije aktivne</span>
+            <span className="text-sm font-medium text-green-700 dark:text-green-400">{t('landing.pricing_pro_desc')}</span>
           </div>
           <ul className="space-y-2">
             {proFeatures.map((f) => (
               <li key={f} className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
-                {f}
+                <Check className="h-4 w-4 text-green-500" />{f}
               </li>
             ))}
           </ul>
@@ -84,8 +83,7 @@ export function PricingCard() {
         <ul className="space-y-2">
           {proFeatures.map((f) => (
             <li key={f} className="flex items-center gap-2 text-sm">
-              <Check className="h-4 w-4 text-primary" />
-              {f}
+              <Check className="h-4 w-4 text-primary" />{f}
             </li>
           ))}
         </ul>
@@ -93,6 +91,7 @@ export function PricingCard() {
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {isCancelled ? t('billing.resubscribe_btn') : t('billing.upgrade_btn')}
         </Button>
+        <p className="text-xs text-muted-foreground text-center">{t('landing.guarantee')}</p>
       </CardContent>
     </Card>
   )
