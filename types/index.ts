@@ -24,12 +24,21 @@ export interface GenerateRequest {
   quick_reply?: boolean
 }
 
+export interface SuggestedBooking {
+  date: string        // YYYY-MM-DD
+  startTime: string   // HH:MM
+  endTime: string     // HH:MM
+  label: string       // human-readable, e.g. "Thursday, 15 May at 10:00"
+  suggestedTitle: string
+}
+
 export interface GenerateResponse {
   professional: string
   friendly: string
   direct: string
   detected_language: 'hr' | 'en'
   generations_remaining: number | null
+  suggestedBooking?: SuggestedBooking | null
 }
 
 export interface ApiError {

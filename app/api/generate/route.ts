@@ -7,6 +7,7 @@ import { rateLimit } from '@/lib/utils/rate-limit'
 import { sendTrialLowEmail, sendTrialExpiredEmail } from '@/lib/resend/emails'
 import { containsDateOrTime } from '@/lib/utils/datetime-detect'
 import { fetchAvailabilityContext } from '@/lib/calendar/availability'
+import { extractBooking } from '@/lib/calendar/extract-booking'
 import type { GenerateResponse, ApiError } from '@/types'
 
 export async function POST(req: NextRequest) {
@@ -117,10 +118,19 @@ export async function POST(req: NextRequest) {
       preferredTone: profile.preferred_tone,
     })
 
-    // Availability context — only injected when message contains a date/time reference
+    // Availability context + booking suggestion — only when message contains a date/time reference
     let availabilityContext = ''
+    let suggestedBooking = null
     if (containsDateOrTime(message)) {
       availabilityContext = await fetchAvailabilityContext(user.id, message, serviceClient)
+      // Extract client name for the booking title if a client was selected
+      let clientName: string | null = null
+      if (body.client_id) {
+        const { data: clientForBooking } = await supabase
+          .from('rp_clients').select('full_name').eq('id', body.client_id).single()
+        clientName = clientForBooking?.full_name ?? null
+      }
+      suggestedBooking = extractBooking(message, clientName)
     }
 
     const enrichedPrompt = systemPrompt + clientContext + propertyContext + templateCtx + availabilityContext
@@ -193,6 +203,7 @@ export async function POST(req: NextRequest) {
       direct: aiResult.direct,
       detected_language: aiResult.detected_language,
       generations_remaining: generationsRemaining,
+      suggestedBooking,
     }
 
     return NextResponse.json(response)

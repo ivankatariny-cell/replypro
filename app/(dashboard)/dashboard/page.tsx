@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { motion, AnimatePresence } from 'motion/react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useProfile } from '@/hooks/useProfile'
@@ -14,13 +15,14 @@ import { UpcomingAppointments } from '@/components/dashboard/UpcomingAppointment
 import { MessageInput } from '@/components/dashboard/MessageInput'
 import { GenerateButton } from '@/components/dashboard/GenerateButton'
 import { ReplyGrid } from '@/components/dashboard/ReplyGrid'
+import { BookingPrompt } from '@/components/dashboard/BookingPrompt'
 import { TemplateSelector } from '@/components/dashboard/TemplateSelector'
 import { ClientSelector } from '@/components/dashboard/ClientSelector'
 import { PropertySelector } from '@/components/dashboard/PropertySelector'
 import { ChevronDown, ChevronUp, X, LayoutTemplate, Sparkles, Keyboard } from 'lucide-react'
 import { sanitizeMessage } from '@/lib/utils/sanitize'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
-import type { GenerateResponse, Template } from '@/types'
+import type { GenerateResponse, Template, SuggestedBooking } from '@/types'
 
 export default function DashboardPage() {
   return <Suspense><DashboardContent /></Suspense>
@@ -49,6 +51,7 @@ function DashboardContent() {
   const [templateContext, setTemplateContext] = useState<string | null>(null)
   const [showTemplates, setShowTemplates] = useState(false)
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const [suggestedBooking, setSuggestedBooking] = useState<SuggestedBooking | null>(null)
   const legendRef = useRef<HTMLDivElement>(null)
   const mac = isMac()
   const modKey = mac ? '⌘' : 'Ctrl'
@@ -158,6 +161,7 @@ function DashboardContent() {
       const data: GenerateResponse = await res.json()
       setReplies(data)
       setTemplateContext(null)
+      setSuggestedBooking(data.suggestedBooking ?? null)
       if (subscription?.status === 'trial') {
         setSubscription({ ...subscription, trial_generations_used: subscription.trial_generations_used + 1 })
       }
@@ -308,6 +312,19 @@ function DashboardContent() {
           </ErrorBoundary>
         </div>
       )}
+
+      {/* Booking prompt — shown after generation when a date/time was detected */}
+      <AnimatePresence>
+        {suggestedBooking && !loading && (
+          <BookingPrompt
+            booking={suggestedBooking}
+            clientId={selectedClient}
+            propertyId={selectedProperty}
+            language={replies?.detected_language ?? 'en'}
+            onDismiss={() => setSuggestedBooking(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
