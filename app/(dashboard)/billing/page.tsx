@@ -7,7 +7,7 @@ import { useSubscription } from '@/hooks/useSubscription'
 import { useAppStore } from '@/store/app-store'
 import { useToast } from '@/components/ui/toast'
 import { PricingCard } from '@/components/billing/PricingCard'
-import { RefreshCw, CreditCard, ExternalLink } from 'lucide-react'
+import { RefreshCw, ExternalLink } from 'lucide-react'
 
 export default function BillingPage() {
   const { t } = useTranslation()

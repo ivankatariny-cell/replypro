@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Plus, X, Phone, Mail, MapPin, Search, Users, ChevronDown } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import type { Client, ClientStatus } from '@/types'
+import type { ClientStatus } from '@/types'
 
 const statusConfig: Record<ClientStatus, { label: Record<string, string>; dot: string }> = {
   new:         { label: { hr: 'Novi', en: 'New' },               dot: 'bg-blue-500' },

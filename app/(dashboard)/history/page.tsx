@@ -8,7 +8,7 @@ import { useGenerations } from '@/hooks/useGenerations'
 import { HistoryItem } from '@/components/history/HistoryItem'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { MessageSquare, Search, ChevronDown } from 'lucide-react'
+import { MessageSquare, Search } from 'lucide-react'
 
 export default function HistoryPage() {
   const { t } = useTranslation()

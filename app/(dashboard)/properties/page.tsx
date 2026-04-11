@@ -11,7 +11,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Plus, X, MapPin, Ruler, DoorOpen, Building2, ChevronDown, Search } from 'lucide-react'
+import { Plus, X, MapPin, Ruler, DoorOpen, Building2, ChevronDown } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import type { Property } from '@/types'
 
@@ -27,11 +27,6 @@ export default function PropertiesPage() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [form, setForm] = useState({ title: '', address: '', city: '', price: '', sqm: '', rooms: '', description: '', property_type: 'apartment' as Property['property_type'] })
-
-  const requestDelete = (id: string) => {
-    setConfirmDeleteId(id)
-    setTimeout(() => setConfirmDeleteId((cur) => (cur === id ? null : cur)), 3000)
-  }
 
   const typeLabels: Record<string, string> = language === 'hr'
     ? { apartment: 'Stan', house: 'Kuća', land: 'Zemljište', commercial: 'Poslovni', other: 'Ostalo' }

@@ -45,7 +45,7 @@ function MockChatCard() {
         <p className="text-xs text-white/60 mb-1.5 font-medium uppercase tracking-wide">Client message</p>
         <div className="rounded-xl bg-white/15 px-3.5 py-2.5">
           <p className="text-sm text-white leading-relaxed">
-            "Hi, is the apartment on Ilica still available? What&apos;s the price?"
+            Hi, is the apartment on Ilica still available? What&apos;s the price?
           </p>
         </div>
       </div>
