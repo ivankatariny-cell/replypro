@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { MonthGrid } from '@/components/calendar/MonthGrid'
 import { WeekGrid } from '@/components/calendar/WeekGrid'
+import { DayView } from '@/components/calendar/DayView'
 import { AppointmentForm, type AppointmentFormData } from '@/components/calendar/AppointmentForm'
 import { AvailabilityPanel } from '@/components/calendar/AvailabilityPanel'
 import type { Appointment, AvailabilityRule, AvailabilityException } from '@/types'
@@ -48,6 +49,7 @@ export default function CalendarPage() {
   const removeAppointment = useAppStore((s) => s.removeAppointment)
 
   const [view, setView] = useState<View>('month')
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [currentMonth, setCurrentMonth] = useState(() => { const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); return d })
   const [weekStart, setWeekStart] = useState(() => getWeekStart(new Date()))
   const [showForm, setShowForm] = useState(false)
@@ -114,7 +116,12 @@ export default function CalendarPage() {
   }
 
   const handleAppointmentClick = (a: Appointment) => { setEditingAppointment(a); setShowForm(true) }
-  const handleDayClick = () => { setEditingAppointment(null); setShowForm(true) }
+  const handleDayClick = (date: Date) => {
+    setSelectedDay(date)
+    setEditingAppointment(null)
+    setShowForm(false)
+  }
+  const handleBackFromDay = () => setSelectedDay(null)
   const closeForm = () => { setShowForm(false); setEditingAppointment(null) }
 
   // ── Availability ──────────────────────────────────────────────────────────
@@ -167,9 +174,9 @@ export default function CalendarPage() {
           {/* View toggle */}
           <div className="flex items-center rounded-xl border bg-card p-1 gap-0.5">
             <button
-              onClick={() => setView('month')}
+              onClick={() => { setView('month'); setSelectedDay(null) }}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all cursor-pointer ${
-                view === 'month'
+                view === 'month' && !selectedDay
                   ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground hover:bg-accent'
               }`}
@@ -178,9 +185,9 @@ export default function CalendarPage() {
               {language === 'hr' ? 'Mjesec' : 'Month'}
             </button>
             <button
-              onClick={() => setView('week')}
+              onClick={() => { setView('week'); setSelectedDay(null) }}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all cursor-pointer ${
-                view === 'week'
+                view === 'week' && !selectedDay
                   ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground hover:bg-accent'
               }`}
@@ -346,27 +353,45 @@ export default function CalendarPage() {
           </div>
         </div>
       ) : !error && (
-        view === 'month' ? (
-          <MonthGrid
-            appointments={appointments}
-            exceptions={exceptions}
-            currentMonth={currentMonth}
-            onMonthChange={setCurrentMonth}
-            onDayClick={handleDayClick}
-            onAppointmentClick={handleAppointmentClick}
-            clientNames={clientNames}
-            propertyTitles={propertyTitles}
-          />
-        ) : (
-          <WeekGrid
-            appointments={appointments}
-            weekStart={weekStart}
-            onWeekChange={setWeekStart}
-            onAppointmentClick={handleAppointmentClick}
-            clientNames={clientNames}
-            propertyTitles={propertyTitles}
-          />
-        )
+        <AnimatePresence mode="wait">
+          {selectedDay ? (
+            <DayView
+              key="day"
+              date={selectedDay}
+              appointments={appointments}
+              rules={rules}
+              exceptions={exceptions}
+              clientNames={clientNames}
+              propertyTitles={propertyTitles}
+              language={language}
+              onBack={handleBackFromDay}
+              onNewAppointment={() => { setEditingAppointment(null); setShowForm(true) }}
+              onAppointmentClick={handleAppointmentClick}
+            />
+          ) : view === 'month' ? (
+            <MonthGrid
+              key="month"
+              appointments={appointments}
+              exceptions={exceptions}
+              currentMonth={currentMonth}
+              onMonthChange={setCurrentMonth}
+              onDayClick={handleDayClick}
+              onAppointmentClick={handleAppointmentClick}
+              clientNames={clientNames}
+              propertyTitles={propertyTitles}
+            />
+          ) : (
+            <WeekGrid
+              key="week"
+              appointments={appointments}
+              weekStart={weekStart}
+              onWeekChange={setWeekStart}
+              onAppointmentClick={handleAppointmentClick}
+              clientNames={clientNames}
+              propertyTitles={propertyTitles}
+            />
+          )}
+        </AnimatePresence>
       )}
 
       {/* Delete confirmation */}
