@@ -1,77 +1,119 @@
-import { MessageSquare, Check } from 'lucide-react'
+import { MessageSquare, Sparkles, Clock, Users, Star } from 'lucide-react'
 
-const features = [
-  'Generate 3 reply tones in 5 seconds',
-  'Croatian & English auto-detection',
-  'Client & property context-aware AI',
+const stats = [
+  { icon: Clock, value: '5 sec', label: 'Average reply time' },
+  { icon: Users, value: '500+', label: 'Active agents' },
+  { icon: Star, value: '4.9', label: 'Average rating' },
 ]
 
-function FloatingDots() {
-  const dots = [
-    { size: 8, top: '15%', left: '10%', delay: '0s', duration: '6s' },
-    { size: 5, top: '25%', left: '80%', delay: '1s', duration: '8s' },
-    { size: 10, top: '60%', left: '15%', delay: '2s', duration: '7s' },
-    { size: 6, top: '70%', left: '75%', delay: '0.5s', duration: '9s' },
-    { size: 4, top: '40%', left: '90%', delay: '1.5s', duration: '5s' },
-    { size: 7, top: '85%', left: '40%', delay: '3s', duration: '7s' },
-    { size: 5, top: '10%', left: '55%', delay: '2.5s', duration: '6s' },
-  ]
+const testimonial = {
+  text: '"ReplyPro saved me 2 hours every day. My clients get replies instantly and I close more deals."',
+  name: 'Marko Horvat',
+  role: 'Senior Agent, Zagreb',
+  initials: 'MH',
+}
 
+function AnimatedOrbs() {
   return (
-    <>
-      {dots.map((dot, i) => (
-        <span
-          key={i}
-          className="absolute rounded-full bg-white/20 animate-float pointer-events-none"
-          style={{
-            width: dot.size,
-            height: dot.size,
-            top: dot.top,
-            left: dot.left,
-            animationDelay: dot.delay,
-            animationDuration: dot.duration,
-          }}
-        />
-      ))}
-    </>
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      {/* Large primary orb */}
+      <div
+        className="absolute rounded-full opacity-20"
+        style={{
+          width: 500,
+          height: 500,
+          top: '-10%',
+          left: '-15%',
+          background: 'radial-gradient(circle, hsl(164 72% 52%) 0%, transparent 70%)',
+          animation: 'float 12s ease-in-out infinite',
+        }}
+      />
+      {/* Secondary orb */}
+      <div
+        className="absolute rounded-full opacity-15"
+        style={{
+          width: 350,
+          height: 350,
+          bottom: '-5%',
+          right: '-10%',
+          background: 'radial-gradient(circle, hsl(174 64% 45%) 0%, transparent 70%)',
+          animation: 'float 9s ease-in-out 3s infinite',
+        }}
+      />
+      {/* Small accent orb */}
+      <div
+        className="absolute rounded-full opacity-10"
+        style={{
+          width: 200,
+          height: 200,
+          top: '40%',
+          right: '20%',
+          background: 'radial-gradient(circle, hsl(164 72% 70%) 0%, transparent 70%)',
+          animation: 'float 7s ease-in-out 1.5s infinite',
+        }}
+      />
+      {/* Grid pattern overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)`,
+          backgroundSize: '40px 40px',
+        }}
+      />
+    </div>
   )
 }
 
-function MockChatCard() {
+function MockReplyCard() {
   return (
-    <div className="w-full max-w-sm rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 p-4 shadow-xl">
-      {/* Client message */}
-      <div className="mb-4">
-        <p className="text-xs text-white/60 mb-1.5 font-medium uppercase tracking-wide">Client message</p>
-        <div className="rounded-xl bg-white/15 px-3.5 py-2.5">
-          <p className="text-sm text-white leading-relaxed">
-            Hi, is the apartment on Ilica still available? What&apos;s the price?
-          </p>
+    <div className="w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)' }}>
+      {/* Header */}
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10">
+        <div className="flex gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-red-400/60" />
+          <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/60" />
+          <span className="h-2.5 w-2.5 rounded-full bg-green-400/60" />
+        </div>
+        <div className="flex items-center gap-1.5 ml-2">
+          <Sparkles className="h-3 w-3 text-white/40" />
+          <span className="text-xs text-white/40 font-medium">ReplyPro AI</span>
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className="flex-1 h-px bg-white/20" />
-        <p className="text-xs text-white/50">3 AI replies generated</p>
-        <div className="flex-1 h-px bg-white/20" />
-      </div>
+      <div className="p-4 space-y-3">
+        {/* Client message */}
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">Client message</p>
+          <div className="rounded-xl px-3 py-2.5" style={{ background: 'rgba(255,255,255,0.08)' }}>
+            <p className="text-xs text-white/80 leading-relaxed">
+              Pozdrav, zanima me stan na Ilici. Je li još dostupan i koja je cijena?
+            </p>
+          </div>
+        </div>
 
-      {/* Reply tone badges */}
-      <div className="flex gap-2 flex-wrap">
-        {[
-          { label: 'Professional', color: 'bg-white/20 border-white/30' },
-          { label: 'Friendly', color: 'bg-emerald-400/20 border-emerald-300/30' },
-          { label: 'Direct', color: 'bg-sky-400/20 border-sky-300/30' },
-        ].map((tone) => (
-          <span
-            key={tone.label}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium text-white ${tone.color}`}
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
-            {tone.label}
-          </span>
-        ))}
+        {/* Divider */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
+          <span className="text-[10px] text-white/30 font-medium">3 replies in 4 seconds</span>
+          <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
+        </div>
+
+        {/* Reply tones */}
+        <div className="space-y-2">
+          {[
+            { label: 'Professional', preview: 'Poštovani, hvala na upitu. Stan je dostupan...', color: 'rgba(255,255,255,0.12)', dot: 'bg-blue-300' },
+            { label: 'Friendly', preview: 'Bok! Da, stan je još slobodan 🏠 Kada bi...', color: 'rgba(52,211,153,0.12)', dot: 'bg-emerald-300' },
+            { label: 'Direct', preview: 'Stan je dostupan. Cijena €185.000. Termin?', color: 'rgba(56,189,248,0.12)', dot: 'bg-sky-300' },
+          ].map((tone) => (
+            <div key={tone.label} className="rounded-xl px-3 py-2" style={{ background: tone.color }}>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className={`h-1.5 w-1.5 rounded-full ${tone.dot}`} />
+                <span className="text-[10px] font-semibold text-white/60 uppercase tracking-wide">{tone.label}</span>
+              </div>
+              <p className="text-xs text-white/70 truncate">{tone.preview}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -79,64 +121,109 @@ function MockChatCard() {
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[45%_55%]">
-      {/* LEFT PANEL — form side */}
-      <div className="flex flex-col min-h-screen bg-white px-6 py-8 sm:px-10 lg:px-12">
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* ── LEFT: Visual panel ─────────────────────────────────────────── */}
+      <div
+        className="hidden lg:flex lg:w-[52%] xl:w-[55%] flex-col justify-between relative overflow-hidden px-12 py-10"
+        style={{ background: 'linear-gradient(145deg, hsl(222 47% 8%) 0%, hsl(222 47% 12%) 50%, hsl(222 47% 9%) 100%)' }}
+      >
+        <AnimatedOrbs />
+
         {/* Logo */}
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[hsl(164_72%_28%)] text-white">
-            <MessageSquare className="h-5 w-5" />
+        <div className="relative z-10 flex items-center gap-3">
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-xl shadow-lg"
+            style={{ background: 'linear-gradient(135deg, hsl(164 72% 38%) 0%, hsl(174 64% 45%) 100%)' }}
+          >
+            <MessageSquare className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-slate-900">ReplyPro</span>
+          <span className="text-xl font-bold text-white tracking-tight">ReplyPro</span>
         </div>
 
-        {/* Form content */}
-        <div className="flex flex-1 items-center justify-center py-10">
-          <div className="w-full max-w-sm">
+        {/* Center content */}
+        <div className="relative z-10 flex flex-col gap-10 max-w-md">
+          {/* Headline */}
+          <div className="space-y-4">
+            <div
+              className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold"
+              style={{ background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)', color: 'hsl(164 72% 62%)' }}
+            >
+              <Sparkles className="h-3 w-3" />
+              AI assistant for real estate agents
+            </div>
+            <h1 className="text-4xl font-bold text-white leading-tight tracking-tight">
+              Reply to clients<br />
+              <span style={{ background: 'linear-gradient(135deg, hsl(164 72% 52%) 0%, hsl(174 64% 62%) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                in 5 seconds.
+              </span>
+            </h1>
+            <p className="text-white/50 text-sm leading-relaxed">
+              Generate 3 perfect reply tones for every client message. Built for Croatian real estate agents.
+            </p>
+          </div>
+
+          {/* Mock card */}
+          <MockReplyCard />
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4">
+            {stats.map(({ icon: Icon, value, label }) => (
+              <div key={label} className="space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <Icon className="h-3.5 w-3.5" style={{ color: 'hsl(164 72% 52%)' }} />
+                  <span className="text-lg font-bold text-white">{value}</span>
+                </div>
+                <p className="text-xs text-white/40 leading-tight">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Testimonial */}
+        <div
+          className="relative z-10 rounded-2xl p-5"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <p className="text-sm text-white/70 leading-relaxed italic mb-4">{testimonial.text}</p>
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+              style={{ background: 'linear-gradient(135deg, hsl(164 72% 38%) 0%, hsl(174 64% 45%) 100%)' }}
+            >
+              {testimonial.initials}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">{testimonial.name}</p>
+              <p className="text-xs text-white/40">{testimonial.role}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── RIGHT: Form panel ──────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col min-h-screen bg-background">
+        {/* Mobile logo */}
+        <div className="flex items-center gap-2.5 px-6 pt-6 lg:hidden">
+          <div
+            className="flex h-9 w-9 items-center justify-center rounded-xl"
+            style={{ background: 'linear-gradient(135deg, hsl(164 72% 38%) 0%, hsl(174 64% 45%) 100%)' }}
+          >
+            <MessageSquare className="h-4.5 w-4.5 text-white" />
+          </div>
+          <span className="text-lg font-bold tracking-tight">ReplyPro</span>
+        </div>
+
+        {/* Form */}
+        <div className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">
+          <div className="w-full max-w-[400px]">
             {children}
           </div>
         </div>
 
         {/* Footer */}
-        <p className="text-xs text-slate-400 text-center lg:text-left">
-          © 2026 ReplyPro
+        <p className="text-xs text-muted-foreground text-center pb-6">
+          © 2026 ReplyPro · <a href="/privacy" className="hover:text-foreground transition-colors">Privacy</a> · <a href="/terms" className="hover:text-foreground transition-colors">Terms</a>
         </p>
-      </div>
-
-      {/* RIGHT PANEL — visual side, hidden on mobile */}
-      <div
-        className="hidden lg:flex flex-col items-center justify-center relative overflow-hidden px-10 py-12"
-        style={{
-          background: 'linear-gradient(135deg, hsl(164 72% 28%) 0%, hsl(174 64% 38%) 100%)',
-        }}
-      >
-        <FloatingDots />
-
-        <div className="relative z-10 flex flex-col items-center text-center gap-8 w-full max-w-md">
-          {/* Wordmark */}
-          <div className="flex flex-col items-center gap-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-lg">
-              <MessageSquare className="h-7 w-7 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold text-white tracking-tight">ReplyPro</h1>
-            <p className="text-white/70 text-sm">AI assistant for real estate agents</p>
-          </div>
-
-          {/* Feature bullets */}
-          <ul className="space-y-3 text-left w-full">
-            {features.map((feature) => (
-              <li key={feature} className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20 border border-white/30">
-                  <Check className="h-3 w-3 text-white" strokeWidth={3} />
-                </span>
-                <span className="text-sm text-white/90 leading-relaxed">{feature}</span>
-              </li>
-            ))}
-          </ul>
-
-          {/* Mock chat card */}
-          <MockChatCard />
-        </div>
       </div>
     </div>
   )
