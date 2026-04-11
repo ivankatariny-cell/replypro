@@ -6,7 +6,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { cn } from '@/lib/utils/cn'
 import { LayoutDashboard, History, Sparkles, Users, MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
-import { Settings, CreditCard, Building2, Star, LogOut, X } from 'lucide-react'
+import { Settings, CreditCard, Building2, Star, LogOut, X, CalendarDays } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
@@ -23,6 +23,7 @@ const mainTabs = [
 const moreItems = [
   { key: 'nav.properties', href: '/properties', icon: Building2 },
   { key: 'nav.favorites', href: '/favorites', icon: Star },
+  { key: 'nav.calendar', href: '/calendar', icon: CalendarDays },
   { key: 'nav.settings', href: '/settings', icon: Settings },
   { key: 'nav.billing', href: '/billing', icon: CreditCard },
 ]

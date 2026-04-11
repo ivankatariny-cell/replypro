@@ -10,6 +10,7 @@
     "clients": "Klijenti",
     "properties": "Nekretnine",
     "favorites": "Favoriti",
+    "calendar": "Kalendar",
     "more": "Više",
     "generate": "Generiraj"
   },
@@ -279,6 +280,28 @@
     "message": "Koristimo samo neophodne kolačiće za autentifikaciju. Bez praćenja, bez oglasa.",
     "accept": "OK, razumijem",
     "learn_more": "Saznaj više"
+  },
+  "calendar": {
+    "upcoming_title": "Nadolazeći termini",
+    "no_upcoming": "Nema nadolazećih termina",
+    "no_upcoming_desc": "Idite na kalendar i zakažite sljedeće razgledavanje.",
+    "go_to_calendar": "Idi na kalendar",
+    "view_calendar": "Prikaži kalendar",
+    "form_title": "Naziv",
+    "form_title_placeholder": "npr. Razgledavanje nekretnine",
+    "form_description": "Opis",
+    "form_description_placeholder": "Opcionalne napomene o ovom terminu",
+    "form_date": "Datum",
+    "form_start_time": "Početak",
+    "form_end_time": "Kraj",
+    "save_appointment": "Spremi termin",
+    "saving": "Spremanje...",
+    "error_title_required": "Naziv je obavezan.",
+    "error_date_required": "Datum je obavezan.",
+    "error_end_after_start": "Kraj mora biti nakon početka.",
+    "appointment_created": "Termin stvoren.",
+    "appointment_updated": "Termin ažuriran.",
+    "appointment_deleted": "Termin obrisan."
   },
   "errors": {
     "trial_expired": "Vaš besplatni period je završio. Nadogradite na Pro.",

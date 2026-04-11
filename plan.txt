@@ -1,0 +1,1 @@
+u replypro dodat opciju kalendara i zakazane termine, i da u odgovorima checka jel Slobodan agent taj dan u to vrijeme, da se bolje rasporedi odgovor

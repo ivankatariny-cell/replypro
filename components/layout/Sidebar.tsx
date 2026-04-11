@@ -11,7 +11,7 @@ import { ThemeToggle } from './ThemeToggle'
 import { cn } from '@/lib/utils/cn'
 import {
   LayoutDashboard, History, Settings, CreditCard, LogOut,
-  MessageSquare, Users, Building2, Star,
+  MessageSquare, Users, Building2, Star, CalendarDays,
 } from 'lucide-react'
 
 const navItems = [
@@ -19,6 +19,7 @@ const navItems = [
   { key: 'nav.clients', href: '/clients', icon: Users },
   { key: 'nav.properties', href: '/properties', icon: Building2 },
   { key: 'nav.favorites', href: '/favorites', icon: Star },
+  { key: 'nav.calendar', href: '/calendar', icon: CalendarDays },
   { key: 'nav.history', href: '/history', icon: History },
 ]
 

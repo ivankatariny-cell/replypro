@@ -222,3 +222,74 @@ BEGIN
   RETURN QUERY SELECT true, v_used + 1, v_limit;
 END;
 $$;
+
+-- ============================================
+-- APPOINTMENTS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS rp_appointments (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title text NOT NULL,
+  description text,
+  start_at timestamptz NOT NULL,
+  end_at timestamptz NOT NULL,
+  client_id uuid REFERENCES rp_clients(id) ON DELETE SET NULL,
+  property_id uuid REFERENCES rp_properties(id) ON DELETE SET NULL,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  CONSTRAINT rp_appointments_end_after_start CHECK (end_at > start_at)
+);
+
+CREATE INDEX idx_rp_appointments_user ON rp_appointments(user_id);
+CREATE INDEX idx_rp_appointments_start ON rp_appointments(user_id, start_at ASC);
+
+ALTER TABLE rp_appointments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own appointments" ON rp_appointments FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own appointments" ON rp_appointments FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own appointments" ON rp_appointments FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own appointments" ON rp_appointments FOR DELETE USING (auth.uid() = user_id);
+
+CREATE TRIGGER rp_appointments_updated BEFORE UPDATE ON rp_appointments
+  FOR EACH ROW EXECUTE FUNCTION extensions.moddatetime(updated_at);
+
+-- ============================================
+-- AVAILABILITY RULES TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS rp_availability_rules (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  day_of_week integer NOT NULL CHECK (day_of_week BETWEEN 0 AND 6),
+  start_time time NOT NULL,
+  end_time time NOT NULL,
+  is_available boolean NOT NULL DEFAULT true,
+  CONSTRAINT rp_availability_rules_end_after_start CHECK (end_time > start_time),
+  CONSTRAINT rp_availability_rules_unique_day UNIQUE (user_id, day_of_week)
+);
+
+CREATE INDEX idx_rp_avail_rules_user ON rp_availability_rules(user_id);
+
+ALTER TABLE rp_availability_rules ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own availability rules" ON rp_availability_rules FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own availability rules" ON rp_availability_rules FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own availability rules" ON rp_availability_rules FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own availability rules" ON rp_availability_rules FOR DELETE USING (auth.uid() = user_id);
+
+-- ============================================
+-- AVAILABILITY EXCEPTIONS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS rp_availability_exceptions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  exception_date date NOT NULL,
+  is_available boolean NOT NULL DEFAULT false,
+  reason text,
+  CONSTRAINT rp_availability_exceptions_unique_date UNIQUE (user_id, exception_date)
+);
+
+CREATE INDEX idx_rp_avail_exceptions_user ON rp_availability_exceptions(user_id);
+
+ALTER TABLE rp_availability_exceptions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own availability exceptions" ON rp_availability_exceptions FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own availability exceptions" ON rp_availability_exceptions FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own availability exceptions" ON rp_availability_exceptions FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own availability exceptions" ON rp_availability_exceptions FOR DELETE USING (auth.uid() = user_id);

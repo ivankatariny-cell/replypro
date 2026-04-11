@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { UserProfile, Subscription, Generation, Client, Property, Template, Favorite } from '@/types'
+import type { UserProfile, Subscription, Generation, Client, Property, Template, Favorite, Appointment } from '@/types'
 
 interface AppState {
   language: 'hr' | 'en'
@@ -28,6 +28,11 @@ interface AppState {
   setFavorites: (f: Favorite[]) => void
   addFavorite: (f: Favorite) => void
   removeFavorite: (id: string) => void
+  appointments: Appointment[]
+  setAppointments: (a: Appointment[]) => void
+  addAppointment: (a: Appointment) => void
+  updateAppointment: (id: string, data: Partial<Appointment>) => void
+  removeAppointment: (id: string) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -69,5 +74,14 @@ export const useAppStore = create<AppState>((set) => ({
   addFavorite: (f) => set((s) => ({ favorites: [f, ...s.favorites] })),
   removeFavorite: (id) => set((s) => ({
     favorites: s.favorites.filter((f) => f.id !== id),
+  })),
+  appointments: [],
+  setAppointments: (appointments) => set({ appointments }),
+  addAppointment: (a) => set((s) => ({ appointments: [a, ...s.appointments] })),
+  updateAppointment: (id, data) => set((s) => ({
+    appointments: s.appointments.map((a) => (a.id === id ? { ...a, ...data } : a)),
+  })),
+  removeAppointment: (id) => set((s) => ({
+    appointments: s.appointments.filter((a) => a.id !== id),
   })),
 }))

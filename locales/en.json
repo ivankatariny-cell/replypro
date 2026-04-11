@@ -10,6 +10,7 @@
     "clients": "Clients",
     "properties": "Properties",
     "favorites": "Favorites",
+    "calendar": "Calendar",
     "more": "More",
     "generate": "Generate"
   },
@@ -279,6 +280,28 @@
     "message": "We only use essential cookies for authentication. No tracking, no ads.",
     "accept": "OK, I understand",
     "learn_more": "Learn more"
+  },
+  "calendar": {
+    "upcoming_title": "Upcoming Appointments",
+    "no_upcoming": "No upcoming appointments",
+    "no_upcoming_desc": "Head to the calendar to schedule your next showing.",
+    "go_to_calendar": "Go to Calendar",
+    "view_calendar": "View calendar",
+    "form_title": "Title",
+    "form_title_placeholder": "e.g. Property showing",
+    "form_description": "Description",
+    "form_description_placeholder": "Optional notes about this appointment",
+    "form_date": "Date",
+    "form_start_time": "Start time",
+    "form_end_time": "End time",
+    "save_appointment": "Save appointment",
+    "saving": "Saving...",
+    "error_title_required": "Title is required.",
+    "error_date_required": "Date is required.",
+    "error_end_after_start": "End time must be after start time.",
+    "appointment_created": "Appointment created.",
+    "appointment_updated": "Appointment updated.",
+    "appointment_deleted": "Appointment deleted."
   },
   "errors": {
     "trial_expired": "Your free trial has ended. Upgrade to Pro.",

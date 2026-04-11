@@ -279,6 +279,96 @@ export interface Database {
         }
         Relationships: []
       }
+      rp_appointments: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          start_at: string
+          end_at: string
+          client_id: string | null
+          property_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          start_at: string
+          end_at: string
+          client_id?: string | null
+          property_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          start_at?: string
+          end_at?: string
+          client_id?: string | null
+          property_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rp_availability_rules: {
+        Row: {
+          id: string
+          user_id: string
+          day_of_week: number
+          start_time: string
+          end_time: string
+          is_available: boolean
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          day_of_week: number
+          start_time: string
+          end_time: string
+          is_available?: boolean
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          day_of_week?: number
+          start_time?: string
+          end_time?: string
+          is_available?: boolean
+        }
+        Relationships: []
+      }
+      rp_availability_exceptions: {
+        Row: {
+          id: string
+          user_id: string
+          exception_date: string
+          is_available: boolean
+          reason: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          exception_date: string
+          is_available?: boolean
+          reason?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          exception_date?: string
+          is_available?: boolean
+          reason?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -303,3 +393,6 @@ export type PropertyRow = Database['public']['Tables']['rp_properties']['Row']
 export type TemplateRow = Database['public']['Tables']['rp_templates']['Row']
 export type GenerationRow = Database['public']['Tables']['rp_generations']['Row']
 export type FavoriteRow = Database['public']['Tables']['rp_favorites']['Row']
+export type AppointmentRow = Database['public']['Tables']['rp_appointments']['Row']
+export type AvailabilityRuleRow = Database['public']['Tables']['rp_availability_rules']['Row']
+export type AvailabilityExceptionRow = Database['public']['Tables']['rp_availability_exceptions']['Row']

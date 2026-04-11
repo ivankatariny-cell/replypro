@@ -5,6 +5,8 @@ import { buildSystemPrompt } from '@/lib/prompts/real-estate'
 import { sanitizeMessage } from '@/lib/utils/sanitize'
 import { rateLimit } from '@/lib/utils/rate-limit'
 import { sendTrialLowEmail, sendTrialExpiredEmail } from '@/lib/resend/emails'
+import { containsDateOrTime } from '@/lib/utils/datetime-detect'
+import { fetchAvailabilityContext } from '@/lib/calendar/availability'
 import type { GenerateResponse, ApiError } from '@/types'
 
 export async function POST(req: NextRequest) {
@@ -115,7 +117,13 @@ export async function POST(req: NextRequest) {
       preferredTone: profile.preferred_tone,
     })
 
-    const enrichedPrompt = systemPrompt + clientContext + propertyContext + templateCtx
+    // Availability context — only injected when message contains a date/time reference
+    let availabilityContext = ''
+    if (containsDateOrTime(message)) {
+      availabilityContext = await fetchAvailabilityContext(user.id, message, serviceClient)
+    }
+
+    const enrichedPrompt = systemPrompt + clientContext + propertyContext + templateCtx + availabilityContext
     const aiResult = await generateReplies(enrichedPrompt, message)
 
     const { data: genRow, error: genInsertError } = await serviceClient.from('rp_generations').insert({

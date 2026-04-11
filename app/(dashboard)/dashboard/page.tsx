@@ -10,6 +10,7 @@ import { useToast } from '@/components/ui/toast'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { TrialBanner } from '@/components/dashboard/TrialBanner'
 import { StatsCards } from '@/components/dashboard/StatsCards'
+import { UpcomingAppointments } from '@/components/dashboard/UpcomingAppointments'
 import { MessageInput } from '@/components/dashboard/MessageInput'
 import { GenerateButton } from '@/components/dashboard/GenerateButton'
 import { ReplyGrid } from '@/components/dashboard/ReplyGrid'
@@ -219,6 +220,9 @@ function DashboardContent() {
 
       <ErrorBoundary>
         <StatsCards />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <UpcomingAppointments />
       </ErrorBoundary>
       <ErrorBoundary>
         <TrialBanner />

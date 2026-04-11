@@ -53,3 +53,35 @@ FORMAT ODGOVORA — SAMO ČISTI JSON, ništa drugo:
   "detected_language": "hr" ili "en"
 }`
 }
+
+export function buildAvailabilityContext(params: {
+  requestedDateTime: string
+  isFree: boolean
+  alternatives: Array<{ date: string; startTime: string; endTime: string }>
+}): string {
+  const { requestedDateTime, isFree, alternatives } = params
+
+  if (isFree) {
+    return `AVAILABILITY CONTEXT:
+Requested time: ${requestedDateTime}
+Status: AVAILABLE — the agent is free at this time.`
+  }
+
+  if (alternatives.length === 0) {
+    return `AVAILABILITY CONTEXT:
+Requested time: ${requestedDateTime}
+Status: OCCUPIED — the agent is not available at this time.
+Alternatives: No free slots found this week. The agent should offer to follow up with available times.`
+  }
+
+  const slots = alternatives.slice(0, 3)
+  const slotLines = slots
+    .map((s, i) => `  ${i + 1}. ${s.date} from ${s.startTime} to ${s.endTime}`)
+    .join('\n')
+
+  return `AVAILABILITY CONTEXT:
+Requested time: ${requestedDateTime}
+Status: OCCUPIED — the agent is not available at this time.
+Alternative slots (up to 3):
+${slotLines}`
+}

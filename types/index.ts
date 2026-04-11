@@ -9,6 +9,9 @@ export type {
   TemplateRow as Template,
   GenerationRow as Generation,
   FavoriteRow as Favorite,
+  AppointmentRow as Appointment,
+  AvailabilityRuleRow as AvailabilityRule,
+  AvailabilityExceptionRow as AvailabilityException,
 } from '@/types/supabase'
 
 // ── API request / response shapes (not DB rows) ──────────────────────────────
