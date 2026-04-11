@@ -12,7 +12,7 @@ const PATTERNS: RegExp[] = [
   // Date: 15/03, 3/15, 15.3., 15.03.
   /\b\d{1,2}[./]\d{1,2}\.?\b/,
 
-  // --- Croatian date patterns ---
+  // --- Croatian/Bosnian/Serbian date patterns ---
   // Relative days
   /\bsutra\b/i,
   /\bprekosutra\b/i,
@@ -21,10 +21,11 @@ const PATTERNS: RegExp[] = [
   /\bidući\s+tjedan\b/i,
   /\bsljede[cć]i\s+tjedan\b/i,
   /\bovaj\s+tjedan\b/i,
-  // Weekday references (u ponedjeljak, idući ponedjeljak, etc.)
-  /\b(?:idući|sljede[cć]i|ovaj|u)\s+(?:ponedjeljak|utorak|srijedu?|[cč]etvrtak|petak|subotu?|nedjelju?)\b/i,
-  // Standalone weekday (u ponedjeljak)
-  /\bu\s+(?:ponedjeljak|utorak|srijedu?|[cč]etvrtak|petak|subotu?|nedjelju?)\b/i,
+  // Weekday references — covers Croatian (ponedjeljak), Serbian/Bosnian (ponedeljak/pondjeljak)
+  // and typo-tolerant variants (ponedljak, etc.)
+  /\b(?:idući|sljede[cć]i|ovaj|u|sad\s+ovaj|ovaj\s+sad)\s+(?:pon[eo]d[ej]?[lj]?jak?|utorak|srijedu?|sredu?|[cč]etvrtak|[cč]etvrtak|petak|subotu?|nedjelju?|nedelju?)\b/i,
+  // Standalone weekday
+  /\bu\s+(?:pon[eo]d[ej]?[lj]?jak?|utorak|srijedu?|sredu?|[cč]etvrtak|petak|subotu?|nedjelju?|nedelju?)\b/i,
   // Croatian month names (e.g., "15. ožujka", "5 travnja")
   /\b\d{1,2}\.?\s*(?:sije[cč]nja|velja[cč]e|o[žz]ujka|travnja|svibnja|lipnja|srpnja|kolovoza|rujna|listopada|studenog|prosinca)\b/i,
   // Croatian time of day
@@ -33,8 +34,8 @@ const PATTERNS: RegExp[] = [
   /\bnave[cč]er\b/i,
   /\bpodne\b/i,
   /\bno[cć]u\b/i,
-  // "u [digit] sati" — e.g., "u 10 sati", "u 3 sata"
-  /\bu\s+\d{1,2}\s+sat[ia]\b/i,
+  // "u 10 sati", "u 3 sata", "u 21:00 sati" — digit or HH:MM before sati/sata
+  /\bu\s+\d{1,2}(?::\d{2})?\s+sat[ia]\b/i,
 
   // --- English date patterns ---
   // Relative days

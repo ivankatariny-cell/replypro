@@ -15,8 +15,13 @@ const ENGLISH_MONTHS: Record<string, number> = {
 }
 
 const CROATIAN_WEEKDAYS: Record<string, number> = {
+  // Croatian
   ponedjeljak: 1, utorak: 2, srijedu: 3, srijeda: 3,
   četvrtak: 4, cetvrtak: 4, petak: 5, subotu: 6, subota: 6, nedjelju: 0, nedjelja: 0,
+  // Serbian/Bosnian variants
+  ponedeljak: 1, pondjeljak: 1, ponedljak: 1,
+  sredu: 3, sreda: 3,
+  nedelju: 0, nedelu: 0, nedelja: 0,
 }
 
 const ENGLISH_WEEKDAYS: Record<string, number> = {
@@ -87,11 +92,12 @@ function extractDateStr(message: string): string | null {
     return toDateStr(d)
   }
 
-  // Croatian weekday: "u ponedjeljak", "idući petak"
-  const crWeekday = lower.match(/(?:idući|sljede[cć]i|ovaj|u)\s+(ponedjeljak|utorak|srijedu?|[cč]etvrtak|petak|subotu?|nedjelju?)/i)
+  // Croatian/Bosnian/Serbian weekday: "u ponedjeljak", "idući petak", "ovaj ponedeljak", "sad ovaj ponedljak"
+  const crWeekday = lower.match(/(?:idući|sljede[cć]i|ovaj|u|sad\s+ovaj|ovaj\s+sad)\s+(pon[eo]d[ej]?[lj]?jak?|utorak|srijedu?|sredu?|[cč]etvrtak|petak|subotu?|nedjelju?|nedelju?)/i)
   if (crWeekday) {
     const raw = crWeekday[1].toLowerCase()
-    const targetDow = CROATIAN_WEEKDAYS[raw] ?? CROATIAN_WEEKDAYS[raw.replace('č', 'c').replace('ć', 'c')]
+    const targetDow = CROATIAN_WEEKDAYS[raw]
+      ?? CROATIAN_WEEKDAYS[raw.replace('č', 'c').replace('ć', 'c')]
     if (targetDow !== undefined) {
       const d = nextWeekday(today, targetDow, /idući|sljede/i.test(lower))
       return toDateStr(d)
@@ -129,11 +135,12 @@ function extractTimeStr(message: string): string | null {
     return `${pad(h)}:00`
   }
 
-  // "u 10 sati", "u 3 sata"
-  const hrTime = message.match(/\bu\s+(\d{1,2})\s+sat[ia]\b/i)
+  // "u 10 sati", "u 3 sata", "u 21:00 sati"
+  const hrTime = message.match(/\bu\s+(\d{1,2})(?::(\d{2}))?\s+sat[ia]\b/i)
   if (hrTime) {
     const h = parseInt(hrTime[1], 10)
-    if (h >= 0 && h <= 23) return `${pad(h)}:00`
+    const m = hrTime[2] ? parseInt(hrTime[2], 10) : 0
+    if (h >= 0 && h <= 23) return `${pad(h)}:${pad(m)}`
   }
 
   // "at noon"
