@@ -125,9 +125,9 @@ export function SignupForm() {
           />
           <Label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer leading-snug">
             I agree to the{' '}
-            <a href="#" className="text-primary hover:underline">Terms of Service</a>
+            <a href="/terms" className="text-primary hover:underline">Terms of Service</a>
             {' '}and{' '}
-            <a href="#" className="text-primary hover:underline">Privacy Policy</a>
+            <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>
           </Label>
         </div>
         {errors.terms && <p className="text-xs text-destructive">{errors.terms.message}</p>}

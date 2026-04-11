@@ -11,6 +11,7 @@ interface AppState {
   generations: Generation[]
   setGenerations: (g: Generation[]) => void
   addGeneration: (g: Generation) => void
+  appendGenerations: (g: Generation[]) => void
   clients: Client[]
   setClients: (c: Client[]) => void
   addClient: (c: Client) => void
@@ -42,6 +43,7 @@ export const useAppStore = create<AppState>((set) => ({
   generations: [],
   setGenerations: (generations) => set({ generations }),
   addGeneration: (g) => set((s) => ({ generations: [g, ...s.generations] })),
+  appendGenerations: (g) => set((s) => ({ generations: [...s.generations, ...g] })),
   clients: [],
   setClients: (clients) => set({ clients }),
   addClient: (c) => set((s) => ({ clients: [c, ...s.clients] })),

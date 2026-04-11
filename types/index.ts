@@ -1,93 +1,17 @@
-export interface UserProfile {
-  id: string
-  user_id: string
-  full_name: string
-  agency_name: string
-  city: string
-  preferred_tone: 'formal' | 'mixed' | 'casual'
-  language: 'hr' | 'en'
-  onboarding_completed: boolean
-  created_at: string
-  updated_at: string
-}
+// Re-export DB row types as the canonical application types.
+// These are derived from the generated Database schema in types/supabase.ts
+// so they stay in sync with the actual database automatically.
+export type {
+  ProfileRow as UserProfile,
+  SubscriptionRow as Subscription,
+  ClientRow as Client,
+  PropertyRow as Property,
+  TemplateRow as Template,
+  GenerationRow as Generation,
+  FavoriteRow as Favorite,
+} from '@/types/supabase'
 
-export interface Generation {
-  id: string
-  user_id: string
-  original_message: string
-  reply_professional: string
-  reply_friendly: string
-  reply_direct: string
-  detected_language: 'hr' | 'en'
-  client_id: string | null
-  created_at: string
-}
-
-export interface Subscription {
-  id: string
-  user_id: string
-  stripe_customer_id: string | null
-  stripe_subscription_id: string | null
-  status: 'trial' | 'active' | 'past_due' | 'cancelled'
-  trial_generations_used: number
-  trial_generations_limit: number
-  current_period_end: string | null
-  created_at: string
-  updated_at: string
-}
-
-export interface Client {
-  id: string
-  user_id: string
-  full_name: string
-  phone: string | null
-  email: string | null
-  notes: string | null
-  tags: string[]
-  status: 'new' | 'contacted' | 'viewing' | 'negotiation' | 'closed' | 'lost'
-  property_interest: string | null
-  city: string | null
-  budget_min: number | null
-  budget_max: number | null
-  created_at: string
-  updated_at: string
-}
-
-export interface Property {
-  id: string
-  user_id: string
-  title: string
-  address: string | null
-  city: string | null
-  price: number | null
-  sqm: number | null
-  rooms: number | null
-  description: string | null
-  property_type: 'apartment' | 'house' | 'land' | 'commercial' | 'other'
-  status: 'active' | 'sold' | 'reserved' | 'inactive'
-  created_at: string
-}
-
-export interface Template {
-  id: string
-  user_id: string | null
-  category: 'first_contact' | 'follow_up' | 'viewing' | 'price' | 'closing' | 'rejection' | 'custom'
-  name_hr: string
-  name_en: string
-  prompt_context: string
-  is_system: boolean
-  created_at: string
-}
-
-export interface Favorite {
-  id: string
-  user_id: string
-  generation_id: string | null
-  tone: 'professional' | 'friendly' | 'direct'
-  content: string
-  label: string | null
-  created_at: string
-}
+// ── API request / response shapes (not DB rows) ──────────────────────────────
 
 export interface GenerateRequest {
   message: string
@@ -110,6 +34,9 @@ export interface ApiError {
   code: string
 }
 
-export type ClientStatus = Client['status']
-export type PropertyType = Property['property_type']
-export type TemplateCategory = Template['category']
+// ── Convenience union types ───────────────────────────────────────────────────
+import type { ClientRow, PropertyRow, TemplateRow } from '@/types/supabase'
+
+export type ClientStatus = ClientRow['status']
+export type PropertyType = PropertyRow['property_type']
+export type TemplateCategory = TemplateRow['category']

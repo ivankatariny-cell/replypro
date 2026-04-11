@@ -13,12 +13,15 @@ export async function POST(req: NextRequest) {
   let event
   try {
     event = getStripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
-  } catch {
+  } catch (err) {
+    console.error('[stripe/webhook] Signature verification failed', {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
   const supabase = createServiceRoleClient()
-  const obj = event.data.object as unknown as Record<string, unknown>
+  const obj = event.data.object as Record<string, unknown>
 
   try {
     switch (event.type) {
@@ -37,7 +40,7 @@ export async function POST(req: NextRequest) {
         const subId = obj.subscription as string
         if (!subId) break
         const sub = await getStripe().subscriptions.retrieve(subId)
-        const periodEnd = (sub as unknown as Record<string, number>).current_period_end
+        const periodEnd = sub.current_period_end
         await supabase.from('rp_subscriptions').update({
           current_period_end: new Date(periodEnd * 1000).toISOString(),
           status: 'active',
@@ -70,8 +73,18 @@ export async function POST(req: NextRequest) {
         break
       }
     }
-  } catch {
-    // Log but don't fail — Stripe will retry
+  } catch (err) {
+    console.error('[stripe/webhook] Failed to process event', {
+      eventType: event.type,
+      eventId: event.id,
+      error: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+    })
+    // Return 500 so Stripe retries the event
+    return NextResponse.json(
+      { error: 'Webhook handler failed', eventType: event.type },
+      { status: 500 }
+    )
   }
 
   return NextResponse.json({ received: true })

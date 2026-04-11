@@ -15,6 +15,7 @@ export function MessageInput({ value, onChange, disabled }: Props) {
   return (
     <div className="space-y-2">
       <Textarea
+        id="message-input"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={t('dashboard.placeholder')}

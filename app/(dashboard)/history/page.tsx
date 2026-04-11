@@ -7,11 +7,12 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { useGenerations } from '@/hooks/useGenerations'
 import { HistoryItem } from '@/components/history/HistoryItem'
 import { Input } from '@/components/ui/input'
-import { MessageSquare, Search } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import { MessageSquare, Search, ChevronDown } from 'lucide-react'
 
 export default function HistoryPage() {
   const { t } = useTranslation()
-  const { generations } = useGenerations()
+  const { generations, loading } = useGenerations()
   const [search, setSearch] = useState('')
   const [langFilter, setLangFilter] = useState<'all' | 'hr' | 'en'>('all')
 
@@ -60,16 +61,30 @@ export default function HistoryPage() {
         </div>
       )}
 
-      {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted mb-4">
-            <MessageSquare className="h-7 w-7 text-muted-foreground" />
+      {loading ? (
+        <div className="space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full rounded-xl" />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="py-20 text-center max-w-sm mx-auto">
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 mx-auto mb-5">
+            <MessageSquare className="h-10 w-10 text-primary" />
           </div>
-          <p className="text-sm font-medium">{generations.length === 0 ? t('history.empty') : t('history.no_results')}</p>
+          <h3 className="text-base font-semibold mb-2">
+            {generations.length === 0 ? t('history.empty') : t('history.no_results')}
+          </h3>
           {generations.length === 0 && (
-            <Link href="/dashboard" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer">
-              {t('history.go_to_dashboard')}
-            </Link>
+            <>
+              <p className="text-sm text-muted-foreground mb-6">{t('history.empty_desc')}</p>
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
+              >
+                {t('history.empty_cta')}
+              </Link>
+            </>
           )}
         </div>
       ) : (

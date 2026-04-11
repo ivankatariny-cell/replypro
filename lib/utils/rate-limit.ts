@@ -1,19 +1,39 @@
-const rateMap = new Map<string, { count: number; resetTime: number }>()
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
 
-export function rateLimit(userId: string, limit = 30, windowMs = 60000): { allowed: boolean; retryAfter: number } {
-  const now = Date.now()
-  const entry = rateMap.get(userId)
+const FALLBACK = { success: true, remaining: 999 }
 
-  if (!entry || now > entry.resetTime) {
-    rateMap.set(userId, { count: 1, resetTime: now + windowMs })
-    return { allowed: true, retryAfter: 0 }
+function isValidEnvVar(value: string | undefined): boolean {
+  return !!value && value.length > 0 && !value.startsWith('your-')
+}
+
+let ratelimit: Ratelimit | null = null
+
+try {
+  const url = process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN
+
+  if (isValidEnvVar(url) && isValidEnvVar(token)) {
+    ratelimit = new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(10, '60 s'),
+      analytics: false,
+    })
+  } else {
+    console.warn('[rate-limit] Upstash not configured, rate limiting disabled')
   }
+} catch (err) {
+  console.warn('[rate-limit] Upstash not configured, rate limiting disabled', err)
+}
 
-  if (entry.count >= limit) {
-    const retryAfter = Math.ceil((entry.resetTime - now) / 1000)
-    return { allowed: false, retryAfter }
+export async function rateLimit(userId: string): Promise<{ success: boolean; remaining: number }> {
+  if (!ratelimit) return FALLBACK
+
+  try {
+    const { success, remaining } = await ratelimit.limit(userId)
+    return { success, remaining }
+  } catch (err) {
+    console.warn('[rate-limit] Rate limit check failed, allowing request', err)
+    return FALLBACK
   }
-
-  entry.count++
-  return { allowed: true, retryAfter: 0 }
 }

@@ -1,12 +1,33 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import type { Database } from '@/types/supabase'
+import type { CookieOptions } from '@supabase/ssr'
 
 export async function updateSession(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  // If env vars are missing, just pass through
   if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('[middleware] Missing Supabase env vars')
+
+    const path = request.nextUrl.pathname
+    const isDashboardRoute =
+      path.startsWith('/dashboard') ||
+      path.startsWith('/history') ||
+      path.startsWith('/settings') ||
+      path.startsWith('/billing') ||
+      path.startsWith('/onboarding') ||
+      path.startsWith('/clients') ||
+      path.startsWith('/properties') ||
+      path.startsWith('/favorites')
+
+    if (isDashboardRoute) {
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable', code: 'CONFIG_ERROR' },
+        { status: 503 }
+      )
+    }
+
     return NextResponse.next()
   }
 
@@ -15,12 +36,12 @@ export async function updateSession(request: NextRequest) {
   })
 
   try {
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )

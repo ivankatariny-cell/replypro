@@ -10,15 +10,20 @@
     "clients": "Clients",
     "properties": "Properties",
     "favorites": "Favorites",
-    "more": "More"
+    "more": "More",
+    "generate": "Generate"
   },
   "landing": {
     "badge": "AI assistant for real estate",
     "headline": "Reply to clients in 5 seconds. Not 5 minutes.",
-    "subheadline": "ReplyPro writes perfect replies for you. You just click 'Send'.",
+    "subheadline": "ReplyPro generates 3 perfect replies for every client message — Professional, Friendly, or Direct. Built for Croatian real estate agents.",
     "cta_primary": "Start for free",
     "cta_secondary": "See how it works",
     "no_card": "10 free generations. No credit card required.",
+    "strip_free_gen": "free generations",
+    "strip_no_card": "No credit card",
+    "strip_languages": "Croatian & English",
+    "strip_faster": "faster",
     "pain_title": "Sound familiar?",
     "pain_1": "Client messages at 10 PM. You reply at 10 AM. They're already with your competitor.",
     "pain_2": "You're writing the same reply for the 15th time this week. Copy-paste from old messages.",
@@ -146,7 +151,9 @@
   },
   "history": {
     "title": "Generation history",
-    "empty": "No generations yet.",
+    "empty": "No generations yet",
+    "empty_desc": "Your AI-generated replies will appear here after your first generation.",
+    "empty_cta": "Generate first reply",
     "original": "Original message",
     "go_to_dashboard": "Go to dashboard",
     "total": "total",
@@ -169,7 +176,18 @@
     "export_title": "Export data",
     "export_desc": "Download a copy of your data",
     "export_btn": "Export data",
-    "exported": "Data exported!"
+    "exported": "Data exported!",
+    "language_label": "Language",
+    "language_hr": "Hrvatski",
+    "language_en": "English",
+    "delete_title": "Delete Account",
+    "delete_desc": "Permanently delete your account and all associated data. This action cannot be undone.",
+    "delete_warning": "This will permanently delete your profile, all generated replies, clients, properties, templates, and favorites. There is no way to recover this data.",
+    "delete_confirm_label": "Type your email address to confirm",
+    "delete_confirm_placeholder": "your@email.com",
+    "delete_btn": "Delete my account permanently",
+    "deleting": "Deleting...",
+    "delete_error": "Failed to delete account. Please try again."
   },
   "billing": {
     "trial_title": "Free trial",
@@ -186,11 +204,16 @@
     "syncing": "Syncing...",
     "no_payment": "No payment found",
     "pro_activated": "Pro plan activated!",
-    "payment_issue": "Payment issue"
+    "payment_issue": "Payment issue",
+    "manage_btn": "Manage Subscription",
+    "managing": "Redirecting...",
+    "portal_error": "Could not open billing portal. Please try again."
   },
   "clients": {
     "add": "Add client",
     "cancel": "Cancel",
+    "confirm_delete": "Confirm",
+    "cancel_delete": "Cancel",
     "name": "Full name",
     "phone_label": "Phone",
     "interest": "Property interest",
@@ -202,12 +225,19 @@
     "deleted": "Client deleted",
     "search": "Search clients...",
     "all_statuses": "All statuses",
-    "empty": "No clients yet. Add your first one!",
-    "budget": "Budget"
+    "empty": "No clients yet",
+    "empty_desc": "Add your first client to track their interests and link them to AI-generated replies.",
+    "empty_cta": "Add first client",
+    "budget": "Budget",
+    "edit": "Edit",
+    "save_changes": "Save changes",
+    "updated": "Client updated!"
   },
   "properties": {
     "add": "Add property",
     "cancel": "Cancel",
+    "confirm_delete": "Confirm",
+    "cancel_delete": "Cancel",
     "title": "Title",
     "type": "Type",
     "address": "Address",
@@ -216,11 +246,39 @@
     "description": "Description",
     "save": "Save property",
     "added": "Property added!",
-    "empty": "No properties yet. Add your first one!"
+    "empty": "No properties yet",
+    "empty_desc": "Add properties to your catalog and AI will automatically include their details in replies.",
+    "empty_cta": "Add first property",
+    "edit": "Edit",
+    "save_changes": "Save changes",
+    "updated": "Property updated!"
   },
   "favorites": {
-    "empty": "No favorites yet. Save a reply by clicking the star icon!",
+    "empty": "No saved replies yet",
+    "empty_desc": "Star any generated reply to save it here for quick reuse.",
+    "empty_cta": "Generate a reply",
     "removed": "Removed from favorites"
+  },
+  "confirm_dialog": {
+    "confirm": "Delete",
+    "cancel": "Cancel"
+  },
+  "auth": {
+    "forgot_password": "Forgot password?",
+    "forgot_title": "Reset your password",
+    "forgot_desc": "Enter your email and we'll send a reset link",
+    "forgot_submit": "Send reset link",
+    "forgot_sent": "Check your email for a reset link",
+    "reset_title": "Set new password",
+    "reset_new": "New password",
+    "reset_confirm": "Confirm password",
+    "reset_submit": "Update password",
+    "passwords_no_match": "Passwords do not match"
+  },
+  "cookie": {
+    "message": "We only use essential cookies for authentication. No tracking, no ads.",
+    "accept": "OK, I understand",
+    "learn_more": "Learn more"
   },
   "errors": {
     "trial_expired": "Your free trial has ended. Upgrade to Pro.",

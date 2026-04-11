@@ -1,19 +1,21 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { cn } from '@/lib/utils/cn'
-import { LayoutDashboard, History, Sparkles, Users, MoreHorizontal, Settings, CreditCard, Building2, Star, LogOut, X } from 'lucide-react'
+import { LayoutDashboard, History, Sparkles, Users, MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
+import { Settings, CreditCard, Building2, Star, LogOut, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
+import { motion, AnimatePresence } from 'motion/react'
 
 const mainTabs = [
   { key: 'nav.dashboard', href: '/dashboard', icon: LayoutDashboard },
   { key: 'nav.history', href: '/history', icon: History },
-  { key: 'nav.dashboard', href: '/dashboard', icon: Sparkles, isCenter: true },
+  { key: 'nav.generate', href: '/dashboard', icon: Sparkles, isCenter: true },
   { key: 'nav.clients', href: '/clients', icon: Users },
   { key: 'nav.more', href: '#more', icon: MoreHorizontal },
 ]
@@ -25,11 +27,30 @@ const moreItems = [
   { key: 'nav.billing', href: '/billing', icon: CreditCard },
 ]
 
+function haptic() {
+  try {
+    navigator.vibrate?.(10)
+  } catch {}
+}
+
 export function MobileNav() {
   const { t } = useTranslation()
   const pathname = usePathname()
   const router = useRouter()
   const [showMore, setShowMore] = useState(false)
+
+  const isOnDashboard = pathname === '/dashboard'
+
+  const handleCenterPress = () => {
+    haptic()
+    if (isOnDashboard) {
+      const el = document.getElementById('message-input')
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el?.focus()
+    } else {
+      router.push('/dashboard?focus=input')
+    }
+  }
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -39,48 +60,89 @@ export function MobileNav() {
 
   return (
     <>
-      {/* More menu overlay */}
-      {showMore && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowMore(false)} />
-          <div className="absolute bottom-[72px] left-3 right-3 rounded-2xl border bg-card shadow-2xl overflow-hidden animate-slide-in-bottom">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b">
-              <span className="text-xs font-semibold">{t('nav.more')}</span>
-              <div className="flex items-center gap-0.5">
-                <LanguageSwitcher />
-                <ThemeToggle />
-                <button onClick={() => setShowMore(false)} className="ml-0.5 flex h-7 w-7 items-center justify-center rounded-md hover:bg-accent transition-colors cursor-pointer" aria-label="Close">
-                  <X className="h-3.5 w-3.5 text-muted-foreground" />
+      <AnimatePresence>
+        {showMore && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-50 md:hidden"
+          >
+            {/* Overlay with backdrop blur */}
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowMore(false)}
+            />
+
+            {/* Drawer */}
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.97 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="absolute bottom-20 left-4 right-4 rounded-2xl border bg-card shadow-2xl overflow-hidden"
+            >
+              {/* Drag handle */}
+              <div className="flex justify-center pt-3 pb-1">
+                <div className="w-8 h-1 rounded-full bg-muted-foreground/30" />
+              </div>
+
+              <div className="flex items-center justify-between px-4 py-3 border-b">
+                <span className="text-sm font-semibold">{t('nav.more')}</span>
+                <div className="flex items-center gap-1">
+                  <LanguageSwitcher />
+                  <ThemeToggle />
+                  <button
+                    onClick={() => setShowMore(false)}
+                    className="ml-1 flex h-7 w-7 items-center justify-center rounded-md hover:bg-accent transition-colors cursor-pointer"
+                    aria-label="Close"
+                  >
+                    <X className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-3 grid grid-cols-2 gap-1.5">
+                {moreItems.map((item) => {
+                  const Icon = item.icon
+                  const active = pathname === item.href
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => { haptic(); setShowMore(false) }}
+                      className={cn(
+                        'flex items-center gap-2.5 rounded-lg px-3 py-3 text-sm font-medium transition-colors cursor-pointer',
+                        active
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                      )}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {t(item.key)}
+                    </Link>
+                  )
+                })}
+              </div>
+
+              <div className="px-3 pb-3">
+                <button
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4 shrink-0" />
+                  {t('nav.logout')}
                 </button>
               </div>
-            </div>
-            <div className="p-2 grid grid-cols-2 gap-1">
-              {moreItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link key={item.href} href={item.href} onClick={() => setShowMore(false)}
-                    className={cn('flex items-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-colors cursor-pointer',
-                      pathname === item.href ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent'
-                    )}>
-                    <Icon className="h-4 w-4 shrink-0" />
-                    {t(item.key)}
-                  </Link>
-                )
-              })}
-            </div>
-            <div className="px-2 pb-2">
-              <button onClick={handleLogout} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer">
-                <LogOut className="h-4 w-4 shrink-0" />
-                {t('nav.logout')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Bottom tab bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-card/95 backdrop-blur-lg md:hidden safe-area-bottom">
-        <div className="flex items-center justify-around h-[60px]">
+      {/* Bottom nav — safe-area-bottom handles iOS inset */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-card/95 backdrop-blur-xl md:hidden safe-area-bottom">
+        <div className="flex items-center justify-around px-1 h-16">
           {mainTabs.map((item, i) => {
             const Icon = item.icon
             const isMore = item.href === '#more'
@@ -88,29 +150,88 @@ export function MobileNav() {
 
             if (item.isCenter) {
               return (
-                <Link key={`center-${i}`} href={item.href} className="flex items-center justify-center -mt-4 cursor-pointer" aria-label={t(item.key)}>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                </Link>
+                <button
+                  key={`center-${i}`}
+                  onClick={handleCenterPress}
+                  className="flex flex-col items-center -mt-5 cursor-pointer"
+                  aria-label={t(item.key)}
+                >
+                  <motion.div
+                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                    animate={
+                      !isOnDashboard
+                        ? { scale: [1, 1.06, 1] }
+                        : { scale: 1 }
+                    }
+                    transition={
+                      !isOnDashboard
+                        ? { duration: 2, repeat: Infinity, repeatDelay: 3, ease: 'easeInOut' }
+                        : {}
+                    }
+                  >
+                    <Icon className="h-6 w-6" />
+                  </motion.div>
+                </button>
               )
             }
 
             if (isMore) {
               return (
-                <button key={`more-${i}`} onClick={() => setShowMore(!showMore)}
-                  className={cn('flex flex-col items-center gap-0.5 py-1.5 min-w-[48px] cursor-pointer transition-colors', showMore ? 'text-primary' : 'text-muted-foreground')}>
+                <button
+                  key={`more-${i}`}
+                  onClick={() => { haptic(); setShowMore(!showMore) }}
+                  className={cn(
+                    'relative flex flex-col items-center gap-1 px-3 py-2 text-xs cursor-pointer transition-colors min-w-[48px]',
+                    showMore ? 'text-primary' : 'text-muted-foreground'
+                  )}
+                >
                   <Icon className="h-5 w-5" />
                   <span className="text-[10px] font-medium">{t(item.key)}</span>
+                  <AnimatePresence>
+                    {showMore && (
+                      <motion.span
+                        key="dot-more"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        transition={{ duration: 0.2, ease: 'backOut' }}
+                        className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"
+                      />
+                    )}
+                  </AnimatePresence>
                 </button>
               )
             }
 
             return (
-              <Link key={item.href} href={item.href}
-                className={cn('flex flex-col items-center gap-0.5 py-1.5 min-w-[48px] cursor-pointer transition-colors', active ? 'text-primary' : 'text-muted-foreground')}>
-                <Icon className="h-5 w-5" />
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={haptic}
+                className={cn(
+                  'relative flex flex-col items-center gap-1 px-3 py-2 text-xs cursor-pointer transition-colors min-w-[48px]',
+                  active ? 'text-primary' : 'text-muted-foreground'
+                )}
+              >
+                <motion.div
+                  animate={active ? { scale: [1, 1.2, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Icon className="h-5 w-5" />
+                </motion.div>
                 <span className="text-[10px] font-medium">{t(item.key)}</span>
+                <AnimatePresence>
+                  {active && (
+                    <motion.span
+                      key="dot"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      transition={{ duration: 0.2, ease: 'backOut' }}
+                      className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"
+                    />
+                  )}
+                </AnimatePresence>
               </Link>
             )
           })}

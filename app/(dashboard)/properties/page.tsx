@@ -10,19 +10,28 @@ import { useToast } from '@/components/ui/toast'
 import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Plus, X, MapPin, Ruler, DoorOpen, Building2, ChevronDown } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Plus, X, MapPin, Ruler, DoorOpen, Building2, ChevronDown, Search } from 'lucide-react'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import type { Property } from '@/types'
 
 export default function PropertiesPage() {
   const { t, language } = useTranslation()
   const { toast } = useToast()
   const { user } = useUser()
-  const { properties } = useProperties()
+  const { properties, loading } = useProperties()
   const addProperty = useAppStore((s) => s.addProperty)
   const removeProperty = useAppStore((s) => s.removeProperty)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [form, setForm] = useState({ title: '', address: '', city: '', price: '', sqm: '', rooms: '', description: '', property_type: 'apartment' as Property['property_type'] })
+
+  const requestDelete = (id: string) => {
+    setConfirmDeleteId(id)
+    setTimeout(() => setConfirmDeleteId((cur) => (cur === id ? null : cur)), 3000)
+  }
 
   const typeLabels: Record<string, string> = language === 'hr'
     ? { apartment: 'Stan', house: 'Kuća', land: 'Zemljište', commercial: 'Poslovni', other: 'Ostalo' }
@@ -52,7 +61,7 @@ export default function PropertiesPage() {
       property_type: form.property_type,
     }).select().single()
     if (!error && data) {
-      addProperty(data as unknown as Property)
+      addProperty(data)
       setForm({ title: '', address: '', city: '', price: '', sqm: '', rooms: '', description: '', property_type: 'apartment' })
       setShowForm(false)
       toast(t('properties.added'), 'success')
@@ -61,9 +70,12 @@ export default function PropertiesPage() {
   }
 
   const handleDelete = async (id: string) => {
+    setDeleting(true)
     const supabase = createClient()
     await supabase.from('rp_properties').delete().eq('id', id)
     removeProperty(id)
+    setDeleting(false)
+    setConfirmDeleteId(null)
   }
 
   return (
@@ -99,7 +111,7 @@ export default function PropertiesPage() {
                   <div className="relative">
                     <select
                       value={form.property_type}
-                      onChange={(e) => setForm({ ...form, property_type: e.target.value as any })}
+                      onChange={(e) => setForm({ ...form, property_type: e.target.value as Property['property_type'] })}
                       className="flex h-10 w-full appearance-none rounded-lg border border-input bg-background pl-3 pr-8 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
                     >
                       {Object.entries(typeLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -148,13 +160,26 @@ export default function PropertiesPage() {
       </AnimatePresence>
 
       {/* Grid */}
-      {properties.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted mb-4">
-            <Building2 className="h-7 w-7 text-muted-foreground" />
+      {loading ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 w-full rounded-2xl" />
+          ))}
+        </div>
+      ) : properties.length === 0 ? (
+        <div className="py-20 text-center max-w-sm mx-auto">
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-info/10 mx-auto mb-5">
+            <Building2 className="h-10 w-10 text-info" />
           </div>
-          <p className="text-sm font-medium">{t('properties.empty')}</p>
-          <p className="text-xs text-muted-foreground mt-1">Add properties to use them as context when generating replies</p>
+          <h3 className="text-base font-semibold mb-2">{t('properties.empty')}</h3>
+          <p className="text-sm text-muted-foreground mb-6">{t('properties.empty_desc')}</p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
+          >
+            <Plus className="h-4 w-4" />
+            {t('properties.empty_cta')}
+          </button>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -168,12 +193,14 @@ export default function PropertiesPage() {
                       {typeLabels[prop.property_type]}
                     </span>
                   </div>
-                  <button
-                    onClick={() => handleDelete(prop.id)}
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all cursor-pointer"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+                  <div className="flex items-center justify-end w-[62px] shrink-0">
+                    <button
+                      onClick={() => setConfirmDeleteId(prop.id)}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all cursor-pointer"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 {prop.price && (
@@ -194,6 +221,20 @@ export default function PropertiesPage() {
           ))}
         </div>
       )}
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={() => confirmDeleteId && handleDelete(confirmDeleteId)}
+        title={language === 'hr' ? 'Obrisati nekretninu?' : 'Delete property?'}
+        description={
+          language === 'hr'
+            ? `Ovo će trajno obrisati ${properties.find((p) => p.id === confirmDeleteId)?.title ?? ''}.`
+            : `This will permanently delete ${properties.find((p) => p.id === confirmDeleteId)?.title ?? ''}.`
+        }
+        confirmLabel={t('confirm_dialog.confirm')}
+        cancelLabel={t('confirm_dialog.cancel')}
+        loading={deleting}
+      />
     </div>
   )
 }

@@ -1,12 +1,13 @@
-﻿'use client'
+'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useProfile } from '@/hooks/useProfile'
 import { useAppStore } from '@/store/app-store'
 import { useToast } from '@/components/ui/toast'
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { TrialBanner } from '@/components/dashboard/TrialBanner'
 import { StatsCards } from '@/components/dashboard/StatsCards'
 import { MessageInput } from '@/components/dashboard/MessageInput'
@@ -15,11 +16,19 @@ import { ReplyGrid } from '@/components/dashboard/ReplyGrid'
 import { TemplateSelector } from '@/components/dashboard/TemplateSelector'
 import { ClientSelector } from '@/components/dashboard/ClientSelector'
 import { PropertySelector } from '@/components/dashboard/PropertySelector'
-import { ChevronDown, ChevronUp, X, LayoutTemplate, Sparkles } from 'lucide-react'
+import { ChevronDown, ChevronUp, X, LayoutTemplate, Sparkles, Keyboard } from 'lucide-react'
+import { sanitizeMessage } from '@/lib/utils/sanitize'
+import { ErrorBoundary } from '@/components/ui/error-boundary'
 import type { GenerateResponse, Template } from '@/types'
 
 export default function DashboardPage() {
   return <Suspense><DashboardContent /></Suspense>
+}
+
+// Detect if user is on Mac
+function isMac() {
+  if (typeof navigator === 'undefined') return false
+  return /Mac|iPhone|iPad|iPod/.test(navigator.platform)
 }
 
 function DashboardContent() {
@@ -38,6 +47,22 @@ function DashboardContent() {
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null)
   const [templateContext, setTemplateContext] = useState<string | null>(null)
   const [showTemplates, setShowTemplates] = useState(false)
+  const [showShortcuts, setShowShortcuts] = useState(false)
+  const legendRef = useRef<HTMLDivElement>(null)
+  const mac = isMac()
+  const modKey = mac ? '⌘' : 'Ctrl'
+
+
+  useEffect(() => {
+    if (searchParams.get('focus') === 'input') {
+      const el = document.getElementById('message-input')
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        el.focus()
+      }
+      window.history.replaceState({}, '', '/dashboard')
+    }
+  }, [searchParams])
 
   useEffect(() => {
     if (searchParams.get('success') === 'true') {
@@ -53,6 +78,55 @@ function DashboardContent() {
       window.history.replaceState({}, '', '/dashboard')
     }
   }, [searchParams, subscription, setSubscription, toast])
+
+  // Close shortcut legend on outside click
+  useEffect(() => {
+    if (!showShortcuts) return
+    const handler = (e: MouseEvent) => {
+      if (legendRef.current && !legendRef.current.contains(e.target as Node)) {
+        setShowShortcuts(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showShortcuts])
+
+  const copyReply = (text: string | null | undefined, label: string) => {
+    if (!text) return
+    navigator.clipboard.writeText(text)
+    toast(`${label} — copied`)
+  }
+
+  useKeyboardShortcuts([
+    {
+      key: 'Enter',
+      meta: mac,
+      ctrl: !mac,
+      description: `${modKey}+Enter — Generate replies`,
+      handler: () => { if (!loading && message.trim() && canGenerate) handleGenerate() },
+    },
+    {
+      key: '1',
+      meta: mac,
+      ctrl: !mac,
+      description: `${modKey}+1 — Copy professional reply`,
+      handler: () => copyReply(replies?.professional, 'Professional'),
+    },
+    {
+      key: '2',
+      meta: mac,
+      ctrl: !mac,
+      description: `${modKey}+2 — Copy friendly reply`,
+      handler: () => copyReply(replies?.friendly, 'Friendly'),
+    },
+    {
+      key: '3',
+      meta: mac,
+      ctrl: !mac,
+      description: `${modKey}+3 — Copy direct reply`,
+      handler: () => copyReply(replies?.direct, 'Direct'),
+    },
+  ])
 
   const canGenerate =
     subscription?.status === 'active' ||
@@ -72,7 +146,7 @@ function DashboardContent() {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: message.trim(), client_id: selectedClient, property_id: selectedProperty, template_context: templateContext }),
+        body: JSON.stringify({ message: message.trim(), client_id: selectedClient, property_id: selectedProperty, template_context: templateContext ? sanitizeMessage(templateContext) : null }),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -87,30 +161,71 @@ function DashboardContent() {
         setSubscription({ ...subscription, trial_generations_used: subscription.trial_generations_used + 1 })
       }
       addGeneration({
-        id: crypto.randomUUID(), user_id: '', original_message: message.trim(),
-        reply_professional: data.professional, reply_friendly: data.friendly, reply_direct: data.direct,
-        detected_language: data.detected_language, client_id: selectedClient, created_at: new Date().toISOString(),
+        id: crypto.randomUUID(),
+        user_id: '',
+        original_message: message.trim(),
+        reply_professional: data.professional,
+        reply_friendly: data.friendly,
+        reply_direct: data.direct,
+        detected_language: data.detected_language,
+        client_id: selectedClient,
+        created_at: new Date().toISOString(),
       })
-    } catch { toast(t('errors.generation_failed'), 'error') }
+    } catch {
+      toast(t('errors.generation_failed'), 'error')
+    }
     setLoading(false)
   }
 
   const firstName = profile?.full_name?.split(' ')[0] || ''
+  const heading = firstName ? t('dashboard.welcome') + ', ' + firstName : t('nav.dashboard')
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          {firstName ? `${t('dashboard.welcome')}, ${firstName}` : t('nav.dashboard')}
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">{t('dashboard.subtitle') || 'Generate AI-powered replies for your clients'}</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">{heading}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('dashboard.subtitle') || 'Generate AI-powered replies for your clients'}</p>
+        </div>
+        {/* Keyboard shortcut legend — desktop only */}
+        <div className="relative hidden md:block" ref={legendRef}>
+          <button
+            onClick={() => setShowShortcuts((v) => !v)}
+            aria-label="Keyboard shortcuts"
+            className="flex h-8 w-8 items-center justify-center rounded-full border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+          >
+            <Keyboard className="h-4 w-4" />
+          </button>
+          {showShortcuts && (
+            <div className="absolute right-0 top-10 z-50 w-64 rounded-xl border bg-card shadow-lg p-4 space-y-2.5">
+              <p className="text-xs font-semibold text-foreground mb-1">Keyboard Shortcuts</p>
+              {[
+                { keys: `${modKey} Enter`, label: 'Generate replies' },
+                { keys: `${modKey} 1`, label: 'Copy professional reply' },
+                { keys: `${modKey} 2`, label: 'Copy friendly reply' },
+                { keys: `${modKey} 3`, label: 'Copy direct reply' },
+              ].map(({ keys, label }) => (
+                <div key={keys} className="flex items-center justify-between gap-4">
+                  <span className="text-xs text-muted-foreground">{label}</span>
+                  <kbd className="inline-flex items-center rounded-md border bg-muted px-1.5 py-0.5 text-[11px] font-mono font-medium text-foreground whitespace-nowrap">
+                    {keys}
+                  </kbd>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      <StatsCards />
-      <TrialBanner />
+      <ErrorBoundary>
+        <StatsCards />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <TrialBanner />
+      </ErrorBoundary>
 
       {/* Generator */}
+      <ErrorBoundary>
       <div className="rounded-2xl border bg-card overflow-hidden">
         <div className="flex items-center gap-3 px-5 py-3.5 border-b bg-muted/20">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
@@ -165,8 +280,12 @@ function DashboardContent() {
           </div>
 
           <GenerateButton onClick={handleGenerate} loading={loading} disabled={!message.trim() || !canGenerate} />
+          <p className="hidden md:block text-xs text-muted-foreground text-center -mt-1">
+            {mac ? '⌘ Enter to generate' : 'Ctrl+Enter to generate'}
+          </p>
         </div>
       </div>
+      </ErrorBoundary>
 
       {/* Results */}
       {(replies || loading) && (
@@ -175,7 +294,14 @@ function DashboardContent() {
             <p className="text-sm font-semibold">Generated Replies</p>
             <div className="flex-1 h-px bg-border" />
           </div>
-          <ReplyGrid professional={replies?.professional ?? null} friendly={replies?.friendly ?? null} direct={replies?.direct ?? null} loading={loading} />
+          <ErrorBoundary>
+            <ReplyGrid
+              professional={replies?.professional ?? null}
+              friendly={replies?.friendly ?? null}
+              direct={replies?.direct ?? null}
+              loading={loading}
+            />
+          </ErrorBoundary>
         </div>
       )}
     </div>

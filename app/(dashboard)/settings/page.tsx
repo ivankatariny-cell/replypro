@@ -14,13 +14,15 @@ import { useAppStore } from '@/store/app-store'
 import { useToast } from '@/components/ui/toast'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Loader2, User, Shield, Download, ChevronDown } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Loader2, User, Shield, Download, ChevronDown, Trash2 } from 'lucide-react'
 
 const schema = z.object({
   full_name: z.string().min(2).max(100),
   agency_name: z.string().min(2).max(200),
   city: z.string().min(2).max(100),
   preferred_tone: z.enum(['formal', 'mixed', 'casual']),
+  language: z.enum(['hr', 'en']),
 })
 type FormData = z.infer<typeof schema>
 
@@ -32,34 +34,67 @@ export default function SettingsPage() {
   const { subscription } = useSubscription()
   const generations = useAppStore((s) => s.generations)
   const clients = useAppStore((s) => s.clients)
+  const setLanguage = useAppStore((s) => s.setLanguage)
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
+  const [deleting, setDeleting] = useState(false)
 
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
   const watchedTone = watch('preferred_tone')
 
   useEffect(() => {
-    if (profile) reset({ full_name: profile.full_name || '', agency_name: profile.agency_name || '', city: profile.city || '', preferred_tone: profile.preferred_tone || 'mixed' })
+    if (profile) reset({ full_name: profile.full_name || '', agency_name: profile.agency_name || '', city: profile.city || '', preferred_tone: profile.preferred_tone || 'mixed', language: (profile.language as 'hr' | 'en') || 'hr' })
   }, [profile, reset])
 
   const onSubmit = async (data: FormData) => {
     if (!user) return
     setLoading(true)
     const supabase = createClient()
-    const { error } = await supabase.from('profiles').update({ full_name: data.full_name, agency_name: data.agency_name, city: data.city, preferred_tone: data.preferred_tone }).eq('id', user.id)
-    if (!error) toast(t('settings.saved'), 'success')
+    const { error } = await supabase.from('profiles').update({ full_name: data.full_name, agency_name: data.agency_name, city: data.city, preferred_tone: data.preferred_tone, language: data.language }).eq('id', user.id)
+    if (!error) {
+      toast(t('settings.saved'), 'success')
+      setLanguage(data.language)
+    }
     setLoading(false)
   }
 
-  const handleExport = () => {
-    const data = { profile, generations: generations.length, clients: clients.map((c) => ({ name: c.full_name, status: c.status, city: c.city })), exported_at: new Date().toISOString() }
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `replypro-export-${new Date().toISOString().split('T')[0]}.json`
-    a.click()
-    URL.revokeObjectURL(url)
-    toast(t('settings.exported'), 'success')
+  const [exporting, setExporting] = useState(false)
+
+  const handleExport = async () => {
+    setExporting(true)
+    try {
+      const res = await fetch('/api/user/export')
+      if (!res.ok) throw new Error('Export failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      const date = new Date().toISOString().split('T')[0]
+      a.download = `replypro-data-export-${date}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast(t('settings.exported'), 'success')
+    } catch {
+      toast(language === 'hr' ? 'Greška pri izvozu podataka.' : 'Export failed. Please try again.', 'error')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!user || deleteConfirmEmail !== user.email) return
+    setDeleting(true)
+    try {
+      const res = await fetch('/api/user/delete', { method: 'DELETE' })
+      if (!res.ok) throw new Error('Delete failed')
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      router.push('/')
+    } catch {
+      toast(t('settings.delete_error'), 'error')
+      setDeleting(false)
+    }
   }
 
   const toneDesc: Record<string, Record<string, string>> = {
@@ -118,6 +153,16 @@ export default function SettingsPage() {
                   </div>
                   {watchedTone && <p className="text-xs text-muted-foreground">{toneDesc[language]?.[watchedTone]}</p>}
                 </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="language" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('settings.language_label')}</Label>
+                  <div className="relative">
+                    <select id="language" {...register('language')} className="flex h-10 w-full appearance-none rounded-lg border border-input bg-background pl-3 pr-8 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring">
+                      <option value="hr">{t('settings.language_hr')}</option>
+                      <option value="en">{t('settings.language_en')}</option>
+                    </select>
+                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                  </div>
+                </div>
               </div>
               <button type="submit" disabled={loading} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 cursor-pointer transition-colors">
                 {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
@@ -170,10 +215,54 @@ export default function SettingsPage() {
               <p className="text-xs text-muted-foreground">{t('settings.export_desc')}</p>
             </div>
           </div>
-          <div className="p-6">
-            <button onClick={handleExport} className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors cursor-pointer">
-              <Download className="h-3.5 w-3.5" />
-              {t('settings.export_btn')}
+          <div className="p-6 space-y-3">
+            <button onClick={handleExport} disabled={exporting} className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors cursor-pointer disabled:opacity-50">
+              {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+              {exporting ? (language === 'hr' ? 'Izvoz u tijeku...' : 'Exporting...') : t('settings.export_btn')}
+            </button>
+            <p className="text-xs text-muted-foreground">
+              {language === 'hr'
+                ? 'Izvoz uključuje sve vaše osobne podatke u skladu s GDPR-om (čl. 20).'
+                : 'Export includes all your personal data in compliance with GDPR (Art. 20).'}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+      {/* Danger Zone */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22, duration: 0.25 }}>
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-destructive/20">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10">
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-destructive">{t('settings.delete_title')}</p>
+              <p className="text-xs text-muted-foreground">{t('settings.delete_desc')}</p>
+            </div>
+          </div>
+          <div className="p-6 space-y-4">
+            <p className="text-sm text-muted-foreground">{t('settings.delete_warning')}</p>
+            <div className="space-y-1.5">
+              <Label htmlFor="delete-confirm" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                {t('settings.delete_confirm_label')}
+              </Label>
+              <Input
+                id="delete-confirm"
+                type="email"
+                value={deleteConfirmEmail}
+                onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                placeholder={t('settings.delete_confirm_placeholder')}
+                className="rounded-lg border-destructive/30 focus:ring-destructive/30"
+                autoComplete="off"
+              />
+            </div>
+            <button
+              onClick={handleDelete}
+              disabled={deleting || deleteConfirmEmail !== user?.email}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            >
+              {deleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              {deleting ? t('settings.deleting') : t('settings.delete_btn')}
             </button>
           </div>
         </div>

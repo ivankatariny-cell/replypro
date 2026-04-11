@@ -4,6 +4,7 @@ import { generateReplies } from '@/lib/groq/client'
 import { buildSystemPrompt } from '@/lib/prompts/real-estate'
 import { sanitizeMessage } from '@/lib/utils/sanitize'
 import { rateLimit } from '@/lib/utils/rate-limit'
+import { sendTrialLowEmail, sendTrialExpiredEmail } from '@/lib/resend/emails'
 import type { GenerateResponse, ApiError } from '@/types'
 
 export async function POST(req: NextRequest) {
@@ -17,11 +18,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { allowed, retryAfter } = rateLimit(user.id)
-    if (!allowed) {
+    const { success } = await rateLimit(user.id)
+    if (!success) {
       return NextResponse.json(
         { error: 'Too many requests', code: 'RATE_LIMITED' } satisfies ApiError,
-        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+        { status: 429, headers: { 'Retry-After': '60' } }
       )
     }
 
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Trial limit pre-check (non-atomic, just for fast-path rejection before AI call)
     if (sub.status === 'trial' && sub.trial_generations_used >= sub.trial_generations_limit) {
       return NextResponse.json(
         { error: 'Trial limit reached', code: 'TRIAL_EXPIRED' } satisfies ApiError,
@@ -102,8 +104,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Template context
-    const templateCtx = body.template_context ? `\n\nKONTEKST PREDLOŠKA: ${body.template_context}` : ''
+    // Template context — sanitize server-side to prevent prompt injection
+    const sanitizedTemplateCtx = body.template_context ? sanitizeMessage(body.template_context) : ''
+    const templateCtx = sanitizedTemplateCtx ? `\n\nKONTEKST PREDLOŠKA: ${sanitizedTemplateCtx}` : ''
 
     const systemPrompt = buildSystemPrompt({
       agentName: profile.full_name,
@@ -115,7 +118,7 @@ export async function POST(req: NextRequest) {
     const enrichedPrompt = systemPrompt + clientContext + propertyContext + templateCtx
     const aiResult = await generateReplies(enrichedPrompt, message)
 
-    await serviceClient.from('rp_generations').insert({
+    const { data: genRow, error: genInsertError } = await serviceClient.from('rp_generations').insert({
       user_id: user.id,
       original_message: message,
       reply_professional: aiResult.professional,
@@ -123,18 +126,57 @@ export async function POST(req: NextRequest) {
       reply_direct: aiResult.direct,
       detected_language: aiResult.detected_language,
       client_id: body.client_id || null,
-    })
+    }).select('id').single()
 
-    if (sub.status === 'trial') {
-      await serviceClient
-        .from('rp_subscriptions')
-        .update({ trial_generations_used: sub.trial_generations_used + 1 })
-        .eq('user_id', user.id)
+    if (genInsertError || !genRow) {
+      console.error('[generate] failed to insert generation', genInsertError)
+      return NextResponse.json(
+        { error: 'Failed to save generation', code: 'GENERATION_FAILED' } satisfies ApiError,
+        { status: 500 }
+      )
     }
 
     let generationsRemaining: number | null = null
     if (sub.status === 'trial') {
-      generationsRemaining = sub.trial_generations_limit - sub.trial_generations_used - 1
+      const { data: rpcResult, error: rpcError } = await serviceClient
+        .rpc('increment_trial_usage', { p_user_id: user.id })
+        .single()
+
+      if (rpcError) {
+        console.error('[generate] increment_trial_usage RPC failed', rpcError)
+        return NextResponse.json(
+          { error: 'Failed to update trial usage', code: 'GENERATION_FAILED' } satisfies ApiError,
+          { status: 500 }
+        )
+      }
+
+      if (!rpcResult.success) {
+        // Exhausted — send expired email then reject
+        const { data: profileForEmail } = await serviceClient
+          .from('profiles').select('language').eq('id', user.id).single()
+        try {
+          await sendTrialExpiredEmail(user.email!, profileForEmail?.language ?? 'en')
+        } catch (emailErr) {
+          console.error('[generate] sendTrialExpiredEmail failed', emailErr)
+        }
+        return NextResponse.json(
+          { error: 'Trial limit reached', code: 'TRIAL_EXPIRED' } satisfies ApiError,
+          { status: 402 }
+        )
+      }
+
+      generationsRemaining = rpcResult.generations_limit - rpcResult.generations_used
+
+      // Warn when running low (1 generation left)
+      if (generationsRemaining === 1) {
+        const { data: profileForEmail } = await serviceClient
+          .from('profiles').select('language').eq('id', user.id).single()
+        try {
+          await sendTrialLowEmail(user.email!, profileForEmail?.language ?? 'en')
+        } catch (emailErr) {
+          console.error('[generate] sendTrialLowEmail failed', emailErr)
+        }
+      }
     }
 
     const response: GenerateResponse = {
@@ -147,6 +189,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(response)
   } catch (err) {
+    if (err instanceof Error && err.message.includes('timed out after 30 seconds')) {
+      return NextResponse.json(
+        { error: 'The AI took too long to respond. Please try again in a moment.', code: 'AI_TIMEOUT' } satisfies ApiError,
+        { status: 504 }
+      )
+    }
     const message = err instanceof Error ? err.message : 'Generation failed'
     return NextResponse.json(
       { error: message, code: 'GENERATION_FAILED' } satisfies ApiError,

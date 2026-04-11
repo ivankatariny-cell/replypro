@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from 'motion/react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { Navbar } from '@/components/layout/Navbar'
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -127,6 +128,11 @@ function HeroIllustration() {
         <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
         <span className="text-xs font-semibold">4.9 / 5.0</span>
       </motion.div>
+
+      {/* Powered by badge */}
+      <div className="absolute bottom-3 right-3 text-[10px] text-muted-foreground/50 font-mono select-none">
+        Powered by Llama 3.3
+      </div>
     </motion.div>
   )
 }
@@ -276,7 +282,10 @@ export default function LandingPage() {
                 </a>
               </MagneticButton>
             </div>
-            <p className="text-xs text-muted-foreground mt-3">{t('landing.no_card')}</p>
+            <p className="text-xs text-muted-foreground mt-3 flex items-center justify-center gap-1.5">
+              <Check className="h-3 w-3 text-primary" />
+              {t('landing.no_card')}
+            </p>
           </FadeUp>
 
           <HeroIllustration />
@@ -288,10 +297,10 @@ export default function LandingPage() {
         <div className="border-y bg-muted/30 py-4 px-4 overflow-hidden">
           <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-6 md:gap-10">
             {[
-              { value: '500+', label: 'agenata' },
-              { value: '50k+', label: 'odgovora' },
-              { value: '4.9★', label: 'ocjena' },
-              { value: '10×', label: 'brže' },
+              { value: '10', label: t('landing.strip_free_gen') },
+              { value: '0', label: t('landing.strip_no_card') },
+              { value: 'HR + EN', label: t('landing.strip_languages') },
+              { value: '10×', label: t('landing.strip_faster') },
             ].map((s, i) => (
               <motion.div
                 key={i}
@@ -666,19 +675,34 @@ export default function LandingPage() {
 
       {/* ── Footer ── */}
       <footer className="py-8 px-4 border-t">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="max-w-5xl mx-auto flex flex-col items-center gap-4 text-center">
           <motion.div whileHover={{ scale: 1.03 }} className="flex items-center gap-2 cursor-pointer">
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <MessageSquare className="h-3.5 w-3.5" />
             </div>
             <span className="font-heading font-bold text-sm">ReplyPro</span>
           </motion.div>
-          <div className="flex gap-5 text-sm text-muted-foreground">
-            {[t('landing.footer_terms'), t('landing.footer_privacy'), t('landing.footer_contact')].map((link) => (
-              <motion.a key={link} href="#" whileHover={{ color: 'hsl(var(--foreground))' }} className="transition-colors cursor-pointer">{link}</motion.a>
-            ))}
+          <div className="flex flex-wrap justify-center gap-5 text-sm text-muted-foreground">
+            <Link href="/terms">
+              <motion.span whileHover={{ color: 'hsl(var(--foreground))' }} className="transition-colors cursor-pointer">{t('landing.footer_terms')}</motion.span>
+            </Link>
+            <Link href="/uvjeti">
+              <motion.span whileHover={{ color: 'hsl(var(--foreground))' }} className="transition-colors cursor-pointer">Uvjeti korištenja</motion.span>
+            </Link>
+            <Link href="/privacy">
+              <motion.span whileHover={{ color: 'hsl(var(--foreground))' }} className="transition-colors cursor-pointer">{t('landing.footer_privacy')}</motion.span>
+            </Link>
+            <Link href="/privatnost">
+              <motion.span whileHover={{ color: 'hsl(var(--foreground))' }} className="transition-colors cursor-pointer">Privatnost</motion.span>
+            </Link>
+            <a href="mailto:info@replypro.hr">
+              <motion.span whileHover={{ color: 'hsl(var(--foreground))' }} className="transition-colors cursor-pointer">{t('landing.footer_contact')}</motion.span>
+            </a>
           </div>
-          <p className="text-xs text-muted-foreground">&copy; 2026 ReplyPro</p>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+          </div>
+          <p className="text-xs text-muted-foreground">&copy; 2026 ReplyPro. Sva prava pridržana.</p>
         </div>
       </footer>
     </div>

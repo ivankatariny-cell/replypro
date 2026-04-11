@@ -9,7 +9,6 @@ import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/hooks/useUser'
 import { Badge } from '@/components/ui/badge'
 import { Copy, Check, Pencil, Star, Save, X } from 'lucide-react'
-
 interface Props {
   tone: 'professional' | 'friendly' | 'direct'
   content: string
@@ -38,7 +37,7 @@ export function ReplyCard({ tone, content, index = 0, generationId }: Props) {
   const handleCopy = async () => {
     await navigator.clipboard.writeText(text)
     setCopied(true)
-    toast(t('dashboard.copied'))
+    toast(`${t(`dashboard.tone_${tone}`)} — ${t('dashboard.copied')}`)
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -53,7 +52,7 @@ export function ReplyCard({ tone, content, index = 0, generationId }: Props) {
       content: text,
     }).select().single()
     if (!error && data) {
-      addFavorite(data as any)
+      addFavorite(data)
       setStarred(true)
       toast(t('dashboard.saved_favorite'))
     }

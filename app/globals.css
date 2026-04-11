@@ -213,3 +213,17 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Cookie banner slide-in */
+@keyframes slide-up-banner {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.cookie-banner {
+  animation: slide-up-banner 0.3s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cookie-banner { animation: none; }
+}

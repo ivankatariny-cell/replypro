@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import './globals.css'
 import { ToastProvider } from '@/components/ui/toast'
+import { CookieBanner } from '@/components/ui/cookie-banner'
 
 const inter = Inter({
   subsets: ['latin', 'latin-ext'],
@@ -11,15 +12,36 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'ReplyPro — AI Reply Assistant for Real Estate Agents',
-  description: 'Paste a client message. Get 3 perfect replies in 5 seconds.',
+  metadataBase: new URL('https://replypro.hr'),
+  title: {
+    default: 'ReplyPro — AI odgovori za agente nekretnina',
+    template: '%s | ReplyPro',
+  },
+  description: 'ReplyPro generira 3 savršena odgovora za svaku poruku klijenta za 5 sekundi. Napravljeno za agente nekretnina u Hrvatskoj.',
+  keywords: ['AI asistent nekretnine', 'odgovori klijentima', 'agent nekretnina alat', 'real estate AI Croatia', 'ReplyPro'],
+  authors: [{ name: 'ReplyPro' }],
+  creator: 'ReplyPro',
   openGraph: {
-    title: 'ReplyPro — AI Reply Assistant for Real Estate Agents',
-    description: 'Paste a client message. Get 3 perfect replies in 5 seconds.',
+    type: 'website',
+    locale: 'hr_HR',
+    alternateLocale: 'en_US',
     url: 'https://replypro.hr',
     siteName: 'ReplyPro',
-    locale: 'hr_HR',
-    type: 'website',
+    title: 'ReplyPro — AI odgovori za agente nekretnina',
+    description: 'Generirajte 3 savršena odgovora za svaku poruku klijenta za 5 sekundi.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ReplyPro — AI odgovori za agente nekretnina',
+    description: 'Generirajte 3 savršena odgovora za svaku poruku klijenta za 5 sekundi.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+  },
+  icons: {
+    icon: '/favicon.ico',
   },
 }
 
@@ -31,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ToastProvider>
             {children}
           </ToastProvider>
+          <CookieBanner />
         </ThemeProvider>
       </body>
     </html>

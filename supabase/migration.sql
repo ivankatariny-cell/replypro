@@ -133,27 +133,7 @@ CREATE POLICY "Users can update own templates" ON rp_templates FOR UPDATE USING 
 CREATE POLICY "Users can delete own templates" ON rp_templates FOR DELETE USING (auth.uid() = user_id AND is_system = false);
 
 -- ============================================
--- FAVORITES TABLE
--- ============================================
-CREATE TABLE IF NOT EXISTS rp_favorites (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  generation_id uuid REFERENCES rp_generations(id) ON DELETE SET NULL,
-  tone text NOT NULL CHECK (tone IN ('professional','friendly','direct')),
-  content text NOT NULL,
-  label text,
-  created_at timestamptz DEFAULT now()
-);
-
-CREATE INDEX idx_rp_favorites_user ON rp_favorites(user_id);
-
-ALTER TABLE rp_favorites ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own favorites" ON rp_favorites FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own favorites" ON rp_favorites FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can delete own favorites" ON rp_favorites FOR DELETE USING (auth.uid() = user_id);
-
--- ============================================
--- GENERATIONS TABLE (add client_id)
+-- GENERATIONS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS rp_generations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -175,6 +155,26 @@ CREATE POLICY "Users can view own generations" ON rp_generations FOR SELECT USIN
 CREATE POLICY "Users can insert own generations" ON rp_generations FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- ============================================
+-- FAVORITES TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS rp_favorites (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  generation_id uuid REFERENCES rp_generations(id) ON DELETE SET NULL,
+  tone text NOT NULL CHECK (tone IN ('professional','friendly','direct')),
+  content text NOT NULL,
+  label text,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE INDEX idx_rp_favorites_user ON rp_favorites(user_id);
+
+ALTER TABLE rp_favorites ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own favorites" ON rp_favorites FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own favorites" ON rp_favorites FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own favorites" ON rp_favorites FOR DELETE USING (auth.uid() = user_id);
+
+-- ============================================
 -- AUTO-CREATE PROFILE + SUBSCRIPTION ON SIGNUP
 -- ============================================
 CREATE OR REPLACE FUNCTION handle_new_user()
@@ -189,3 +189,36 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- ============================================
+-- ATOMIC TRIAL USAGE INCREMENT
+-- Prevents race conditions by using FOR UPDATE lock
+-- ============================================
+CREATE OR REPLACE FUNCTION increment_trial_usage(p_user_id uuid)
+RETURNS TABLE(success boolean, generations_used integer, generations_limit integer)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_used integer;
+  v_limit integer;
+  v_status text;
+BEGIN
+  SELECT trial_generations_used, trial_generations_limit, status
+    INTO v_used, v_limit, v_status
+    FROM rp_subscriptions
+   WHERE user_id = p_user_id
+     FOR UPDATE;
+
+  IF v_status != 'trial' OR v_used >= v_limit THEN
+    RETURN QUERY SELECT false, v_used, v_limit;
+    RETURN;
+  END IF;
+
+  UPDATE rp_subscriptions
+     SET trial_generations_used = trial_generations_used + 1
+   WHERE user_id = p_user_id;
+
+  RETURN QUERY SELECT true, v_used + 1, v_limit;
+END;
+$$;

@@ -10,15 +10,20 @@
     "clients": "Klijenti",
     "properties": "Nekretnine",
     "favorites": "Favoriti",
-    "more": "Više"
+    "more": "Više",
+    "generate": "Generiraj"
   },
   "landing": {
     "badge": "AI asistent za nekretnine",
     "headline": "Odgovorite klijentu za 5 sekundi. Ne za 5 minuta.",
-    "subheadline": "ReplyPro piše savršene odgovore umjesto vas. Vi samo kliknete 'Pošalji'.",
+    "subheadline": "ReplyPro generira 3 savršena odgovora za svaku poruku klijenta — Profesionalno, Prijateljski ili Direktno. Napravljeno za agente nekretnina.",
     "cta_primary": "Počnite besplatno",
     "cta_secondary": "Pogledajte kako radi",
     "no_card": "10 besplatnih generacija. Bez kreditne kartice.",
+    "strip_free_gen": "besplatnih generacija",
+    "strip_no_card": "Bez kreditne kartice",
+    "strip_languages": "Hrvatski i engleski",
+    "strip_faster": "brže",
     "pain_title": "Poznato vam je ovo?",
     "pain_1": "Klijent šalje poruku u 22:00. Vi odgovarate sutra u 10:00. On je već kod konkurencije.",
     "pain_2": "Pišete isti odgovor 15. put ovaj tjedan. Copy-paste iz stare poruke.",
@@ -146,7 +151,9 @@
   },
   "history": {
     "title": "Povijest generacija",
-    "empty": "Još nemate generiranih odgovora.",
+    "empty": "Još nema generacija",
+    "empty_desc": "Vaši AI generirani odgovori pojavit će se ovdje nakon prve generacije.",
+    "empty_cta": "Generiraj prvi odgovor",
     "original": "Originalna poruka",
     "go_to_dashboard": "Idi na nadzornu ploču",
     "total": "ukupno",
@@ -169,7 +176,18 @@
     "export_title": "Izvoz podataka",
     "export_desc": "Preuzmite kopiju vaših podataka",
     "export_btn": "Izvezi podatke",
-    "exported": "Podaci izvezeni!"
+    "exported": "Podaci izvezeni!",
+    "language_label": "Jezik",
+    "language_hr": "Hrvatski",
+    "language_en": "English",
+    "delete_title": "Brisanje računa",
+    "delete_desc": "Trajno obrišite svoj račun i sve povezane podatke. Ova radnja se ne može poništiti.",
+    "delete_warning": "Ovo će trajno obrisati vaš profil, sve generirane odgovore, klijente, nekretnine, predloške i favorite. Nema načina za oporavak ovih podataka.",
+    "delete_confirm_label": "Upišite svoju email adresu za potvrdu",
+    "delete_confirm_placeholder": "vas@email.com",
+    "delete_btn": "Trajno obriši moj račun",
+    "deleting": "Brisanje...",
+    "delete_error": "Brisanje računa nije uspjelo. Pokušajte ponovo."
   },
   "billing": {
     "trial_title": "Besplatni period",
@@ -186,11 +204,16 @@
     "syncing": "Sinkronizacija...",
     "no_payment": "Nema pronađenog plaćanja",
     "pro_activated": "Pro plan aktiviran!",
-    "payment_issue": "Problem s plaćanjem"
+    "payment_issue": "Problem s plaćanjem",
+    "manage_btn": "Upravljaj pretplatom",
+    "managing": "Preusmjeravanje...",
+    "portal_error": "Nije moguće otvoriti portal za naplatu. Pokušajte ponovo."
   },
   "clients": {
     "add": "Dodaj klijenta",
     "cancel": "Odustani",
+    "confirm_delete": "Potvrdi",
+    "cancel_delete": "Odustani",
     "name": "Ime i prezime",
     "phone_label": "Telefon",
     "interest": "Interes za nekretninu",
@@ -202,12 +225,19 @@
     "deleted": "Klijent obrisan",
     "search": "Pretraži klijente...",
     "all_statuses": "Svi statusi",
-    "empty": "Još nemate klijenata. Dodajte prvog!",
-    "budget": "Budžet"
+    "empty": "Još nema klijenata",
+    "empty_desc": "Dodajte prvog klijenta za praćenje interesa i povezivanje s AI odgovorima.",
+    "empty_cta": "Dodaj prvog klijenta",
+    "budget": "Budžet",
+    "edit": "Uredi",
+    "save_changes": "Spremi promjene",
+    "updated": "Klijent ažuriran!"
   },
   "properties": {
     "add": "Dodaj nekretninu",
     "cancel": "Odustani",
+    "confirm_delete": "Potvrdi",
+    "cancel_delete": "Odustani",
     "title": "Naziv",
     "type": "Tip",
     "address": "Adresa",
@@ -216,11 +246,39 @@
     "description": "Opis",
     "save": "Spremi nekretninu",
     "added": "Nekretnina dodana!",
-    "empty": "Još nemate nekretnina. Dodajte prvu!"
+    "empty": "Još nema nekretnina",
+    "empty_desc": "Dodajte nekretnine u katalog i AI će automatski uključiti detalje u odgovore.",
+    "empty_cta": "Dodaj prvu nekretninu",
+    "edit": "Uredi",
+    "save_changes": "Spremi promjene",
+    "updated": "Nekretnina ažurirana!"
   },
   "favorites": {
-    "empty": "Još nemate favorita. Spremite odgovor klikom na zvjezdicu!",
+    "empty": "Još nema spremljenih odgovora",
+    "empty_desc": "Označite zvjezdicom bilo koji generirani odgovor da ga ovdje spremate za brzu ponovnu upotrebu.",
+    "empty_cta": "Generiraj odgovor",
     "removed": "Uklonjeno iz favorita"
+  },
+  "confirm_dialog": {
+    "confirm": "Obriši",
+    "cancel": "Odustani"
+  },
+  "auth": {
+    "forgot_password": "Zaboravili ste lozinku?",
+    "forgot_title": "Resetirajte lozinku",
+    "forgot_desc": "Unesite email i poslat ćemo vam link",
+    "forgot_submit": "Pošalji link",
+    "forgot_sent": "Provjerite email za link za reset",
+    "reset_title": "Postavite novu lozinku",
+    "reset_new": "Nova lozinka",
+    "reset_confirm": "Potvrdi lozinku",
+    "reset_submit": "Ažuriraj lozinku",
+    "passwords_no_match": "Lozinke se ne podudaraju"
+  },
+  "cookie": {
+    "message": "Koristimo samo neophodne kolačiće za autentifikaciju. Bez praćenja, bez oglasa.",
+    "accept": "OK, razumijem",
+    "learn_more": "Saznaj više"
   },
   "errors": {
     "trial_expired": "Vaš besplatni period je završio. Nadogradite na Pro.",
