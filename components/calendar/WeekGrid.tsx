@@ -17,7 +17,7 @@ interface Props {
 const HOUR_START = 7
 const HOUR_END = 22
 const HOURS = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i)
-const CELL_HEIGHT = 48 // px per hour
+const CELL_HEIGHT = 56
 
 function toLocalDateStr(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -40,11 +40,9 @@ export function WeekGrid({
   onWeekChange,
   onAppointmentClick,
   clientNames = {},
-  propertyTitles = {},
 }: Props) {
   const today = new Date()
 
-  // Build array of 7 days starting from weekStart (Monday)
   const weekDays = useMemo(() =>
     Array.from({ length: 7 }, (_, i) => {
       const d = new Date(weekStart)
@@ -54,7 +52,6 @@ export function WeekGrid({
     [weekStart]
   )
 
-  // Group appointments by day string
   const apptsByDay = useMemo(() => {
     const map: Record<string, Appointment[]> = {}
     appointments.forEach((a) => {
@@ -65,28 +62,19 @@ export function WeekGrid({
     return map
   }, [appointments])
 
-  const prevWeek = () => {
-    const d = new Date(weekStart)
-    d.setDate(d.getDate() - 7)
-    onWeekChange(d)
-  }
-  const nextWeek = () => {
-    const d = new Date(weekStart)
-    d.setDate(d.getDate() + 7)
-    onWeekChange(d)
-  }
+  const prevWeek = () => { const d = new Date(weekStart); d.setDate(d.getDate() - 7); onWeekChange(d) }
+  const nextWeek = () => { const d = new Date(weekStart); d.setDate(d.getDate() + 7); onWeekChange(d) }
 
   const weekLabel = `${weekDays[0].toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} – ${weekDays[6].toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`
-
   const totalGridHeight = HOURS.length * CELL_HEIGHT
 
   return (
-    <div className="space-y-3">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="rounded-2xl border bg-card overflow-hidden">
+      {/* Week navigation */}
+      <div className="flex items-center justify-between px-5 py-4 border-b bg-muted/20">
         <button
           onClick={prevWeek}
-          className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent transition-colors cursor-pointer"
+          className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
           aria-label="Previous week"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -94,7 +82,7 @@ export function WeekGrid({
         <h2 className="text-sm font-semibold">{weekLabel}</h2>
         <button
           onClick={nextWeek}
-          className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent transition-colors cursor-pointer"
+          className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
           aria-label="Next week"
         >
           <ChevronRight className="h-4 w-4" />
@@ -102,39 +90,46 @@ export function WeekGrid({
       </div>
 
       {/* Day headers */}
-      <div className="grid grid-cols-[48px_repeat(7,1fr)] gap-px">
-        <div /> {/* time gutter */}
+      <div className="grid grid-cols-[52px_repeat(7,1fr)] border-b">
+        <div className="border-r border-border/60" />
         {weekDays.map((day, i) => {
           const isToday = isSameDay(day, today)
+          const isWeekend = day.getDay() === 0 || day.getDay() === 6
           return (
-            <div key={i} className="text-center py-1.5">
-              <p className="text-xs text-muted-foreground">{DAY_SHORT[i]}</p>
-              <p className={cn(
-                'mx-auto mt-0.5 flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium',
-                isToday ? 'bg-primary text-primary-foreground' : 'text-foreground'
+            <div
+              key={i}
+              className={cn(
+                'text-center py-3 border-r border-border/60 last:border-r-0',
+                isWeekend && 'bg-muted/20'
+              )}
+            >
+              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{DAY_SHORT[i]}</p>
+              <div className={cn(
+                'mx-auto mt-1 flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold',
+                isToday ? 'bg-primary text-primary-foreground shadow-sm' : 'text-foreground'
               )}>
                 {day.getDate()}
-              </p>
+              </div>
             </div>
           )
         })}
       </div>
 
-      {/* Scrollable grid */}
-      <div className="overflow-y-auto max-h-[600px] rounded-xl border bg-card">
+      {/* Scrollable time grid */}
+      <div className="overflow-y-auto max-h-[560px]">
         <div
-          className="grid grid-cols-[48px_repeat(7,1fr)] gap-px bg-border"
+          className="grid grid-cols-[52px_repeat(7,1fr)] relative"
           style={{ height: totalGridHeight }}
         >
           {/* Time gutter */}
-          <div className="bg-card relative">
+          <div className="border-r border-border/60 relative bg-muted/10">
             {HOURS.map((h) => (
               <div
                 key={h}
-                className="absolute w-full flex items-start justify-end pr-2"
+                className="absolute w-full flex items-start justify-end pr-2.5"
                 style={{ top: (h - HOUR_START) * CELL_HEIGHT, height: CELL_HEIGHT }}
               >
-                <span className="text-[10px] text-muted-foreground -translate-y-2">
+                <span className="text-[10px] text-muted-foreground/70 font-medium -translate-y-2">
                   {String(h).padStart(2, '0')}:00
                 </span>
               </div>
@@ -145,15 +140,31 @@ export function WeekGrid({
           {weekDays.map((day, colIdx) => {
             const dateStr = toLocalDateStr(day)
             const dayAppts = apptsByDay[dateStr] ?? []
+            const isWeekend = day.getDay() === 0 || day.getDay() === 6
 
             return (
-              <div key={colIdx} className="bg-card relative">
+              <div
+                key={colIdx}
+                className={cn(
+                  'relative border-r border-border/60 last:border-r-0',
+                  isWeekend && 'bg-muted/10'
+                )}
+              >
                 {/* Hour lines */}
                 {HOURS.map((h) => (
                   <div
                     key={h}
-                    className="absolute w-full border-t border-border/50"
+                    className="absolute w-full border-t border-border/40"
                     style={{ top: (h - HOUR_START) * CELL_HEIGHT }}
+                  />
+                ))}
+
+                {/* Half-hour lines */}
+                {HOURS.map((h) => (
+                  <div
+                    key={`half-${h}`}
+                    className="absolute w-full border-t border-border/20 border-dashed"
+                    style={{ top: (h - HOUR_START) * CELL_HEIGHT + CELL_HEIGHT / 2 }}
                   />
                 ))}
 
@@ -166,20 +177,26 @@ export function WeekGrid({
                   if (clampedEnd <= clampedStart) return null
 
                   const top = ((clampedStart - HOUR_START * 60) / 60) * CELL_HEIGHT
-                  const height = Math.max(((clampedEnd - clampedStart) / 60) * CELL_HEIGHT, 20)
+                  const height = Math.max(((clampedEnd - clampedStart) / 60) * CELL_HEIGHT, 22)
 
                   return (
                     <button
                       key={a.id}
                       onClick={() => onAppointmentClick(a)}
-                      className="absolute left-0.5 right-0.5 rounded-md bg-primary/15 border border-primary/30 hover:bg-primary/25 transition-colors cursor-pointer overflow-hidden text-left px-1.5 py-0.5"
+                      className="absolute left-1 right-1 rounded-lg bg-primary/15 border border-primary/25 hover:bg-primary/25 hover:border-primary/40 transition-all cursor-pointer overflow-hidden text-left px-2 py-1 shadow-sm"
                       style={{ top, height }}
                     >
-                      <p className="text-xs font-medium text-foreground truncate leading-tight">{a.title}</p>
-                      {height > 30 && (
-                        <p className="text-[10px] text-muted-foreground truncate">
+                      <p className="text-[11px] font-semibold text-primary truncate leading-tight">{a.title}</p>
+                      {height > 32 && (
+                        <p className="text-[10px] text-primary/70 truncate leading-tight mt-0.5">
                           {new Date(a.start_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          {a.client_id && clientNames[a.client_id] ? ` · ${clientNames[a.client_id]}` : ''}
+                          {' – '}
+                          {new Date(a.end_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      )}
+                      {height > 48 && a.client_id && clientNames[a.client_id] && (
+                        <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">
+                          {clientNames[a.client_id]}
                         </p>
                       )}
                     </button>

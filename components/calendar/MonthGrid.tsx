@@ -3,7 +3,6 @@
 import { useMemo } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
-import { AppointmentCard } from './AppointmentCard'
 import type { Appointment, AvailabilityException } from '@/types'
 
 interface Props {
@@ -27,6 +26,10 @@ function toLocalDateStr(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
 export function MonthGrid({
   appointments,
   exceptions,
@@ -44,11 +47,9 @@ export function MonthGrid({
     const month = currentMonth.getMonth()
     const firstDay = new Date(year, month, 1)
     const lastDay = new Date(year, month + 1, 0)
-    // Monday-based: getDay() returns 0=Sun, convert to Mon=0
     const rawDay = firstDay.getDay()
     const offset = rawDay === 0 ? 6 : rawDay - 1
-    const daysInMonth = lastDay.getDate()
-    return { days: daysInMonth, startOffset: offset }
+    return { days: lastDay.getDate(), startOffset: offset }
   }, [currentMonth])
 
   const exceptionSet = useMemo(() => {
@@ -69,28 +70,26 @@ export function MonthGrid({
 
   const prevMonth = () => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))
   const nextMonth = () => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))
-
   const monthLabel = currentMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
 
-  // Build grid cells: leading empty + day cells
   const totalCells = startOffset + days
   const trailingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7)
 
   return (
-    <div className="space-y-3">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="rounded-2xl border bg-card overflow-hidden">
+      {/* Month navigation */}
+      <div className="flex items-center justify-between px-5 py-4 border-b bg-muted/20">
         <button
           onClick={prevMonth}
-          className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent transition-colors cursor-pointer"
+          className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
           aria-label="Previous month"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
-        <h2 className="text-sm font-semibold capitalize">{monthLabel}</h2>
+        <h2 className="text-sm font-semibold capitalize tracking-wide">{monthLabel}</h2>
         <button
           onClick={nextMonth}
-          className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent transition-colors cursor-pointer"
+          className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
           aria-label="Next month"
         >
           <ChevronRight className="h-4 w-4" />
@@ -98,22 +97,20 @@ export function MonthGrid({
       </div>
 
       {/* Day labels */}
-      <div className="grid grid-cols-7 gap-px">
+      <div className="grid grid-cols-7 border-b">
         {DAY_LABELS.map((d) => (
-          <div key={d} className="py-1.5 text-center text-xs font-medium text-muted-foreground">
+          <div key={d} className="py-2.5 text-center text-xs font-medium text-muted-foreground tracking-wide uppercase">
             {d}
           </div>
         ))}
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-7 gap-px bg-border rounded-xl overflow-hidden border">
-        {/* Leading empty cells */}
+      <div className="grid grid-cols-7 divide-x divide-y divide-border/60">
         {Array.from({ length: startOffset }).map((_, i) => (
-          <div key={`empty-start-${i}`} className="bg-muted/30 min-h-[80px]" />
+          <div key={`es-${i}`} className="bg-muted/10 min-h-[100px]" />
         ))}
 
-        {/* Day cells */}
         {Array.from({ length: days }).map((_, i) => {
           const dayNum = i + 1
           const cellDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), dayNum)
@@ -121,58 +118,70 @@ export function MonthGrid({
           const isToday = isSameDay(cellDate, today)
           const isBlocked = exceptionSet.has(dateStr)
           const dayAppts = appointmentsByDay[dateStr] ?? []
+          const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6
 
           return (
             <div
               key={dayNum}
               onClick={() => onDayClick(cellDate)}
               className={cn(
-                'bg-card min-h-[80px] p-1.5 cursor-pointer hover:bg-accent/40 transition-colors',
-                isBlocked && 'bg-destructive/5 hover:bg-destructive/10'
+                'min-h-[100px] p-2 cursor-pointer transition-colors group',
+                isBlocked
+                  ? 'bg-destructive/5 hover:bg-destructive/8'
+                  : isWeekend
+                  ? 'bg-muted/20 hover:bg-muted/40'
+                  : 'bg-card hover:bg-accent/30'
               )}
             >
               {/* Day number */}
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-1.5">
                 <span
                   className={cn(
-                    'flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium',
-                    isToday && 'bg-primary text-primary-foreground',
-                    !isToday && 'text-foreground'
+                    'flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold transition-colors',
+                    isToday
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : isBlocked
+                      ? 'text-destructive/70'
+                      : isWeekend
+                      ? 'text-muted-foreground'
+                      : 'text-foreground group-hover:text-primary'
                   )}
                 >
                   {dayNum}
                 </span>
                 {isBlocked && (
-                  <span className="text-[10px] text-destructive font-medium">Blocked</span>
+                  <span className="text-[9px] text-destructive font-semibold uppercase tracking-wide">Off</span>
                 )}
                 {!isBlocked && dayAppts.length > 2 && (
-                  <span className="text-[10px] text-muted-foreground">{dayAppts.length}</span>
+                  <span className="text-[9px] text-muted-foreground font-medium">+{dayAppts.length - 2}</span>
                 )}
               </div>
 
-              {/* Appointments (show up to 2, then +N) */}
+              {/* Appointments */}
               <div className="space-y-0.5">
                 {dayAppts.slice(0, 2).map((a) => (
-                  <AppointmentCard
+                  <button
                     key={a.id}
-                    appointment={a}
-                    clientName={a.client_id ? clientNames[a.client_id] : undefined}
-                    propertyTitle={a.property_id ? propertyTitles[a.property_id] : undefined}
-                    onClick={(e) => { (e as unknown as MouseEvent).stopPropagation?.(); onAppointmentClick(a) }}
-                    compact
-                  />
+                    onClick={(e) => { e.stopPropagation(); onAppointmentClick(a) }}
+                    className="w-full text-left rounded-md bg-primary/12 hover:bg-primary/20 border border-primary/15 px-1.5 py-0.5 transition-colors group/appt"
+                  >
+                    <p className="text-[10px] font-medium text-primary truncate leading-tight">
+                      {formatTime(a.start_at)} {a.title}
+                    </p>
+                    {a.client_id && clientNames[a.client_id] && (
+                      <p className="text-[9px] text-muted-foreground truncate leading-tight">
+                        {clientNames[a.client_id]}
+                      </p>
+                    )}
+                  </button>
                 ))}
-                {dayAppts.length > 2 && (
-                  <p className="text-[10px] text-muted-foreground pl-1">+{dayAppts.length - 2} more</p>
-                )}
               </div>
             </div>
           )
         })}
 
-        {/* Trailing empty cells */}
         {Array.from({ length: trailingCells }).map((_, i) => (
-          <div key={`empty-end-${i}`} className="bg-muted/30 min-h-[80px]" />
+          <div key={`ee-${i}`} className="bg-muted/10 min-h-[100px]" />
         ))}
       </div>
     </div>

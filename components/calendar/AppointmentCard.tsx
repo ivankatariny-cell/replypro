@@ -17,41 +17,51 @@ function formatTime(iso: string) {
 }
 
 export function AppointmentCard({ appointment, clientName, propertyTitle, onClick, compact = false }: Props) {
+  if (compact) {
+    return (
+      <button
+        onClick={onClick}
+        className="w-full text-left rounded-md bg-primary/12 hover:bg-primary/20 border border-primary/15 px-1.5 py-0.5 transition-colors cursor-pointer"
+      >
+        <p className="text-[10px] font-medium text-primary truncate leading-tight">
+          {formatTime(appointment.start_at)} {appointment.title}
+        </p>
+      </button>
+    )
+  }
+
   return (
-    <button
+    <div
       onClick={onClick}
       className={cn(
-        'w-full text-left rounded-lg border bg-primary/10 border-primary/20 hover:bg-primary/15 transition-colors cursor-pointer group',
-        compact ? 'px-2 py-1' : 'px-3 py-2'
+        'w-full text-left rounded-xl border bg-card hover:bg-accent/40 transition-colors cursor-pointer p-4 space-y-2.5 group'
       )}
     >
-      <p className={cn('font-medium text-foreground truncate', compact ? 'text-xs' : 'text-sm')}>
-        {appointment.title}
-      </p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm font-semibold text-foreground leading-snug">{appointment.title}</p>
+      </div>
 
-      {!compact && (
-        <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-          <Clock className="h-3 w-3 shrink-0" />
-          <span>{formatTime(appointment.start_at)} – {formatTime(appointment.end_at)}</span>
-        </div>
-      )}
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Clock className="h-3 w-3 shrink-0" />
+        <span>{formatTime(appointment.start_at)} – {formatTime(appointment.end_at)}</span>
+      </div>
 
-      {!compact && (clientName || propertyTitle) && (
-        <div className="flex flex-wrap gap-1.5 mt-1.5">
+      {(clientName || propertyTitle) && (
+        <div className="flex flex-wrap gap-1.5">
           {clientName && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-info/10 text-info px-2 py-0.5 text-xs font-medium">
+            <span className="inline-flex items-center gap-1 rounded-full bg-info/10 text-info px-2 py-0.5 text-xs font-medium border border-info/15">
               <User className="h-2.5 w-2.5" />
               {clientName}
             </span>
           )}
           {propertyTitle && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 text-warning px-2 py-0.5 text-xs font-medium">
+            <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 text-warning px-2 py-0.5 text-xs font-medium border border-warning/15">
               <Building2 className="h-2.5 w-2.5" />
               {propertyTitle}
             </span>
           )}
         </div>
       )}
-    </button>
+    </div>
   )
 }
