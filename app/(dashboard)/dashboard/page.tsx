@@ -320,7 +320,7 @@ function DashboardContent() {
             booking={suggestedBooking}
             clientId={selectedClient}
             propertyId={selectedProperty}
-            language={replies?.detected_language ?? 'en'}
+            hasConflict={replies?.availabilityConflict ?? false}
             onDismiss={() => setSuggestedBooking(null)}
           />
         )}

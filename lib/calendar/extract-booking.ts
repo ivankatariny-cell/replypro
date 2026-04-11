@@ -1,7 +1,7 @@
 /**
  * Pure utility — extracts a suggested booking from a client message.
- * Returns a date string (YYYY-MM-DD), a time string (HH:MM), and a suggested title.
- * No side effects, no imports from server-only modules.
+ * Language-aware: Croatian messages get Croatian titles and date labels.
+ * No side effects, no server-only imports.
  */
 
 const CROATIAN_MONTHS: Record<string, number> = {
@@ -15,10 +15,9 @@ const ENGLISH_MONTHS: Record<string, number> = {
 }
 
 const CROATIAN_WEEKDAYS: Record<string, number> = {
-  // Croatian
   ponedjeljak: 1, utorak: 2, srijedu: 3, srijeda: 3,
   četvrtak: 4, cetvrtak: 4, petak: 5, subotu: 6, subota: 6, nedjelju: 0, nedjelja: 0,
-  // Serbian/Bosnian variants
+  // Serbian/Bosnian
   ponedeljak: 1, pondjeljak: 1, ponedljak: 1,
   sredu: 3, sreda: 3,
   nedelju: 0, nedelu: 0, nedelja: 0,
@@ -43,7 +42,6 @@ function nextWeekday(from: Date, targetDow: number, forceNext: boolean): Date {
   return d
 }
 
-/** Extracts a date string (YYYY-MM-DD) from a message. Returns null if nothing found. */
 function extractDateStr(message: string): string | null {
   const lower = message.toLowerCase()
   const today = new Date()
@@ -59,7 +57,6 @@ function extractDateStr(message: string): string | null {
     return toDateStr(today)
   }
 
-  // Croatian month: "15. ožujka"
   const crMonth = lower.match(/(\d{1,2})\.?\s*(siječnja|veljače|ožujka|travnja|svibnja|lipnja|srpnja|kolovoza|rujna|listopada|studenog|prosinca)/i)
   if (crMonth) {
     const day = parseInt(crMonth[1], 10)
@@ -69,7 +66,6 @@ function extractDateStr(message: string): string | null {
     return toDateStr(d)
   }
 
-  // English month: "March 15", "15 March"
   const enMonth = lower.match(/(?:(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?|(\d{1,2})(?:st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december))/i)
   if (enMonth) {
     const monthName = (enMonth[1] || enMonth[4]).toLowerCase()
@@ -79,7 +75,6 @@ function extractDateStr(message: string): string | null {
     return toDateStr(d)
   }
 
-  // Numeric: DD.MM. or DD/MM
   const numeric = message.match(/(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?/)
   if (numeric) {
     const day = parseInt(numeric[1], 10)
@@ -92,7 +87,7 @@ function extractDateStr(message: string): string | null {
     return toDateStr(d)
   }
 
-  // Croatian/Bosnian/Serbian weekday: "u ponedjeljak", "idući petak", "ovaj ponedeljak", "sad ovaj ponedljak"
+  // Croatian/Bosnian/Serbian weekday
   const crWeekday = lower.match(/(?:idući|sljede[cć]i|ovaj|u|sad\s+ovaj|ovaj\s+sad)\s+(pon[eo]d[ej]?[lj]?jak?|utorak|srijedu?|sredu?|[cč]etvrtak|petak|subotu?|nedjelju?|nedelju?)/i)
   if (crWeekday) {
     const raw = crWeekday[1].toLowerCase()
@@ -104,7 +99,7 @@ function extractDateStr(message: string): string | null {
     }
   }
 
-  // English weekday: "next Monday", "on Friday"
+  // English weekday
   const enWeekday = lower.match(/(?:next|this|last|on)\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i)
   if (enWeekday) {
     const targetDow = ENGLISH_WEEKDAYS[enWeekday[1].toLowerCase()]
@@ -115,8 +110,15 @@ function extractDateStr(message: string): string | null {
   return null
 }
 
-/** Extracts a time string (HH:MM) from a message. Returns null if nothing found. */
 function extractTimeStr(message: string): string | null {
+  // "u 10 sati", "u 21:00 sati" — check this FIRST before generic HH:MM to avoid false positives
+  const hrTime = message.match(/\bu\s+(\d{1,2})(?::(\d{2}))?\s+sat[ia]\b/i)
+  if (hrTime) {
+    const h = parseInt(hrTime[1], 10)
+    const m = hrTime[2] ? parseInt(hrTime[2], 10) : 0
+    if (h >= 0 && h <= 23) return `${pad(h)}:${pad(m)}`
+  }
+
   // HH:MM or HH.MM
   const colonTime = message.match(/\b(\d{1,2})[.:](\d{2})\b/)
   if (colonTime) {
@@ -135,40 +137,31 @@ function extractTimeStr(message: string): string | null {
     return `${pad(h)}:00`
   }
 
-  // "u 10 sati", "u 3 sata", "u 21:00 sati"
-  const hrTime = message.match(/\bu\s+(\d{1,2})(?::(\d{2}))?\s+sat[ia]\b/i)
-  if (hrTime) {
-    const h = parseInt(hrTime[1], 10)
-    const m = hrTime[2] ? parseInt(hrTime[2], 10) : 0
-    if (h >= 0 && h <= 23) return `${pad(h)}:${pad(m)}`
-  }
-
-  // "at noon"
   if (/\bat\s+noon\b/i.test(message)) return '12:00'
-  // "at midnight"
   if (/\bat\s+midnight\b/i.test(message)) return '00:00'
 
   return null
 }
 
 export interface SuggestedBooking {
-  /** YYYY-MM-DD */
-  date: string
-  /** HH:MM — defaults to 10:00 if no time found */
-  startTime: string
-  /** HH:MM — startTime + 1 hour */
-  endTime: string
-  /** Human-readable label, e.g. "Thursday, 15 May at 10:00" */
-  label: string
-  /** Suggested appointment title */
+  date: string        // YYYY-MM-DD
+  startTime: string   // HH:MM
+  endTime: string     // HH:MM
+  label: string       // human-readable date+time
   suggestedTitle: string
+  language: 'hr' | 'en'
 }
 
 /**
  * Extracts a suggested booking from a client message.
- * Returns null if no date/time reference is found.
+ * Returns null if no date reference is found.
  */
-export function extractBooking(message: string, clientName?: string | null): SuggestedBooking | null {
+export function extractBooking(
+  message: string,
+  clientName?: string | null,
+  propertyTitle?: string | null,
+  language: 'hr' | 'en' = 'en'
+): SuggestedBooking | null {
   const dateStr = extractDateStr(message)
   if (!dateStr) return null
 
@@ -178,13 +171,26 @@ export function extractBooking(message: string, clientName?: string | null): Sug
   const endTime = `${pad(endH)}:${pad(m)}`
 
   const date = new Date(`${dateStr}T${timeStr}:00`)
-  const label = date.toLocaleDateString(undefined, {
-    weekday: 'long', day: 'numeric', month: 'long',
-  }) + ' at ' + timeStr
 
-  const suggestedTitle = clientName
-    ? `Viewing — ${clientName}`
-    : 'Property viewing'
+  // Language-aware date label
+  const locale = language === 'hr' ? 'hr-HR' : 'en-GB'
+  const dateLabel = date.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })
+  const timeLabel = language === 'hr' ? `u ${timeStr}` : `at ${timeStr}`
+  const label = `${dateLabel} ${timeLabel}`
 
-  return { date: dateStr, startTime: timeStr, endTime, label, suggestedTitle }
+  // Language-aware title — most specific wins
+  let suggestedTitle: string
+  if (language === 'hr') {
+    if (propertyTitle && clientName) suggestedTitle = `Razgledavanje — ${clientName}`
+    else if (propertyTitle) suggestedTitle = `Razgledavanje nekretnine`
+    else if (clientName) suggestedTitle = `Sastanak — ${clientName}`
+    else suggestedTitle = 'Sastanak s klijentom'
+  } else {
+    if (propertyTitle && clientName) suggestedTitle = `Viewing — ${clientName}`
+    else if (propertyTitle) suggestedTitle = 'Property viewing'
+    else if (clientName) suggestedTitle = `Meeting — ${clientName}`
+    else suggestedTitle = 'Client meeting'
+  }
+
+  return { date: dateStr, startTime: timeStr, endTime, label, suggestedTitle, language }
 }

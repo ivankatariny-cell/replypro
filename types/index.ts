@@ -30,6 +30,7 @@ export interface SuggestedBooking {
   endTime: string     // HH:MM
   label: string       // human-readable, e.g. "Thursday, 15 May at 10:00"
   suggestedTitle: string
+  language: 'hr' | 'en'
 }
 
 export interface GenerateResponse {
@@ -39,6 +40,8 @@ export interface GenerateResponse {
   detected_language: 'hr' | 'en'
   generations_remaining: number | null
   suggestedBooking?: SuggestedBooking | null
+  /** True when the requested slot conflicts with existing appointments */
+  availabilityConflict?: boolean
 }
 
 export interface ApiError {

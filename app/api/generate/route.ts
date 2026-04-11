@@ -123,14 +123,26 @@ export async function POST(req: NextRequest) {
     let suggestedBooking = null
     if (containsDateOrTime(message)) {
       availabilityContext = await fetchAvailabilityContext(user.id, message, serviceClient)
-      // Extract client name for the booking title if a client was selected
+
+      // Detect language from message: Croatian/Bosnian/Serbian keywords → 'hr', else profile language
+      const hasCroatianWords = /\b(ponedjeljak|ponedeljak|utorak|srijed|sredu?|[cč]etvrtak|petak|subota?|nedjelja?|nedelja?|sutra|prekosutra|danas|sati|sata|idući|ovaj|tjedan)\b/i.test(message)
+      const msgLanguage: 'hr' | 'en' = hasCroatianWords ? 'hr' : (profile.language ?? 'en')
+
       let clientName: string | null = null
+      let propertyTitle: string | null = null
+
       if (body.client_id) {
         const { data: clientForBooking } = await supabase
           .from('rp_clients').select('full_name').eq('id', body.client_id).single()
         clientName = clientForBooking?.full_name ?? null
       }
-      suggestedBooking = extractBooking(message, clientName)
+      if (body.property_id) {
+        const { data: propertyForBooking } = await supabase
+          .from('rp_properties').select('title').eq('id', body.property_id).single()
+        propertyTitle = propertyForBooking?.title ?? null
+      }
+
+      suggestedBooking = extractBooking(message, clientName, propertyTitle, msgLanguage)
     }
 
     const enrichedPrompt = systemPrompt + clientContext + propertyContext + templateCtx + availabilityContext
@@ -204,6 +216,7 @@ export async function POST(req: NextRequest) {
       detected_language: aiResult.detected_language,
       generations_remaining: generationsRemaining,
       suggestedBooking,
+      availabilityConflict: availabilityContext.includes('OCCUPIED'),
     }
 
     return NextResponse.json(response)
