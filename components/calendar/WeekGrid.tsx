@@ -34,6 +34,12 @@ function isSameDay(a: Date, b: Date) {
 
 const DAY_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
+function getAppointmentColor(appt: Appointment) {
+  if (appt.property_id) return { bg: 'bg-primary/15', border: 'border-primary/30', text: 'text-primary', sub: 'text-primary/70' }
+  if (appt.client_id)   return { bg: 'bg-info/15',    border: 'border-info/30',    text: 'text-info',    sub: 'text-info/70' }
+  return { bg: 'bg-muted/50', border: 'border-border', text: 'text-muted-foreground', sub: 'text-muted-foreground/70' }
+}
+
 export function WeekGrid({
   appointments,
   weekStart,
@@ -178,17 +184,18 @@ export function WeekGrid({
 
                   const top = ((clampedStart - HOUR_START * 60) / 60) * CELL_HEIGHT
                   const height = Math.max(((clampedEnd - clampedStart) / 60) * CELL_HEIGHT, 22)
+                  const c = getAppointmentColor(a)
 
                   return (
                     <button
                       key={a.id}
                       onClick={() => onAppointmentClick(a)}
-                      className="absolute left-1 right-1 rounded-lg bg-primary/15 border border-primary/25 hover:bg-primary/25 hover:border-primary/40 transition-all cursor-pointer overflow-hidden text-left px-2 py-1 shadow-sm"
+                      className={cn('absolute left-1 right-1 rounded-lg border transition-all cursor-pointer overflow-hidden text-left px-2 py-1 shadow-sm hover:brightness-95', c.bg, c.border)}
                       style={{ top, height }}
                     >
-                      <p className="text-[11px] font-semibold text-primary truncate leading-tight">{a.title}</p>
+                      <p className={cn('text-[11px] font-semibold truncate leading-tight', c.text)}>{a.title}</p>
                       {height > 32 && (
-                        <p className="text-[10px] text-primary/70 truncate leading-tight mt-0.5">
+                        <p className={cn('text-[10px] truncate leading-tight mt-0.5', c.sub)}>
                           {new Date(a.start_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           {' – '}
                           {new Date(a.end_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

@@ -18,6 +18,12 @@ interface Props {
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
+function getAppointmentColor(appt: Appointment) {
+  if (appt.property_id) return { bg: 'bg-primary/15', border: 'border-primary/30', text: 'text-primary', dot: 'bg-primary' }
+  if (appt.client_id)   return { bg: 'bg-info/15',    border: 'border-info/30',    text: 'text-info',    dot: 'bg-info' }
+  return { bg: 'bg-muted/50', border: 'border-border', text: 'text-muted-foreground', dot: 'bg-muted-foreground' }
+}
+
 function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
 }
@@ -38,7 +44,6 @@ export function MonthGrid({
   onDayClick,
   onAppointmentClick,
   clientNames = {},
-  propertyTitles = {},
 }: Props) {
   const today = new Date()
 
@@ -159,22 +164,25 @@ export function MonthGrid({
 
               {/* Appointments */}
               <div className="space-y-0.5">
-                {dayAppts.slice(0, 2).map((a) => (
-                  <button
-                    key={a.id}
-                    onClick={(e) => { e.stopPropagation(); onAppointmentClick(a) }}
-                    className="w-full text-left rounded-md bg-primary/12 hover:bg-primary/20 border border-primary/15 px-1.5 py-0.5 transition-colors group/appt"
-                  >
-                    <p className="text-[10px] font-medium text-primary truncate leading-tight">
-                      {formatTime(a.start_at)} {a.title}
-                    </p>
-                    {a.client_id && clientNames[a.client_id] && (
-                      <p className="text-[9px] text-muted-foreground truncate leading-tight">
-                        {clientNames[a.client_id]}
+                {dayAppts.slice(0, 2).map((a) => {
+                  const c = getAppointmentColor(a)
+                  return (
+                    <button
+                      key={a.id}
+                      onClick={(e) => { e.stopPropagation(); onAppointmentClick(a) }}
+                      className={cn('w-full text-left rounded-md border px-1.5 py-0.5 transition-colors', c.bg, c.border)}
+                    >
+                      <p className={cn('text-[10px] font-medium truncate leading-tight', c.text)}>
+                        {formatTime(a.start_at)} {a.title}
                       </p>
-                    )}
-                  </button>
-                ))}
+                      {a.client_id && clientNames[a.client_id] && (
+                        <p className="text-[9px] text-muted-foreground truncate leading-tight">
+                          {clientNames[a.client_id]}
+                        </p>
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )

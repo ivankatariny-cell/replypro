@@ -39,6 +39,12 @@ function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
 }
 
+function getAppointmentColor(appt: Appointment) {
+  if (appt.property_id) return { bg: 'bg-primary/15', border: 'border-primary/25', hoverBg: 'hover:bg-primary/25', hoverBorder: 'hover:border-primary/40', text: 'text-primary', sub: 'text-primary/70', icon: 'text-primary/60' }
+  if (appt.client_id)   return { bg: 'bg-info/15',    border: 'border-info/25',    hoverBg: 'hover:bg-info/25',    hoverBorder: 'hover:border-info/40',    text: 'text-info',    sub: 'text-info/70',    icon: 'text-info/60' }
+  return { bg: 'bg-muted/50', border: 'border-border', hoverBg: 'hover:bg-muted/70', hoverBorder: 'hover:border-border', text: 'text-muted-foreground', sub: 'text-muted-foreground/70', icon: 'text-muted-foreground/60' }
+}
+
 export function DayView({
   date,
   appointments,
@@ -202,19 +208,20 @@ export function DayView({
             const height = Math.max(((clampedEnd - clampedStart) / 60) * CELL_H, 28)
             const clientName = a.client_id ? clientNames[a.client_id] : null
             const propertyTitle = a.property_id ? propertyTitles[a.property_id] : null
+            const c = getAppointmentColor(a)
 
             return (
               <button
                 key={a.id}
                 onClick={() => onAppointmentClick(a)}
-                className="absolute left-16 right-3 rounded-xl bg-primary/15 border border-primary/25 hover:bg-primary/25 hover:border-primary/40 transition-all cursor-pointer overflow-hidden text-left px-3 py-2 shadow-sm z-20"
+                className={cn('absolute left-16 right-3 rounded-xl border transition-all cursor-pointer overflow-hidden text-left px-3 py-2 shadow-sm z-20', c.bg, c.border, c.hoverBg, c.hoverBorder)}
                 style={{ top: top + 2, height: height - 4 }}
               >
-                <p className="text-xs font-bold text-primary truncate leading-tight">{a.title}</p>
+                <p className={cn('text-xs font-bold truncate leading-tight', c.text)}>{a.title}</p>
                 {height > 36 && (
                   <div className="flex items-center gap-1 mt-1">
-                    <Clock className="h-2.5 w-2.5 text-primary/60 shrink-0" />
-                    <span className="text-[10px] text-primary/70 font-medium">
+                    <Clock className={cn('h-2.5 w-2.5 shrink-0', c.icon)} />
+                    <span className={cn('text-[10px] font-medium', c.sub)}>
                       {new Date(a.start_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       {' – '}
                       {new Date(a.end_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -223,14 +230,14 @@ export function DayView({
                 )}
                 {height > 56 && clientName && (
                   <div className="flex items-center gap-1 mt-0.5">
-                    <User className="h-2.5 w-2.5 text-primary/50 shrink-0" />
-                    <span className="text-[10px] text-primary/60 truncate">{clientName}</span>
+                    <User className={cn('h-2.5 w-2.5 shrink-0', c.icon)} />
+                    <span className={cn('text-[10px] truncate', c.sub)}>{clientName}</span>
                   </div>
                 )}
                 {height > 72 && propertyTitle && (
                   <div className="flex items-center gap-1 mt-0.5">
-                    <Building2 className="h-2.5 w-2.5 text-primary/50 shrink-0" />
-                    <span className="text-[10px] text-primary/60 truncate">{propertyTitle}</span>
+                    <Building2 className={cn('h-2.5 w-2.5 shrink-0', c.icon)} />
+                    <span className={cn('text-[10px] truncate', c.sub)}>{propertyTitle}</span>
                   </div>
                 )}
               </button>
