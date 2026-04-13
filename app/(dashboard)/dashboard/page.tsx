@@ -36,7 +36,7 @@ function isMac() {
 }
 
 function DashboardContent() {
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const { subscription } = useSubscription()
