@@ -12,6 +12,7 @@ import {
   MessageSquare, ClipboardPaste, Sparkles, Send,
   Check, ArrowRight, Clock, AlertTriangle, Repeat,
   Users, Building2, History, ChevronDown, Star, Zap,
+  Phone, MapPin, Euro, Copy, Heart,
 } from 'lucide-react'
 
 /* ─── Reusable animation wrappers ─── */
@@ -139,6 +140,134 @@ function HeroIllustration({ t }: { t: (key: string) => string }) {
         Powered by Llama 3.3
       </div>
     </motion.div>
+  )
+}
+
+/* ─── Client Book illustration ─── */
+function ClientBookIllustration({ t }: { t: (key: string) => string }) {
+  const clients = [
+    { initials: 'MK', name: 'Marko K.', interest: t('landing.illus_client_interest_1'), budget: '150–200k€', color: 'bg-blue-500' },
+    { initials: 'AH', name: 'Ana H.', interest: t('landing.illus_client_interest_2'), budget: '80–120k€', color: 'bg-violet-500' },
+    { initials: 'IP', name: 'Ivan P.', interest: t('landing.illus_client_interest_3'), budget: '250–350k€', color: 'bg-emerald-500' },
+  ]
+  return (
+    <div className="relative rounded-2xl border bg-card shadow-xl shadow-primary/8 overflow-hidden max-w-sm mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/40">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-primary" />
+          <span className="text-xs font-semibold">{t('nav.clients')}</span>
+        </div>
+        <span className="text-[10px] text-muted-foreground bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">3 {t('landing.illus_active')}</span>
+      </div>
+      <div className="p-3 space-y-2">
+        {clients.map((c, i) => (
+          <motion.div
+            key={c.initials}
+            initial={{ opacity: 0, x: -12 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 + i * 0.12, duration: 0.4 }}
+            whileHover={{ x: 3 }}
+            className="flex items-center gap-3 rounded-xl border bg-background/60 px-3 py-2.5 cursor-default"
+          >
+            <div className={`h-8 w-8 rounded-full ${c.color} shrink-0 flex items-center justify-center text-[10px] font-bold text-white`}>
+              {c.initials}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold truncate">{c.name}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{c.interest}</p>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="flex items-center gap-0.5 text-[10px] font-semibold text-primary">
+                <Euro className="h-2.5 w-2.5" />{c.budget}
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+      {/* Floating new message badge */}
+      <motion.div
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute -top-3 -right-3 rounded-xl border bg-card shadow-lg px-2.5 py-1.5 flex items-center gap-1.5"
+      >
+        <Phone className="h-3 w-3 text-green-500" />
+        <span className="text-[10px] font-semibold">{t('landing.illus_new_inquiry')}</span>
+      </motion.div>
+    </div>
+  )
+}
+
+/* ─── Property Catalog illustration ─── */
+function PropertyCatalogIllustration({ t }: { t: (key: string) => string }) {
+  const props = [
+    { icon: MapPin, label: t('landing.illus_prop_1'), rooms: '3', price: '185.000€', tag: t('landing.illus_prop_tag_sale') },
+    { icon: MapPin, label: t('landing.illus_prop_2'), rooms: '2', price: '95.000€', tag: t('landing.illus_prop_tag_new') },
+  ]
+  return (
+    <div className="relative rounded-2xl border bg-card shadow-xl shadow-primary/8 overflow-hidden max-w-sm mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/40">
+        <div className="flex items-center gap-2">
+          <Building2 className="h-4 w-4 text-primary" />
+          <span className="text-xs font-semibold">{t('nav.properties')}</span>
+        </div>
+        <span className="text-[10px] text-muted-foreground bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">2 {t('landing.illus_active')}</span>
+      </div>
+      <div className="p-3 space-y-2">
+        {props.map((p, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, x: -12 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 + i * 0.15, duration: 0.4 }}
+            whileHover={{ x: 3 }}
+            className="flex items-center gap-3 rounded-xl border bg-background/60 px-3 py-2.5 cursor-default"
+          >
+            <div className="h-8 w-8 rounded-xl bg-primary/10 shrink-0 flex items-center justify-center">
+              <p.icon className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold truncate">{p.label}</p>
+              <p className="text-[10px] text-muted-foreground">{p.rooms} {t('landing.illus_rooms')}</p>
+            </div>
+            <div className="text-right shrink-0 space-y-0.5">
+              <p className="text-[10px] font-bold text-primary">{p.price}</p>
+              <span className="text-[9px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">{p.tag}</span>
+            </div>
+          </motion.div>
+        ))}
+        {/* AI reply preview */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.45, duration: 0.4 }}
+          className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5"
+        >
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Sparkles className="h-3 w-3 text-primary" />
+            <span className="text-[10px] font-semibold text-primary">{t('landing.illus_ai_included')}</span>
+          </div>
+          <div className="space-y-1">
+            <div className="h-1.5 rounded bg-primary/20 w-full" />
+            <div className="h-1.5 rounded bg-primary/20 w-4/5" />
+            <div className="h-1.5 rounded bg-primary/20 w-3/5" />
+          </div>
+        </motion.div>
+      </div>
+      {/* Copy badge */}
+      <motion.div
+        animate={{ y: [0, 6, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+        className="absolute -bottom-3 -right-3 rounded-xl border bg-card shadow-lg px-2.5 py-1.5 flex items-center gap-1.5"
+      >
+        <Copy className="h-3 w-3 text-primary" />
+        <span className="text-[10px] font-semibold">{t('landing.illus_copied')}</span>
+      </motion.div>
+    </div>
   )
 }
 
@@ -456,6 +585,55 @@ export default function LandingPage() {
                 </motion.div>
               </FadeUp>
             ))}
+          </div>
+
+          {/* ── Feature illustrations ── */}
+          <div className="mt-16 grid md:grid-cols-2 gap-10 items-center">
+            <FadeUp delay={0.05}>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
+                    <Users className="h-4 w-4 text-primary" />
+                  </div>
+                  <h3 className="font-heading font-bold text-lg">{t('landing.feat_clients')}</h3>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t('landing.illus_clients_desc')}</p>
+                <ul className="space-y-1.5 text-sm">
+                  {[t('landing.illus_clients_point_1'), t('landing.illus_clients_point_2'), t('landing.illus_clients_point_3')].map((pt) => (
+                    <li key={pt} className="flex items-center gap-2 text-muted-foreground">
+                      <Check className="h-3.5 w-3.5 text-primary shrink-0" />{pt}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </FadeUp>
+            <FadeUp delay={0.15}>
+              <ClientBookIllustration t={t} />
+            </FadeUp>
+          </div>
+
+          <div className="mt-16 grid md:grid-cols-2 gap-10 items-center">
+            <FadeUp delay={0.15} className="order-2 md:order-1">
+              <PropertyCatalogIllustration t={t} />
+            </FadeUp>
+            <FadeUp delay={0.05} className="order-1 md:order-2">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
+                    <Building2 className="h-4 w-4 text-primary" />
+                  </div>
+                  <h3 className="font-heading font-bold text-lg">{t('landing.feat_properties')}</h3>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t('landing.illus_props_desc')}</p>
+                <ul className="space-y-1.5 text-sm">
+                  {[t('landing.illus_props_point_1'), t('landing.illus_props_point_2'), t('landing.illus_props_point_3')].map((pt) => (
+                    <li key={pt} className="flex items-center gap-2 text-muted-foreground">
+                      <Check className="h-3.5 w-3.5 text-primary shrink-0" />{pt}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </FadeUp>
           </div>
         </div>
       </section>
