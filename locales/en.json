@@ -15,6 +15,7 @@
     "generate": "Generate"
   },
   "landing": {
+    "badge": "AI assistant for real estate",
     "hero_demo_message": "Hi, I'm looking for a 3-bedroom apartment, downtown, up to €200k?",
     "hero_generating": "Generating 3 replies...",
     "hero_speed": "5 seconds",
