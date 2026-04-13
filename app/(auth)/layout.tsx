@@ -1,4 +1,5 @@
 import { MessageSquare, Sparkles, Clock, Users, Star } from 'lucide-react'
+import Image from 'next/image'
 
 const stats = [
   { icon: Clock, value: '5 sec', label: 'Average reply time' },
@@ -131,12 +132,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-xl shadow-lg"
-            style={{ background: 'linear-gradient(135deg, hsl(164 72% 38%) 0%, hsl(174 64% 45%) 100%)' }}
-          >
-            <MessageSquare className="h-5 w-5 text-white" />
-          </div>
+          <Image src="/icon.png" alt="ReplyPro" width={40} height={40} className="rounded-xl" />
           <span className="text-xl font-bold text-white tracking-tight">ReplyPro</span>
         </div>
 
@@ -204,12 +200,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="flex-1 flex flex-col min-h-screen bg-background">
         {/* Mobile logo */}
         <div className="flex items-center gap-2.5 px-6 pt-6 lg:hidden">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl"
-            style={{ background: 'linear-gradient(135deg, hsl(164 72% 38%) 0%, hsl(174 64% 45%) 100%)' }}
-          >
-            <MessageSquare className="h-4.5 w-4.5 text-white" />
-          </div>
+          <Image src="/icon.png" alt="ReplyPro" width={36} height={36} className="rounded-xl" />
           <span className="text-lg font-bold tracking-tight">ReplyPro</span>
         </div>
 

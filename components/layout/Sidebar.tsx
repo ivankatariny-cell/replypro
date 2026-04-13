@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useUser } from '@/hooks/useUser'
@@ -11,7 +12,7 @@ import { ThemeToggle } from './ThemeToggle'
 import { cn } from '@/lib/utils/cn'
 import {
   LayoutDashboard, History, Settings, CreditCard, LogOut,
-  MessageSquare, Users, Building2, Star, CalendarDays,
+  Users, Building2, Star, CalendarDays,
 } from 'lucide-react'
 
 const navItems = [
@@ -49,9 +50,7 @@ export function Sidebar() {
     <aside className="hidden md:flex flex-col w-[220px] shrink-0 border-r bg-card/50 h-screen overflow-hidden">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-4 h-14 border-b shrink-0">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <MessageSquare className="h-3.5 w-3.5" />
-        </div>
+        <Image src="/icon.png" alt="ReplyPro" width={28} height={28} className="rounded-lg" />
         <span className="text-sm font-bold font-heading">ReplyPro</span>
       </div>
 

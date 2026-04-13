@@ -13,7 +13,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, MessageSquare, ArrowRight, Sparkles, Check } from 'lucide-react'
+import { Loader2, ArrowRight, Sparkles, Check } from 'lucide-react'
+import Image from 'next/image'
 
 const schema = z.object({
   full_name: z.string().min(2).max(100),
@@ -89,9 +90,7 @@ export function OnboardingForm() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <MessageSquare className="h-5 w-5" />
-          </div>
+          <Image src="/icon.png" alt="ReplyPro" width={36} height={36} className="rounded-xl" />
           <span className="text-xl font-bold font-heading">ReplyPro</span>
         </div>
 

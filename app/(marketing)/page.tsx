@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from 'motion/react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { Navbar } from '@/components/layout/Navbar'
@@ -908,9 +909,7 @@ export default function LandingPage() {
       <footer className="py-8 px-4 border-t">
         <div className="max-w-5xl mx-auto flex flex-col items-center gap-4 text-center">
           <motion.div whileHover={{ scale: 1.03 }} className="flex items-center gap-2 cursor-pointer">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <MessageSquare className="h-3.5 w-3.5" />
-            </div>
+            <Image src="/icon.png" alt="ReplyPro" width={24} height={24} className="rounded-md" />
             <span className="font-heading font-bold text-sm">ReplyPro</span>
           </motion.div>
           <div className="flex flex-wrap justify-center gap-5 text-sm text-muted-foreground">

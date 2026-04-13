@@ -10,7 +10,8 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { MessageSquare, Loader2, AlertCircle } from 'lucide-react'
+import { Loader2, AlertCircle } from 'lucide-react'
+import Image from 'next/image'
 import { motion } from 'motion/react'
 
 const schema = z
@@ -58,9 +59,7 @@ export function ResetPasswordForm() {
     >
       {/* Logo (mobile only) */}
       <div className="flex items-center gap-2 mb-8 lg:hidden">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <MessageSquare className="h-4 w-4" />
-        </div>
+        <Image src="/icon.png" alt="ReplyPro" width={32} height={32} className="rounded-xl" />
         <span className="text-lg font-bold font-heading">ReplyPro</span>
       </div>
 

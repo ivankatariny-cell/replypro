@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useTranslation } from '@/hooks/useTranslation'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { Button } from '@/components/ui/button'
-import { MessageSquare } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 
 export function Navbar() {
@@ -30,9 +30,7 @@ export function Navbar() {
     >
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 cursor-pointer">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <MessageSquare className="h-4 w-4" />
-          </div>
+          <Image src="/icon.png" alt="ReplyPro" width={28} height={28} className="rounded-lg" />
           <span className="text-base font-bold font-heading">ReplyPro</span>
         </Link>
         <div className="flex items-center gap-1">
