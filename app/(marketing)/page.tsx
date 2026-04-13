@@ -146,91 +146,163 @@ function HeroIllustration({ t }: { t: (key: string) => string }) {
 
 /* ─── Before / After speed illustration ─── */
 function BeforeAfterIllustration({ t }: { t: (key: string) => string }) {
-  return (
-    <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto w-full">
-      {/* WITHOUT */}
-      <motion.div
-        initial={{ opacity: 0, x: -24 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 relative overflow-hidden"
-      >
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-destructive/0 via-destructive/60 to-destructive/0" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-destructive/70 mb-4">{t('landing.before_label')}</p>
-        <div className="space-y-2.5">
-          {/* Incoming message */}
-          <div className="flex gap-2 items-start">
-            <div className="h-6 w-6 rounded-full bg-muted shrink-0 flex items-center justify-center text-[9px] font-bold">K</div>
-            <div className="rounded-xl rounded-tl-sm bg-muted/80 px-3 py-2 text-[11px] leading-relaxed max-w-[85%]">
-              {t('landing.hero_demo_message')}
-            </div>
-          </div>
-          {/* Thinking dots */}
-          <div className="flex gap-2 items-start flex-row-reverse">
-            <div className="h-6 w-6 rounded-full bg-muted shrink-0" />
-            <div className="rounded-xl rounded-tr-sm bg-muted/60 px-3 py-2 text-[11px] text-muted-foreground/60 italic max-w-[85%]">
-              {t('landing.before_thinking')}
-              <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.4, repeat: Infinity }}>...</motion.span>
-            </div>
-          </div>
-          {/* Timer */}
-          <div className="flex items-center justify-center gap-2 pt-2">
-            <Clock className="h-4 w-4 text-destructive" />
-            <motion.span
-              animate={{ opacity: [1, 0.4, 1] }}
-              transition={{ duration: 1.2, repeat: Infinity }}
-              className="text-xl font-bold tabular-nums text-destructive"
-            >
-              8:47
-            </motion.span>
-            <TrendingDown className="h-4 w-4 text-destructive" />
-          </div>
-          <p className="text-center text-[11px] text-destructive/70 font-medium">{t('landing.before_caption')}</p>
-        </div>
-      </motion.div>
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '-60px' })
 
-      {/* WITH REPLYPRO */}
-      <motion.div
-        initial={{ opacity: 0, x: 24 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.15 }}
-        className="rounded-2xl border border-primary/30 bg-primary/5 p-5 relative overflow-hidden"
-      >
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/0 via-primary to-primary/0" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-primary/70 mb-4">{t('landing.after_label')}</p>
-        <div className="space-y-2.5">
-          {/* Incoming message */}
-          <div className="flex gap-2 items-start">
-            <div className="h-6 w-6 rounded-full bg-muted shrink-0 flex items-center justify-center text-[9px] font-bold">K</div>
-            <div className="rounded-xl rounded-tl-sm bg-muted/80 px-3 py-2 text-[11px] leading-relaxed max-w-[85%]">
-              {t('landing.hero_demo_message')}
+  return (
+    <div ref={ref} className="max-w-4xl mx-auto w-full">
+      <div className="relative grid md:grid-cols-2 gap-0 rounded-3xl overflow-hidden border shadow-2xl shadow-black/10">
+
+        {/* ── LEFT: WITHOUT ── */}
+        <div className="relative bg-gradient-to-br from-red-950/40 via-red-900/20 to-background p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-500/20">
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-500/70 to-transparent" />
+          <div className="flex items-center gap-2 mb-5">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500/20 border border-red-500/30">
+              <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
             </div>
+            <span className="text-xs font-bold uppercase tracking-widest text-red-400">{t('landing.before_label')}</span>
           </div>
-          {/* AI reply — appears fast */}
+          <div className="space-y-3 mb-5">
+            <motion.div
+              initial={{ opacity: 0, x: -12 }}
+              animate={inView ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: 0.2, duration: 0.4 }}
+              className="flex gap-2.5 items-end"
+            >
+              <div className="h-7 w-7 rounded-full bg-slate-600 shrink-0 flex items-center justify-center text-[10px] font-bold text-white">K</div>
+              <div className="rounded-2xl rounded-bl-sm bg-white/10 border border-white/10 px-3.5 py-2.5 text-xs leading-relaxed text-foreground/80 max-w-[85%]">
+                {t('landing.hero_demo_message')}
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 12 }}
+              animate={inView ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: 0.5, duration: 0.4 }}
+              className="flex gap-2.5 items-end flex-row-reverse"
+            >
+              <div className="h-7 w-7 rounded-full bg-slate-700 shrink-0 flex items-center justify-center text-[10px] font-bold text-white/60">A</div>
+              <div className="rounded-2xl rounded-br-sm bg-white/5 border border-white/10 px-3.5 py-2.5 text-xs text-muted-foreground/60 italic max-w-[85%]">
+                {t('landing.before_thinking')}
+                <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.2, repeat: Infinity }}>...</motion.span>
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 12 }}
+              animate={inView ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: 0.8, duration: 0.4 }}
+              className="flex gap-2.5 items-end flex-row-reverse"
+            >
+              <div className="h-7 w-7 rounded-full bg-slate-700 shrink-0 flex items-center justify-center text-[10px] font-bold text-white/60">A</div>
+              <div className="rounded-2xl rounded-br-sm bg-white/5 border border-white/10 px-3.5 py-2.5 max-w-[85%]">
+                <div className="flex gap-1 items-center">
+                  {[0, 0.2, 0.4].map((d, i) => (
+                    <motion.div key={i} animate={{ y: [0, -4, 0] }} transition={{ duration: 0.8, repeat: Infinity, delay: d }}
+                      className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5, duration: 0.35 }}
-            className="flex gap-2 items-start flex-row-reverse"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={inView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ delay: 1, duration: 0.5, type: 'spring' }}
+            className="flex flex-col items-center gap-1 py-4 rounded-2xl bg-red-500/10 border border-red-500/20"
           >
-            <div className="h-6 w-6 rounded-full bg-primary/20 shrink-0 flex items-center justify-center">
-              <Sparkles className="h-3 w-3 text-primary" />
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-red-400" />
+              <motion.span
+                animate={inView ? { opacity: [1, 0.3, 1] } : {}}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="text-4xl font-black tabular-nums text-red-400 tracking-tight"
+              >8:47</motion.span>
             </div>
-            <div className="rounded-xl rounded-tr-sm bg-primary/10 border border-primary/20 px-3 py-2 text-[11px] leading-relaxed text-foreground/90 max-w-[85%]">
-              {t('landing.after_reply_preview')}
-            </div>
+            <p className="text-xs font-semibold text-red-400/80">{t('landing.before_caption')}</p>
           </motion.div>
-          {/* Timer */}
-          <div className="flex items-center justify-center gap-2 pt-2">
-            <Zap className="h-4 w-4 text-primary" />
-            <span className="text-xl font-bold tabular-nums text-primary">0:05</span>
-            <TrendingUp className="h-4 w-4 text-primary" />
-          </div>
-          <p className="text-center text-[11px] text-primary/70 font-medium">{t('landing.after_caption')}</p>
         </div>
+
+        {/* VS badge */}
+        <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-card border-2 border-border shadow-lg text-xs font-black text-muted-foreground">VS</div>
+        </div>
+
+        {/* ── RIGHT: WITH REPLYPRO ── */}
+        <div className="relative bg-gradient-to-br from-primary/20 via-primary/8 to-background p-6 md:p-8">
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent" />
+          <div className="flex items-center gap-2 mb-5">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 border border-primary/30">
+              <Sparkles className="h-2.5 w-2.5 text-primary" />
+            </div>
+            <span className="text-xs font-bold uppercase tracking-widest text-primary">{t('landing.after_label')}</span>
+          </div>
+          <div className="space-y-3 mb-5">
+            <motion.div
+              initial={{ opacity: 0, x: -12 }}
+              animate={inView ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: 0.3, duration: 0.4 }}
+              className="flex gap-2.5 items-end"
+            >
+              <div className="h-7 w-7 rounded-full bg-slate-600 shrink-0 flex items-center justify-center text-[10px] font-bold text-white">K</div>
+              <div className="rounded-2xl rounded-bl-sm bg-white/10 border border-white/10 px-3.5 py-2.5 text-xs leading-relaxed text-foreground/80 max-w-[85%]">
+                {t('landing.hero_demo_message')}
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 8 }}
+              animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
+              transition={{ delay: 0.7, duration: 0.5, type: 'spring', stiffness: 300 }}
+              className="flex gap-2.5 items-end flex-row-reverse"
+            >
+              <div className="h-7 w-7 rounded-full bg-primary shrink-0 flex items-center justify-center shadow-md shadow-primary/40">
+                <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
+              </div>
+              <div className="rounded-2xl rounded-br-sm bg-primary/15 border border-primary/25 px-3.5 py-2.5 text-xs leading-relaxed text-foreground/90 max-w-[85%]">
+                {t('landing.after_reply_preview')}
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 1.0, duration: 0.4 }}
+              className="flex gap-1.5 flex-wrap pl-9"
+            >
+              {[
+                { label: t('dashboard.tone_professional'), color: 'bg-blue-500/15 text-blue-400 border-blue-500/25' },
+                { label: t('dashboard.tone_friendly'), color: 'bg-green-500/15 text-green-400 border-green-500/25' },
+                { label: t('dashboard.tone_direct'), color: 'bg-amber-500/15 text-amber-400 border-amber-500/25' },
+              ].map((b) => (
+                <span key={b.label} className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${b.color}`}>{b.label}</span>
+              ))}
+            </motion.div>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={inView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ delay: 1.1, duration: 0.5, type: 'spring' }}
+            className="flex flex-col items-center gap-1 py-4 rounded-2xl bg-primary/10 border border-primary/20"
+          >
+            <div className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-primary fill-primary" />
+              <span className="text-4xl font-black tabular-nums text-primary tracking-tight">0:05</span>
+            </div>
+            <p className="text-xs font-semibold text-primary/80">{t('landing.after_caption')}</p>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Bottom stat bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 1.3, duration: 0.5 }}
+        className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground"
+      >
+        <TrendingDown className="h-4 w-4 text-red-400" />
+        <span className="font-semibold text-red-400">8:47</span>
+        <span>→</span>
+        <span className="font-semibold text-primary">0:05</span>
+        <TrendingUp className="h-4 w-4 text-primary" />
+        <span className="ml-1 rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-xs font-bold text-primary">100× {t('landing.strip_faster')}</span>
       </motion.div>
     </div>
   )
