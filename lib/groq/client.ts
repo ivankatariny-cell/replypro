@@ -13,13 +13,18 @@ function getGroq(): Groq {
 
 export async function generateReplies(
   systemPrompt: string,
-  userMessage: string
+  userMessage: string,
+  quickReply = false
 ): Promise<{
   professional: string
   friendly: string
   direct: string
   detected_language: 'hr' | 'en'
 }> {
+  const effectivePrompt = quickReply
+    ? systemPrompt + '\n\nQUICK REPLY MODE: Return ONLY the "direct" tone. Set "professional" and "friendly" to empty strings "".'
+    : systemPrompt
+
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), GROQ_TIMEOUT_MS)
 
@@ -28,7 +33,7 @@ export async function generateReplies(
     completion = await getGroq().chat.completions.create(
       {
         messages: [
-          { role: 'system', content: systemPrompt },
+          { role: 'system', content: effectivePrompt },
           { role: 'user', content: `PORUKA KLIJENTA:\n${userMessage}` },
         ],
         model: 'llama-3.3-70b-versatile',
@@ -52,7 +57,7 @@ export async function generateReplies(
 
   const parsed = JSON.parse(content)
 
-  if (!parsed.professional || !parsed.friendly || !parsed.direct) {
+  if (!parsed.direct || (!quickReply && (!parsed.professional || !parsed.friendly))) {
     throw new Error('Invalid AI response structure')
   }
 

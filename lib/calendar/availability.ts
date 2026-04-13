@@ -274,12 +274,12 @@ export async function fetchAvailabilityContext(
     if (rulesResult.error) throw rulesResult.error
     if (exceptionsResult.error) throw exceptionsResult.error
 
-    const appointments = appointmentsResult.data ?? []
-    const rules = rulesResult.data ?? []
-    const exceptions = exceptionsResult.data ?? []
+    const appointments: AppointmentRow[] = appointmentsResult.data ?? []
+    const rules: AvailabilityRuleRow[] = rulesResult.data ?? []
+    const exceptions: AvailabilityExceptionRow[] = exceptionsResult.data ?? []
 
-    const rule = rules.find(r => r.day_of_week === dow)
-    const exception = exceptions.find(e => e.exception_date === dateStr)
+    const rule = rules.find((r: AvailabilityRuleRow) => r.day_of_week === dow)
+    const exception = exceptions.find((e: AvailabilityExceptionRow) => e.exception_date === dateStr)
 
     const isFree = !isSlotOccupied(requestedDate, rule, exception, appointments)
 

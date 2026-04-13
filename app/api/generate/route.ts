@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
+    const isDemo = body.demo === true && sub.trial_generations_used === 0
     const message = sanitizeMessage(body.message || '')
     if (!message || message.length < 1) {
       return NextResponse.json(
@@ -145,8 +146,9 @@ export async function POST(req: NextRequest) {
       suggestedBooking = extractBooking(message, clientName, propertyTitle, msgLanguage)
     }
 
+    const isQuickReply = body.quick_reply === true
     const enrichedPrompt = systemPrompt + clientContext + propertyContext + templateCtx + availabilityContext
-    const aiResult = await generateReplies(enrichedPrompt, message)
+    const aiResult = await generateReplies(enrichedPrompt, message, isQuickReply)
 
     const { data: genRow, error: genInsertError } = await serviceClient.from('rp_generations').insert({
       user_id: user.id,
@@ -167,12 +169,12 @@ export async function POST(req: NextRequest) {
     }
 
     let generationsRemaining: number | null = null
-    if (sub.status === 'trial') {
-      const { data: rpcResult, error: rpcError } = await serviceClient
+    if (sub.status === 'trial' && !isDemo) {
+      const { data: rpcResults, error: rpcError } = await serviceClient
         .rpc('increment_trial_usage', { p_user_id: user.id })
-        .single()
+      const rpcResult = rpcResults?.[0]
 
-      if (rpcError) {
+      if (rpcError || !rpcResult) {
         console.error('[generate] increment_trial_usage RPC failed', rpcError)
         return NextResponse.json(
           { error: 'Failed to update trial usage', code: 'GENERATION_FAILED' } satisfies ApiError,
@@ -197,8 +199,8 @@ export async function POST(req: NextRequest) {
 
       generationsRemaining = rpcResult.generations_limit - rpcResult.generations_used
 
-      // Warn when running low (1 generation left)
-      if (generationsRemaining === 1) {
+      // Warn when running low (3 generations left)
+      if (generationsRemaining === 3) {
         const { data: profileForEmail } = await serviceClient
           .from('profiles').select('language').eq('id', user.id).single()
         try {
@@ -207,6 +209,9 @@ export async function POST(req: NextRequest) {
           console.error('[generate] sendTrialLowEmail failed', emailErr)
         }
       }
+    } else if (sub.status === 'trial' && isDemo) {
+      // Demo generation during onboarding — counter not incremented
+      generationsRemaining = sub.trial_generations_limit - sub.trial_generations_used
     }
 
     const response: GenerateResponse = {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { motion, AnimatePresence } from 'motion/react'
+import { AnimatePresence } from 'motion/react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useProfile } from '@/hooks/useProfile'
@@ -19,7 +19,8 @@ import { BookingPrompt } from '@/components/dashboard/BookingPrompt'
 import { TemplateSelector } from '@/components/dashboard/TemplateSelector'
 import { ClientSelector } from '@/components/dashboard/ClientSelector'
 import { PropertySelector } from '@/components/dashboard/PropertySelector'
-import { ChevronDown, ChevronUp, X, LayoutTemplate, Sparkles, Keyboard } from 'lucide-react'
+import { ChevronDown, ChevronUp, X, LayoutTemplate, Sparkles, Keyboard, Users, Zap } from 'lucide-react'
+import Link from 'next/link'
 import { sanitizeMessage } from '@/lib/utils/sanitize'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
 import type { GenerateResponse, Template, SuggestedBooking } from '@/types'
@@ -35,7 +36,7 @@ function isMac() {
 }
 
 function DashboardContent() {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const { subscription } = useSubscription()
@@ -52,6 +53,7 @@ function DashboardContent() {
   const [showTemplates, setShowTemplates] = useState(false)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [suggestedBooking, setSuggestedBooking] = useState<SuggestedBooking | null>(null)
+  const [quickReply, setQuickReply] = useState(false)
   const legendRef = useRef<HTMLDivElement>(null)
   const mac = isMac()
   const modKey = mac ? '⌘' : 'Ctrl'
@@ -150,7 +152,7 @@ function DashboardContent() {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: message.trim(), client_id: selectedClient, property_id: selectedProperty, template_context: templateContext ? sanitizeMessage(templateContext) : null }),
+        body: JSON.stringify({ message: message.trim(), client_id: selectedClient, property_id: selectedProperty, template_context: templateContext ? sanitizeMessage(templateContext) : null, quick_reply: quickReply }),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -161,6 +163,7 @@ function DashboardContent() {
       const data: GenerateResponse = await res.json()
       setReplies(data)
       setTemplateContext(null)
+      setMessage('')
       setSuggestedBooking(data.suggestedBooking ?? null)
       if (subscription?.status === 'trial') {
         setSubscription({ ...subscription, trial_generations_used: subscription.trial_generations_used + 1 })
@@ -287,7 +290,16 @@ function DashboardContent() {
             <MessageInput value={message} onChange={setMessage} disabled={loading} />
           </div>
 
-          <GenerateButton onClick={handleGenerate} loading={loading} disabled={!message.trim() || !canGenerate} />
+          <div className="flex items-center gap-2">
+            <GenerateButton onClick={handleGenerate} loading={loading} disabled={!message.trim() || !canGenerate} />
+            <button
+              onClick={() => setQuickReply(!quickReply)}
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${quickReply ? 'bg-primary/10 border-primary/20 text-primary' : 'text-muted-foreground hover:bg-accent'}`}
+            >
+              <Zap className="h-3.5 w-3.5" />
+              {language === 'hr' ? 'Brzi odgovor' : 'Quick reply'}
+            </button>
+          </div>
           <p className="hidden md:block text-xs text-muted-foreground text-center -mt-1">
             {mac ? '⌘ Enter to generate' : 'Ctrl+Enter to generate'}
           </p>
@@ -310,6 +322,24 @@ function DashboardContent() {
               loading={loading}
             />
           </ErrorBoundary>
+          {replies && !loading && !selectedClient && (
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-muted/20 px-4 py-3">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Users className="h-4 w-4 shrink-0" />
+                <span>
+                  {language === 'hr'
+                    ? 'Povežite ovaj odgovor s klijentom za bolji kontekst sljedeći put'
+                    : 'Link this reply to a client for better context next time'}
+                </span>
+              </div>
+              <Link
+                href="/clients"
+                className="shrink-0 text-xs font-medium text-primary hover:underline cursor-pointer"
+              >
+                {language === 'hr' ? 'Dodaj klijenta →' : 'Add client →'}
+              </Link>
+            </div>
+          )}
         </div>
       )}
 

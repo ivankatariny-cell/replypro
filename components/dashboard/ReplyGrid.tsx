@@ -34,11 +34,21 @@ export function ReplyGrid({ professional, friendly, direct, loading, generationI
     )
   }
 
-  if (!professional) return null
+  if (!professional && !direct) return null
+
+  const isQuickReply = !professional && !friendly && !!direct
+
+  if (isQuickReply) {
+    return (
+      <div>
+        <ReplyCard tone="direct" content={direct!} index={0} generationId={generationId} />
+      </div>
+    )
+  }
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <ReplyCard tone="professional" content={professional} index={0} generationId={generationId} />
+      <ReplyCard tone="professional" content={professional!} index={0} generationId={generationId} />
       <ReplyCard tone="friendly" content={friendly!} index={1} generationId={generationId} />
       <ReplyCard tone="direct" content={direct!} index={2} generationId={generationId} />
     </div>

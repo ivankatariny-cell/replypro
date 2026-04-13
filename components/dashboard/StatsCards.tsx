@@ -24,7 +24,7 @@ export function StatsCards() {
   const stats = [
     { label: t('stats.total_generated'), value: generations.length, loading: genLoading, icon: MessageSquare, color: 'text-primary', bg: 'bg-primary/10' },
     { label: t('stats.active_clients'), value: clients.length, loading: clientsLoading, icon: Users, color: 'text-info', bg: 'bg-info/10' },
-    { label: t('dashboard.trial_remaining'), value: remaining, loading: false, icon: Zap, color: 'text-warning', bg: 'bg-warning/10' },
+    { label: subscription?.status === 'active' ? t('dashboard.unlimited') : t('dashboard.trial_remaining'), value: remaining, loading: false, icon: Zap, color: 'text-warning', bg: 'bg-warning/10' },
   ]
 
   return (

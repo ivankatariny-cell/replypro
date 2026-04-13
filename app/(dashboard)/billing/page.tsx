@@ -1,6 +1,8 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion } from 'motion/react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useSubscription } from '@/hooks/useSubscription'
@@ -9,13 +11,15 @@ import { useToast } from '@/components/ui/toast'
 import { PricingCard } from '@/components/billing/PricingCard'
 import { RefreshCw, ExternalLink } from 'lucide-react'
 
-export default function BillingPage() {
+function BillingPageInner() {
   const { t } = useTranslation()
   const { toast } = useToast()
   const { subscription } = useSubscription()
   const setSubscription = useAppStore((s) => s.setSubscription)
   const [syncing, setSyncing] = useState(false)
   const [managing, setManaging] = useState(false)
+  const searchParams = useSearchParams()
+  const autoCheckout = searchParams.get('checkout') === '1'
 
   const isActiveSubscriber = subscription?.status === 'active' || subscription?.status === 'past_due'
 
@@ -87,8 +91,16 @@ export default function BillingPage() {
       </div>
 
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <PricingCard />
+        <PricingCard autoTrigger={autoCheckout && !isActiveSubscriber} />
       </motion.div>
     </div>
+  )
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense>
+      <BillingPageInner />
+    </Suspense>
   )
 }

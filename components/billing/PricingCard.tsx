@@ -1,30 +1,37 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useSubscription } from '@/hooks/useSubscription'
 import { Button } from '@/components/ui/button'
 import { Check, Loader2, Crown, Infinity, Zap } from 'lucide-react'
 
-export function PricingCard() {
+export function PricingCard({ autoTrigger = false }: { autoTrigger?: boolean }) {
   const { t } = useTranslation()
-  const { subscription } = useSubscription()
-  const [loading, setLoading] = useState(false)
+  const { subscription, loading } = useSubscription()
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
 
   const handleCheckout = async () => {
-    setLoading(true)
+    setCheckoutLoading(true)
     try {
       const res = await fetch('/api/stripe/checkout', { method: 'POST' })
       const data = await res.json()
       if (data.url) window.location.href = data.url
     } catch {
-      setLoading(false)
+      setCheckoutLoading(false)
     }
   }
 
-  const isTrial = subscription?.status === 'trial'
   const isActive = subscription?.status === 'active'
+  const isTrial = subscription?.status === 'trial'
   const isCancelled = subscription?.status === 'cancelled'
+
+  useEffect(() => {
+    if (autoTrigger && !loading && !isActive) {
+      handleCheckout()
+      window.history.replaceState({}, '', '/billing')
+    }
+  }, [autoTrigger, loading, isActive])
 
   const proFeatures = [
     t('landing.pricing_feature_1'),
@@ -107,8 +114,8 @@ export function PricingCard() {
             </li>
           ))}
         </ul>
-        <Button onClick={handleCheckout} className="w-full cursor-pointer" disabled={loading}>
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <Button onClick={handleCheckout} className="w-full cursor-pointer" disabled={checkoutLoading}>
+          {checkoutLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {isCancelled ? t('billing.resubscribe_btn') : t('billing.upgrade_btn')}
         </Button>
         <p className="text-xs text-muted-foreground text-center">{t('landing.guarantee')}</p>

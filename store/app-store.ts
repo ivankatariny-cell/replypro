@@ -11,6 +11,7 @@ interface AppState {
   generations: Generation[]
   setGenerations: (g: Generation[]) => void
   addGeneration: (g: Generation) => void
+  // TODO: Used by pagination — implement Prompt 2.7 before removing
   appendGenerations: (g: Generation[]) => void
   clients: Client[]
   setClients: (c: Client[]) => void
@@ -27,6 +28,7 @@ interface AppState {
   favorites: Favorite[]
   setFavorites: (f: Favorite[]) => void
   addFavorite: (f: Favorite) => void
+  updateFavorite: (id: string, data: Partial<Favorite>) => void
   removeFavorite: (id: string) => void
   appointments: Appointment[]
   setAppointments: (a: Appointment[]) => void
@@ -72,6 +74,9 @@ export const useAppStore = create<AppState>((set) => ({
   favorites: [],
   setFavorites: (favorites) => set({ favorites }),
   addFavorite: (f) => set((s) => ({ favorites: [f, ...s.favorites] })),
+  updateFavorite: (id, data) => set((s) => ({
+    favorites: s.favorites.map((f) => (f.id === id ? { ...f, ...data } : f)),
+  })),
   removeFavorite: (id) => set((s) => ({
     favorites: s.favorites.filter((f) => f.id !== id),
   })),

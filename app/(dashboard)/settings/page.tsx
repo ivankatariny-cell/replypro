@@ -15,7 +15,7 @@ import { useToast } from '@/components/ui/toast'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
-import { Loader2, User, Shield, Download, ChevronDown, Trash2 } from 'lucide-react'
+import { Loader2, User, Shield, Download, ChevronDown, Trash2, Lock } from 'lucide-react'
 
 const schema = z.object({
   full_name: z.string().min(2).max(100),
@@ -39,6 +39,8 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false)
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' })
+  const [pwLoading, setPwLoading] = useState(false)
 
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
   const watchedTone = watch('preferred_tone')
@@ -95,6 +97,36 @@ export default function SettingsPage() {
       toast(t('settings.delete_error'), 'error')
       setDeleting(false)
     }
+  }
+
+  const handlePasswordChange = async () => {
+    if (pwForm.next !== pwForm.confirm) {
+      toast(t('auth.passwords_no_match'), 'error')
+      return
+    }
+    if (pwForm.next.length < 6) {
+      toast(language === 'hr' ? 'Lozinka mora imati najmanje 6 znakova.' : 'Password must be at least 6 characters.', 'error')
+      return
+    }
+    setPwLoading(true)
+    const supabase = createClient()
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user!.email!,
+      password: pwForm.current,
+    })
+    if (signInError) {
+      toast(language === 'hr' ? 'Trenutna lozinka nije ispravna.' : 'Current password is incorrect.', 'error')
+      setPwLoading(false)
+      return
+    }
+    const { error } = await supabase.auth.updateUser({ password: pwForm.next })
+    if (!error) {
+      toast(language === 'hr' ? 'Lozinka promijenjena.' : 'Password changed.', 'success')
+      setPwForm({ current: '', next: '', confirm: '' })
+    } else {
+      toast(error.message, 'error')
+    }
+    setPwLoading(false)
   }
 
   const toneDesc: Record<string, Record<string, string>> = {
@@ -199,6 +231,50 @@ export default function SettingsPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Change Password */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.25 }}>
+        <div className="rounded-2xl border bg-card overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b bg-muted/20">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/30">
+              <Lock className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">{language === 'hr' ? 'Promjena lozinke' : 'Change password'}</p>
+              <p className="text-xs text-muted-foreground">{language === 'hr' ? 'Ažurirajte svoju lozinku' : 'Update your account password'}</p>
+            </div>
+          </div>
+          <div className="p-6 space-y-4">
+            <div className="space-y-3">
+              {[
+                { id: 'pw-current', label: language === 'hr' ? 'Trenutna lozinka' : 'Current password', key: 'current' as const },
+                { id: 'pw-next', label: language === 'hr' ? 'Nova lozinka' : 'New password', key: 'next' as const },
+                { id: 'pw-confirm', label: language === 'hr' ? 'Potvrdi novu lozinku' : 'Confirm new password', key: 'confirm' as const },
+              ].map(({ id, label, key }) => (
+                <div key={id} className="space-y-1.5">
+                  <Label htmlFor={id} className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</Label>
+                  <Input
+                    id={id}
+                    type="password"
+                    value={pwForm[key]}
+                    onChange={(e) => setPwForm((f) => ({ ...f, [key]: e.target.value }))}
+                    className="rounded-lg"
+                    autoComplete="new-password"
+                  />
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={handlePasswordChange}
+              disabled={pwLoading || !pwForm.current || !pwForm.next || !pwForm.confirm}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            >
+              {pwLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              {language === 'hr' ? 'Promijeni lozinku' : 'Change password'}
+            </button>
           </div>
         </div>
       </motion.div>

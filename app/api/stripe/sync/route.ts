@@ -20,7 +20,7 @@ export async function POST() {
 
     // Check Stripe for checkout sessions by email
     const sessions = await getStripe().checkout.sessions.list({
-      customer_email: user.email!,
+      customer_details: { email: user.email! },
       limit: 5,
       status: 'complete',
     })

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
-import { Plus, X, CalendarDays, LayoutGrid, RefreshCw, Settings2, ChevronRight } from 'lucide-react'
+import { Plus, X, CalendarDays, LayoutGrid, RefreshCw, Settings2 } from 'lucide-react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useAppointments } from '@/hooks/useAppointments'
 import { useAvailability } from '@/hooks/useAvailability'
@@ -47,6 +48,19 @@ export default function CalendarPage() {
   const addAppointment = useAppStore((s) => s.addAppointment)
   const updateAppointment = useAppStore((s) => s.updateAppointment)
   const removeAppointment = useAppStore((s) => s.removeAppointment)
+
+  const searchParams = useSearchParams()
+  const dateParam = searchParams.get('date')
+
+  useEffect(() => {
+    if (!dateParam) return
+    const date = new Date(dateParam + 'T00:00:00')
+    if (isNaN(date.getTime())) return
+    const monthStart = new Date(date.getFullYear(), date.getMonth(), 1)
+    setCurrentMonth(monthStart)
+    setSelectedDay(date)
+    window.history.replaceState({}, '', '/calendar')
+  }, [dateParam])
 
   const [view, setView] = useState<View>('month')
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)

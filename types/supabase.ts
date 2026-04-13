@@ -7,6 +7,9 @@ export type Json =
   | Json[]
 
 export interface Database {
+  __InternalSupabase: {
+    PostgrestVersion: "12"
+  }
   public: {
     Tables: {
       profiles: {
@@ -366,6 +369,36 @@ export interface Database {
           exception_date?: string
           is_available?: boolean
           reason?: string | null
+        }
+        Relationships: []
+      }
+      rp_webhook_events: {
+        Row: {
+          id: string
+          event_id: string
+          event_type: string
+          user_id: string | null
+          status: 'processed' | 'failed' | 'skipped'
+          error_message: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          event_type: string
+          user_id?: string | null
+          status: 'processed' | 'failed' | 'skipped'
+          error_message?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          event_id?: string
+          event_type?: string
+          user_id?: string | null
+          status?: 'processed' | 'failed' | 'skipped'
+          error_message?: string | null
+          created_at?: string
         }
         Relationships: []
       }

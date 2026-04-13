@@ -11,7 +11,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { Copy, Trash2, Star, Check } from 'lucide-react'
+import { Copy, Trash2, Star, Check, Pencil, X } from 'lucide-react'
 
 const toneConfig = {
   professional: { variant: 'professional' as const },
@@ -24,9 +24,12 @@ export default function FavoritesPage() {
   const { toast } = useToast()
   const { favorites, loading } = useFavorites()
   const removeFavorite = useAppStore((s) => s.removeFavorite)
+  const updateFavorite = useAppStore((s) => s.updateFavorite)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [editingLabelId, setEditingLabelId] = useState<string | null>(null)
+  const [labelValue, setLabelValue] = useState('')
 
   const handleCopy = async (id: string, text: string) => {
     await navigator.clipboard.writeText(text)
@@ -43,6 +46,19 @@ export default function FavoritesPage() {
     toast(t('favorites.removed'), 'info')
     setDeleting(false)
     setConfirmDeleteId(null)
+  }
+
+  const handleLabelSave = async (id: string) => {
+    const supabase = createClient()
+    const trimmed = labelValue.trim() || null
+    await supabase.from('rp_favorites').update({ label: trimmed }).eq('id', id)
+    updateFavorite(id, { label: trimmed })
+    setEditingLabelId(null)
+  }
+
+  const handleLabelEdit = (id: string, currentLabel: string | null) => {
+    setEditingLabelId(id)
+    setLabelValue(currentLabel ?? '')
   }
 
   return (
@@ -78,24 +94,70 @@ export default function FavoritesPage() {
             <motion.div key={fav.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <div className="group flex flex-col rounded-2xl border bg-card overflow-hidden hover:shadow-md transition-shadow h-full">
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/20">
-                  <Badge variant={toneConfig[fav.tone]?.variant || 'outline'} className="text-xs">
-                    {t(`dashboard.tone_${fav.tone}`)}
-                  </Badge>
-                  <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleCopy(fav.id, fav.content)}
-                      className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer ${copiedId === fav.id ? 'text-green-600' : 'text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5'}`}
-                    >
-                      {copiedId === fav.id ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                    </button>
-                    <button
-                      onClick={() => setConfirmDeleteId(fav.id)}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                <div className="flex flex-col gap-1.5 px-4 py-3 border-b bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <Badge variant={toneConfig[fav.tone]?.variant || 'outline'} className="text-xs">
+                      {t(`dashboard.tone_${fav.tone}`)}
+                    </Badge>
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => handleCopy(fav.id, fav.content)}
+                        className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer ${copiedId === fav.id ? 'text-green-600' : 'text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5'}`}
+                      >
+                        {copiedId === fav.id ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteId(fav.id)}
+                        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Label row */}
+                  {editingLabelId === fav.id ? (
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        autoFocus
+                        value={labelValue}
+                        onChange={(e) => setLabelValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleLabelSave(fav.id)
+                          if (e.key === 'Escape') setEditingLabelId(null)
+                        }}
+                        placeholder="Add label…"
+                        className="flex-1 h-6 rounded-md border border-input bg-background px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+                      />
+                      <button
+                        onClick={() => handleLabelSave(fav.id)}
+                        className="flex h-6 w-6 items-center justify-center rounded-md text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 transition-colors cursor-pointer"
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => setEditingLabelId(null)}
+                        className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : fav.label ? (
+                    <button
+                      onClick={() => handleLabelEdit(fav.id, fav.label)}
+                      className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors cursor-pointer w-fit"
+                    >
+                      <span className="truncate max-w-[180px]">{fav.label}</span>
+                      <Pencil className="h-3 w-3 shrink-0 opacity-0 group-hover:opacity-60" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleLabelEdit(fav.id, null)}
+                      className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors cursor-pointer w-fit opacity-0 group-hover:opacity-100"
+                    >
+                      + Add label
+                    </button>
+                  )}
                 </div>
 
                 {/* Content */}

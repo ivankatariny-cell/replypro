@@ -41,7 +41,7 @@ export function TrialBanner() {
             {subscription.status === 'past_due' ? t('billing.payment_issue') : t('errors.trial_expired')}
           </p>
         </div>
-        <Link href="/billing" className="shrink-0 rounded-lg bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer">
+        <Link href="/billing?checkout=1" className="shrink-0 rounded-lg bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer">
           {t('billing.upgrade_btn')}
         </Link>
       </motion.div>
@@ -60,7 +60,7 @@ export function TrialBanner() {
         className="flex items-center justify-between gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3"
       >
         <p className="text-sm font-medium text-destructive">{t('errors.trial_expired')}</p>
-        <Link href="/billing" className="shrink-0 rounded-lg bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer">
+        <Link href="/billing?checkout=1" className="shrink-0 rounded-lg bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer">
           {t('billing.upgrade_btn')}
         </Link>
       </motion.div>
@@ -81,7 +81,7 @@ export function TrialBanner() {
             {' '}{t('dashboard.trial_remaining')}
           </p>
         </div>
-        <Link href="/billing" className="text-xs font-medium text-primary hover:underline cursor-pointer">
+        <Link href="/billing?checkout=1" className="text-xs font-medium text-primary hover:underline cursor-pointer">
           {t('dashboard.upgrade_prompt')} →
         </Link>
       </div>

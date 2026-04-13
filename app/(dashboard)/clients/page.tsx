@@ -11,8 +11,9 @@ import { createClient as createSupabase } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Plus, X, Phone, Mail, MapPin, Search, Users, ChevronDown } from 'lucide-react'
+import { Plus, X, Phone, Mail, MapPin, Search, Users, ChevronDown, Pencil, Check, History, Copy } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { useGenerations } from '@/hooks/useGenerations'
 import type { ClientStatus } from '@/types'
 
 const statusConfig: Record<ClientStatus, { label: Record<string, string>; dot: string }> = {
@@ -29,6 +30,7 @@ export default function ClientsPage() {
   const { toast } = useToast()
   const { user } = useUser()
   const { clients, loading } = useClients()
+  const { generations } = useGenerations()
   const addClient = useAppStore((s) => s.addClient)
   const updateClientStore = useAppStore((s) => s.updateClient)
   const removeClient = useAppStore((s) => s.removeClient)
@@ -39,8 +41,18 @@ export default function ClientsPage() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [form, setForm] = useState({ full_name: '', phone: '', email: '', city: '', property_interest: '', budget_min: '', budget_max: '', notes: '' })
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState<Partial<typeof form>>({})
+  const [expandedClientId, setExpandedClientId] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const lang = language === 'hr' ? 'hr' : 'en'
+
+  const handleCopyGen = async (text: string, key: string) => {
+    await navigator.clipboard.writeText(text)
+    setCopiedId(key)
+    setTimeout(() => setCopiedId(null), 2000)
+  }
 
   const filtered = clients.filter((c) => {
     const matchSearch = !search || c.full_name.toLowerCase().includes(search.toLowerCase()) || c.city?.toLowerCase().includes(search.toLowerCase())
@@ -76,6 +88,29 @@ export default function ClientsPage() {
     const supabase = createSupabase()
     const { error } = await supabase.from('rp_clients').update({ status }).eq('id', id)
     if (!error) updateClientStore(id, { status })
+  }
+
+  const handleUpdate = async (id: string) => {
+    const supabase = createSupabase()
+    const { error } = await supabase.from('rp_clients').update({
+      full_name: editForm.full_name?.trim(),
+      phone: editForm.phone || null,
+      email: editForm.email || null,
+      city: editForm.city || null,
+      property_interest: editForm.property_interest || null,
+      budget_min: editForm.budget_min ? parseInt(editForm.budget_min) : null,
+      budget_max: editForm.budget_max ? parseInt(editForm.budget_max) : null,
+      notes: editForm.notes || null,
+    }).eq('id', id)
+    if (!error) {
+      updateClientStore(id, {
+        ...editForm,
+        budget_min: editForm.budget_min ? parseInt(editForm.budget_min) : null,
+        budget_max: editForm.budget_max ? parseInt(editForm.budget_max) : null,
+      })
+      setEditingId(null)
+      toast(t('clients.updated'), 'success')
+    }
   }
 
   const handleDelete = async (id: string) => {
@@ -215,60 +250,224 @@ export default function ClientsPage() {
         </div>
       ) : (
         <div className="rounded-2xl border bg-card overflow-hidden divide-y">
-          {filtered.map((client, i) => (
-            <motion.div
-              key={client.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: i * 0.03 }}
-              className="flex items-center gap-4 px-5 py-4 hover:bg-muted/30 transition-colors"
-            >
-              {/* Avatar */}
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-bold">
-                {client.full_name[0].toUpperCase()}
-              </div>
+          {filtered.map((client, i) => {
+            const isEditing = editingId === client.id
+            return (
+              <motion.div
+                key={client.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.03 }}
+                className="px-5 py-4 hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  {/* Avatar */}
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-bold">
+                    {client.full_name[0].toUpperCase()}
+                  </div>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-sm font-semibold truncate">{client.full_name}</span>
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <span className={`h-1.5 w-1.5 rounded-full ${statusConfig[client.status].dot}`} />
-                    {statusConfig[client.status].label[lang]}
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                  {client.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{client.phone}</span>}
-                  {client.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{client.email}</span>}
-                  {client.city && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{client.city}</span>}
-                  {(client.budget_min || client.budget_max) && (
-                    <span>{client.budget_min ? `€${client.budget_min.toLocaleString()}` : '?'} – {client.budget_max ? `€${client.budget_max.toLocaleString()}` : '?'}</span>
+                  {/* Info — collapsed view */}
+                  {!isEditing && (
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-sm font-semibold truncate">{client.full_name}</span>
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <span className={`h-1.5 w-1.5 rounded-full ${statusConfig[client.status].dot}`} />
+                          {statusConfig[client.status].label[lang]}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                        {client.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{client.phone}</span>}
+                        {client.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{client.email}</span>}
+                        {client.city && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{client.city}</span>}
+                        {(client.budget_min || client.budget_max) && (
+                          <span>{client.budget_min ? `€${client.budget_min.toLocaleString()}` : '?'} – {client.budget_max ? `€${client.budget_max.toLocaleString()}` : '?'}</span>
+                        )}
+                      </div>
+                    </div>
                   )}
-                </div>
-              </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-2 shrink-0">
-                <div className="relative">
-                  <select
-                    value={client.status}
-                    onChange={(e) => handleStatusChange(client.id, e.target.value as ClientStatus)}
-                    onClick={(e) => e.stopPropagation()}
-                    className="h-7 appearance-none rounded-lg border bg-background pl-2 pr-6 text-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
-                  >
-                    {Object.entries(statusConfig).map(([k, v]) => <option key={k} value={k}>{v.label[lang]}</option>)}
-                  </select>
-                  <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
+                  {/* Spacer when editing so actions stay right-aligned */}
+                  {isEditing && <div className="flex-1 min-w-0" />}
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="relative">
+                      <select
+                        value={client.status}
+                        onChange={(e) => handleStatusChange(client.id, e.target.value as ClientStatus)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="h-7 appearance-none rounded-lg border bg-background pl-2 pr-6 text-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
+                      >
+                        {Object.entries(statusConfig).map(([k, v]) => <option key={k} value={k}>{v.label[lang]}</option>)}
+                      </select>
+                      <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (isEditing) {
+                          setEditingId(null)
+                        } else {
+                          setEditingId(client.id)
+                          setEditForm({
+                            full_name: client.full_name,
+                            phone: client.phone ?? '',
+                            email: client.email ?? '',
+                            city: client.city ?? '',
+                            property_interest: client.property_interest ?? '',
+                            budget_min: String(client.budget_min ?? ''),
+                            budget_max: String(client.budget_max ?? ''),
+                            notes: client.notes ?? '',
+                          })
+                        }
+                      }}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer"
+                      title={t('clients.edit')}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setConfirmDeleteId(client.id)}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setExpandedClientId(expandedClientId === client.id ? null : client.id)}
+                      className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors cursor-pointer ${expandedClientId === client.id ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'}`}
+                      title={language === 'hr' ? 'Povijest odgovora' : 'Reply history'}
+                    >
+                      <History className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={() => setConfirmDeleteId(client.id)}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </motion.div>
-          ))}
+
+                {/* Inline edit form */}
+                <AnimatePresence>
+                  {isEditing && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-4 space-y-4">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {[
+                            { label: t('clients.name'), key: 'full_name', type: 'text' },
+                            { label: t('clients.phone_label'), key: 'phone', type: 'tel' },
+                            { label: 'Email', key: 'email', type: 'email' },
+                            { label: t('onboarding.city'), key: 'city', type: 'text' },
+                            { label: t('clients.interest'), key: 'property_interest', type: 'text' },
+                          ].map(({ label, key, type }) => (
+                            <div key={key} className="space-y-1.5">
+                              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</Label>
+                              <Input
+                                type={type}
+                                value={editForm[key as keyof typeof editForm] ?? ''}
+                                onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
+                              />
+                            </div>
+                          ))}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('clients.budget_min')}</Label>
+                              <Input type="number" value={editForm.budget_min ?? ''} onChange={(e) => setEditForm({ ...editForm, budget_min: e.target.value })} />
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('clients.budget_max')}</Label>
+                              <Input type="number" value={editForm.budget_max ?? ''} onChange={(e) => setEditForm({ ...editForm, budget_max: e.target.value })} />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('clients.notes')}</Label>
+                          <Input value={editForm.notes ?? ''} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} />
+                        </div>
+                        <div className="flex gap-2 pt-1">
+                          <button
+                            onClick={() => handleUpdate(client.id)}
+                            disabled={!editForm.full_name?.trim()}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            {t('clients.save_changes')}
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="rounded-lg border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-accent transition-colors cursor-pointer"
+                          >
+                            {t('clients.cancel')}
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Generations history panel */}
+                <AnimatePresence>
+                  {expandedClientId === client.id && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      {(() => {
+                        const clientGenerations = generations
+                          .filter((g) => g.client_id === client.id)
+                          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                        return clientGenerations.length === 0 ? (
+                          <p className="text-xs text-muted-foreground px-5 py-3 border-t mt-3">
+                            {language === 'hr' ? 'Nema generiranih odgovora za ovog klijenta.' : 'No generated replies for this client yet.'}
+                          </p>
+                        ) : (
+                          <div className="mt-3 border-t divide-y">
+                            {clientGenerations.map((gen) => {
+                              const preview = gen.original_message.length > 80
+                                ? gen.original_message.slice(0, 80) + '…'
+                                : gen.original_message
+                              const date = new Date(gen.created_at).toLocaleDateString(language === 'hr' ? 'hr-HR' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                              const tones: { key: 'reply_professional' | 'reply_friendly' | 'reply_direct'; label: string; color: string }[] = [
+                                { key: 'reply_professional', label: 'P', color: 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30' },
+                                { key: 'reply_friendly',    label: 'F', color: 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30' },
+                                { key: 'reply_direct',      label: 'D', color: 'text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30' },
+                              ]
+                              return (
+                                <div key={gen.id} className="flex items-center gap-3 px-5 py-2.5 hover:bg-muted/20 transition-colors">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-[11px] text-muted-foreground mb-0.5">{date}</p>
+                                    <p className="text-xs text-foreground/80 truncate">{preview}</p>
+                                  </div>
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    {tones.map(({ key, label, color }) => {
+                                      const copyKey = `${gen.id}-${key}`
+                                      const isCopied = copiedId === copyKey
+                                      return (
+                                        <button
+                                          key={key}
+                                          onClick={() => handleCopyGen(gen[key], copyKey)}
+                                          title={label}
+                                          className={`flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold transition-colors cursor-pointer ${color}`}
+                                        >
+                                          {isCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )
+                      })()}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )
+          })}
         </div>
       )}
 

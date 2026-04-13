@@ -5,6 +5,7 @@ import { motion } from 'motion/react'
 import Link from 'next/link'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useGenerations } from '@/hooks/useGenerations'
+import { useAppStore } from '@/store/app-store'
 import { HistoryItem } from '@/components/history/HistoryItem'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -12,9 +13,11 @@ import { MessageSquare, Search } from 'lucide-react'
 
 export default function HistoryPage() {
   const { t } = useTranslation()
-  const { generations, loading } = useGenerations()
+  const { generations, loading, hasMore, loadMore } = useGenerations()
   const [search, setSearch] = useState('')
   const [langFilter, setLangFilter] = useState<'all' | 'hr' | 'en'>('all')
+  const [loadingMore, setLoadingMore] = useState(false)
+  const language = useAppStore((s) => s.language)
 
   const filtered = useMemo(() => generations.filter((g) => {
     const matchSearch = !search || g.original_message.toLowerCase().includes(search.toLowerCase())
@@ -105,6 +108,19 @@ export default function HistoryPage() {
               </div>
             </div>
           ))}
+          {hasMore && (
+            <button
+              onClick={async () => {
+                setLoadingMore(true)
+                await loadMore(generations.length)
+                setLoadingMore(false)
+              }}
+              disabled={loadingMore}
+              className="w-full rounded-xl border px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {loadingMore ? '...' : (language === 'hr' ? 'Učitaj više' : 'Load more')}
+            </button>
+          )}
         </div>
       )}
     </div>

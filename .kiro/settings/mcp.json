@@ -8,7 +8,8 @@
         "execute_sql",
         "apply_migration",
         "list_extensions",
-        "get_advisors"
+        "get_advisors",
+        "generate_typescript_types"
       ]
     }
   }

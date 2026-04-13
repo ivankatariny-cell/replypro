@@ -72,7 +72,7 @@ export function OnboardingForm() {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: sampleMessage }),
+        body: JSON.stringify({ message: sampleMessage, demo: true }),
       })
       if (res.ok) setDemoReplies(await res.json())
     } catch {}
