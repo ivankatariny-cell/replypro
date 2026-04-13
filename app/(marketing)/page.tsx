@@ -12,7 +12,7 @@ import {
   MessageSquare, ClipboardPaste, Sparkles, Send,
   Check, ArrowRight, Clock, AlertTriangle, Repeat,
   Users, Building2, History, ChevronDown, Star, Zap,
-  Phone, MapPin, Euro, Copy, Heart,
+  Phone, MapPin, Euro, Copy,
 } from 'lucide-react'
 
 /* ─── Reusable animation wrappers ─── */
