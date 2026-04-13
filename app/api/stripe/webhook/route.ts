@@ -13,13 +13,13 @@ async function logWebhookEvent(
   errorMessage?: string,
 ) {
   try {
-    await supabase.from('rp_webhook_events').insert({
+    await supabase.from('rp_webhook_events').upsert({
       event_id: eventId,
       event_type: eventType,
       user_id: userId ?? null,
       status,
       error_message: errorMessage ?? null,
-    }).onConflict('event_id').ignore()
+    }, { onConflict: 'event_id', ignoreDuplicates: true })
   } catch {
     // Logging must never affect the webhook response
   }
