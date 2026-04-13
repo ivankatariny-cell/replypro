@@ -15,7 +15,9 @@
     "generate": "Generate"
   },
   "landing": {
-    "badge": "AI assistant for real estate",
+    "hero_demo_message": "Hi, I'm looking for a 3-bedroom apartment, downtown, up to €200k?",
+    "hero_generating": "Generating 3 replies...",
+    "hero_speed": "5 seconds",
     "headline": "Reply to clients in 5 seconds. Not 5 minutes.",
     "subheadline": "ReplyPro generates 3 perfect replies for every client message — Professional, Friendly, or Direct. Built for Croatian real estate agents.",
     "cta_primary": "Start for free",

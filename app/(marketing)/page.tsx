@@ -42,7 +42,12 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
 }
 
 /* ─── Decorative SVG illustrations ─── */
-function HeroIllustration() {
+function HeroIllustration({ t }: { t: (key: string) => string }) {
+  const tones = [
+    t('dashboard.tone_professional'),
+    t('dashboard.tone_friendly'),
+    t('dashboard.tone_direct'),
+  ]
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -69,7 +74,7 @@ function HeroIllustration() {
           >
             <div className="h-7 w-7 rounded-full bg-blue-100 dark:bg-blue-900/40 shrink-0 flex items-center justify-center text-xs font-bold text-blue-600">K</div>
             <div className="rounded-2xl rounded-tl-sm bg-muted px-3.5 py-2.5 text-xs leading-relaxed">
-              Dobar dan, zanima me stan 3 sobe, centar, do 200k€?
+              {t('landing.hero_demo_message')}
             </div>
           </motion.div>
           {/* Typing indicator */}
@@ -83,7 +88,7 @@ function HeroIllustration() {
               <Sparkles className="h-3.5 w-3.5 text-primary" />
             </div>
             <div className="rounded-2xl rounded-tr-sm bg-primary/10 border border-primary/20 px-3.5 py-2.5 text-xs leading-relaxed text-primary">
-              Generiranje 3 odgovora...
+              {t('landing.hero_generating')}
               <motion.span
                 animate={{ opacity: [1, 0, 1] }}
                 transition={{ duration: 1, repeat: Infinity }}
@@ -91,7 +96,7 @@ function HeroIllustration() {
             </div>
           </motion.div>
           {/* Reply cards preview */}
-          {['Profesionalno', 'Prijateljski', 'Direktno'].map((tone, i) => (
+          {tones.map((tone, i) => (
             <motion.div
               key={tone}
               initial={{ opacity: 0, y: 8 }}
@@ -118,7 +123,7 @@ function HeroIllustration() {
         className="absolute -top-4 -right-4 rounded-xl border bg-card shadow-lg px-3 py-2 flex items-center gap-2"
       >
         <Zap className="h-4 w-4 text-warning" />
-        <span className="text-xs font-semibold">5 sekundi</span>
+        <span className="text-xs font-semibold">{t('landing.hero_speed')}</span>
       </motion.div>
       <motion.div
         animate={{ y: [0, 8, 0] }}
@@ -272,7 +277,7 @@ export default function LandingPage() {
             </p>
           </FadeUp>
 
-          <HeroIllustration />
+          <HeroIllustration t={t} />
         </motion.div>
       </section>
 

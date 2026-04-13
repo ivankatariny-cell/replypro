@@ -16,6 +16,9 @@
   },
   "landing": {
     "badge": "AI asistent za nekretnine",
+    "hero_demo_message": "Dobar dan, zanima me stan 3 sobe, centar, do 200k€?",
+    "hero_generating": "Generiranje 3 odgovora...",
+    "hero_speed": "5 sekundi",
     "headline": "Odgovorite klijentu za 5 sekundi. Ne za 5 minuta.",
     "subheadline": "ReplyPro generira 3 savršena odgovora za svaku poruku klijenta — Profesionalno, Prijateljski ili Direktno. Napravljeno za agente nekretnina.",
     "cta_primary": "Počnite besplatno",
