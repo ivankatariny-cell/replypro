@@ -168,6 +168,14 @@
     "link_client_prompt": "Link this reply to a client for better context next time",
     "add_client_link": "Add client →"
   },
+  "page_subtitles": {
+    "properties_count": "{{count}} properties in catalog",
+    "clients_count": "{{count}} total clients",
+    "favorites_count": "{{count}} saved replies",
+    "billing_desc": "Manage your subscription and plan",
+    "ctrl_enter": "Ctrl+Enter to generate",
+    "cmd_enter": "⌘ Enter to generate"
+  },
   "stats": {
     "replies_month": "Replies this month",
     "active_clients": "Active clients",

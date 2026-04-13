@@ -64,7 +64,7 @@ function BillingPageInner() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t('nav.billing')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage your subscription and plan</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('page_subtitles.billing_desc')}</p>
         </div>
         <div className="flex items-center gap-2">
           {isActiveSubscriber && (

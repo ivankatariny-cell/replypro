@@ -149,7 +149,7 @@ export default function PropertiesPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t('nav.properties')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{properties.length} properties in catalog</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('page_subtitles.properties_count').replace('{{count}}', String(properties.length))}</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}

@@ -168,6 +168,14 @@
     "link_client_prompt": "Povežite ovaj odgovor s klijentom za bolji kontekst sljedeći put",
     "add_client_link": "Dodaj klijenta →"
   },
+  "page_subtitles": {
+    "properties_count": "{{count}} nekretnina u katalogu",
+    "clients_count": "{{count}} klijenata ukupno",
+    "favorites_count": "{{count}} spremljenih odgovora",
+    "billing_desc": "Upravljajte pretplatom i planom",
+    "ctrl_enter": "Ctrl+Enter za generiranje",
+    "cmd_enter": "⌘ Enter za generiranje"
+  },
   "stats": {
     "replies_month": "Odgovora ovaj mjesec",
     "active_clients": "Aktivnih klijenata",

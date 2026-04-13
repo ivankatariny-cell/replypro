@@ -301,7 +301,7 @@ function DashboardContent() {
             </button>
           </div>
           <p className="hidden md:block text-xs text-muted-foreground text-center -mt-1">
-            {mac ? '⌘ Enter to generate' : 'Ctrl+Enter to generate'}
+            {mac ? t('page_subtitles.cmd_enter') : t('page_subtitles.ctrl_enter')}
           </p>
         </div>
       </div>

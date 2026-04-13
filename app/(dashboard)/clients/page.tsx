@@ -128,7 +128,7 @@ export default function ClientsPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t('nav.clients')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{clients.length} total clients</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('page_subtitles.clients_count').replace('{{count}}', String(clients.length))}</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
