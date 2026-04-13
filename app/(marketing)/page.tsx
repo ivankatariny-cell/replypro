@@ -12,7 +12,7 @@ import {
   MessageSquare, ClipboardPaste, Sparkles, Send,
   Check, ArrowRight, Clock, AlertTriangle, Repeat,
   Users, Building2, History, ChevronDown, Star, Zap,
-  Phone, MapPin, Euro, Copy,
+  TrendingDown, TrendingUp, Brain, Database,
 } from 'lucide-react'
 
 /* ─── Reusable animation wrappers ─── */
@@ -143,129 +143,216 @@ function HeroIllustration({ t }: { t: (key: string) => string }) {
   )
 }
 
-/* ─── Client Book illustration ─── */
-function ClientBookIllustration({ t }: { t: (key: string) => string }) {
-  const clients = [
-    { initials: 'MK', name: 'Marko K.', interest: t('landing.illus_client_interest_1'), budget: '150–200k€', color: 'bg-blue-500' },
-    { initials: 'AH', name: 'Ana H.', interest: t('landing.illus_client_interest_2'), budget: '80–120k€', color: 'bg-violet-500' },
-    { initials: 'IP', name: 'Ivan P.', interest: t('landing.illus_client_interest_3'), budget: '250–350k€', color: 'bg-emerald-500' },
-  ]
+/* ─── Before / After speed illustration ─── */
+function BeforeAfterIllustration({ t }: { t: (key: string) => string }) {
   return (
-    <div className="relative rounded-2xl border bg-card shadow-xl shadow-primary/8 overflow-hidden max-w-sm mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/40">
-        <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-primary" />
-          <span className="text-xs font-semibold">{t('nav.clients')}</span>
+    <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto w-full">
+      {/* WITHOUT */}
+      <motion.div
+        initial={{ opacity: 0, x: -24 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 relative overflow-hidden"
+      >
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-destructive/0 via-destructive/60 to-destructive/0" />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-destructive/70 mb-4">{t('landing.before_label')}</p>
+        <div className="space-y-2.5">
+          {/* Incoming message */}
+          <div className="flex gap-2 items-start">
+            <div className="h-6 w-6 rounded-full bg-muted shrink-0 flex items-center justify-center text-[9px] font-bold">K</div>
+            <div className="rounded-xl rounded-tl-sm bg-muted/80 px-3 py-2 text-[11px] leading-relaxed max-w-[85%]">
+              {t('landing.hero_demo_message')}
+            </div>
+          </div>
+          {/* Thinking dots */}
+          <div className="flex gap-2 items-start flex-row-reverse">
+            <div className="h-6 w-6 rounded-full bg-muted shrink-0" />
+            <div className="rounded-xl rounded-tr-sm bg-muted/60 px-3 py-2 text-[11px] text-muted-foreground/60 italic max-w-[85%]">
+              {t('landing.before_thinking')}
+              <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.4, repeat: Infinity }}>...</motion.span>
+            </div>
+          </div>
+          {/* Timer */}
+          <div className="flex items-center justify-center gap-2 pt-2">
+            <Clock className="h-4 w-4 text-destructive" />
+            <motion.span
+              animate={{ opacity: [1, 0.4, 1] }}
+              transition={{ duration: 1.2, repeat: Infinity }}
+              className="text-xl font-bold tabular-nums text-destructive"
+            >
+              8:47
+            </motion.span>
+            <TrendingDown className="h-4 w-4 text-destructive" />
+          </div>
+          <p className="text-center text-[11px] text-destructive/70 font-medium">{t('landing.before_caption')}</p>
         </div>
-        <span className="text-[10px] text-muted-foreground bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">3 {t('landing.illus_active')}</span>
-      </div>
-      <div className="p-3 space-y-2">
-        {clients.map((c, i) => (
+      </motion.div>
+
+      {/* WITH REPLYPRO */}
+      <motion.div
+        initial={{ opacity: 0, x: 24 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+        className="rounded-2xl border border-primary/30 bg-primary/5 p-5 relative overflow-hidden"
+      >
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/0 via-primary to-primary/0" />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-primary/70 mb-4">{t('landing.after_label')}</p>
+        <div className="space-y-2.5">
+          {/* Incoming message */}
+          <div className="flex gap-2 items-start">
+            <div className="h-6 w-6 rounded-full bg-muted shrink-0 flex items-center justify-center text-[9px] font-bold">K</div>
+            <div className="rounded-xl rounded-tl-sm bg-muted/80 px-3 py-2 text-[11px] leading-relaxed max-w-[85%]">
+              {t('landing.hero_demo_message')}
+            </div>
+          </div>
+          {/* AI reply — appears fast */}
           <motion.div
-            key={c.initials}
-            initial={{ opacity: 0, x: -12 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 + i * 0.12, duration: 0.4 }}
-            whileHover={{ x: 3 }}
-            className="flex items-center gap-3 rounded-xl border bg-background/60 px-3 py-2.5 cursor-default"
+            transition={{ delay: 0.5, duration: 0.35 }}
+            className="flex gap-2 items-start flex-row-reverse"
           >
-            <div className={`h-8 w-8 rounded-full ${c.color} shrink-0 flex items-center justify-center text-[10px] font-bold text-white`}>
-              {c.initials}
+            <div className="h-6 w-6 rounded-full bg-primary/20 shrink-0 flex items-center justify-center">
+              <Sparkles className="h-3 w-3 text-primary" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold truncate">{c.name}</p>
-              <p className="text-[10px] text-muted-foreground truncate">{c.interest}</p>
-            </div>
-            <div className="text-right shrink-0">
-              <div className="flex items-center gap-0.5 text-[10px] font-semibold text-primary">
-                <Euro className="h-2.5 w-2.5" />{c.budget}
-              </div>
+            <div className="rounded-xl rounded-tr-sm bg-primary/10 border border-primary/20 px-3 py-2 text-[11px] leading-relaxed text-foreground/90 max-w-[85%]">
+              {t('landing.after_reply_preview')}
             </div>
           </motion.div>
-        ))}
-      </div>
-      {/* Floating new message badge */}
-      <motion.div
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -top-3 -right-3 rounded-xl border bg-card shadow-lg px-2.5 py-1.5 flex items-center gap-1.5"
-      >
-        <Phone className="h-3 w-3 text-green-500" />
-        <span className="text-[10px] font-semibold">{t('landing.illus_new_inquiry')}</span>
+          {/* Timer */}
+          <div className="flex items-center justify-center gap-2 pt-2">
+            <Zap className="h-4 w-4 text-primary" />
+            <span className="text-xl font-bold tabular-nums text-primary">0:05</span>
+            <TrendingUp className="h-4 w-4 text-primary" />
+          </div>
+          <p className="text-center text-[11px] text-primary/70 font-medium">{t('landing.after_caption')}</p>
+        </div>
       </motion.div>
     </div>
   )
 }
 
-/* ─── Property Catalog illustration ─── */
-function PropertyCatalogIllustration({ t }: { t: (key: string) => string }) {
-  const props = [
-    { icon: MapPin, label: t('landing.illus_prop_1'), rooms: '3', price: '185.000€', tag: t('landing.illus_prop_tag_sale') },
-    { icon: MapPin, label: t('landing.illus_prop_2'), rooms: '2', price: '95.000€', tag: t('landing.illus_prop_tag_new') },
+/* ─── AI Pipeline illustration ─── */
+function AIPipelineIllustration({ t }: { t: (key: string) => string }) {
+  const steps = [
+    {
+      icon: MessageSquare,
+      label: t('landing.pipeline_step1'),
+      color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400',
+      iconColor: 'text-blue-500',
+      line: 'bg-gradient-to-r from-blue-500/40 to-violet-500/40',
+    },
+    {
+      icon: Brain,
+      label: t('landing.pipeline_step2'),
+      color: 'bg-violet-500/10 border-violet-500/30 text-violet-600 dark:text-violet-400',
+      iconColor: 'text-violet-500',
+      line: 'bg-gradient-to-r from-violet-500/40 to-primary/40',
+    },
+    {
+      icon: Database,
+      label: t('landing.pipeline_step3'),
+      color: 'bg-primary/10 border-primary/30 text-primary',
+      iconColor: 'text-primary',
+      line: 'bg-gradient-to-r from-primary/40 to-emerald-500/40',
+    },
+    {
+      icon: Send,
+      label: t('landing.pipeline_step4'),
+      color: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400',
+      iconColor: 'text-emerald-500',
+      line: null,
+    },
   ]
+
   return (
-    <div className="relative rounded-2xl border bg-card shadow-xl shadow-primary/8 overflow-hidden max-w-sm mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/40">
-        <div className="flex items-center gap-2">
-          <Building2 className="h-4 w-4 text-primary" />
-          <span className="text-xs font-semibold">{t('nav.properties')}</span>
-        </div>
-        <span className="text-[10px] text-muted-foreground bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">2 {t('landing.illus_active')}</span>
-      </div>
-      <div className="p-3 space-y-2">
-        {props.map((p, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, x: -12 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 + i * 0.15, duration: 0.4 }}
-            whileHover={{ x: 3 }}
-            className="flex items-center gap-3 rounded-xl border bg-background/60 px-3 py-2.5 cursor-default"
-          >
-            <div className="h-8 w-8 rounded-xl bg-primary/10 shrink-0 flex items-center justify-center">
-              <p.icon className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold truncate">{p.label}</p>
-              <p className="text-[10px] text-muted-foreground">{p.rooms} {t('landing.illus_rooms')}</p>
-            </div>
-            <div className="text-right shrink-0 space-y-0.5">
-              <p className="text-[10px] font-bold text-primary">{p.price}</p>
-              <span className="text-[9px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">{p.tag}</span>
-            </div>
-          </motion.div>
+    <div className="max-w-3xl mx-auto w-full">
+      {/* Pipeline row */}
+      <div className="flex items-center justify-between gap-0 mb-8">
+        {steps.map((step, i) => (
+          <div key={i} className="flex items-center flex-1">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.12, duration: 0.4 }}
+              className="flex flex-col items-center gap-2 flex-shrink-0"
+            >
+              <motion.div
+                animate={{ boxShadow: ['0 0 0 0 transparent', '0 0 0 6px hsl(var(--primary)/0.12)', '0 0 0 0 transparent'] }}
+                transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.6 }}
+                className={`h-14 w-14 rounded-2xl border-2 ${step.color} flex items-center justify-center`}
+              >
+                <step.icon className={`h-6 w-6 ${step.iconColor}`} />
+              </motion.div>
+              <span className="text-[10px] font-semibold text-center text-muted-foreground leading-tight max-w-[72px]">{step.label}</span>
+            </motion.div>
+            {step.line && (
+              <motion.div
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12 + 0.2, duration: 0.4 }}
+                style={{ originX: 0 }}
+                className={`h-0.5 flex-1 mx-2 ${step.line}`}
+              />
+            )}
+          </div>
         ))}
-        {/* AI reply preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.45, duration: 0.4 }}
-          className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5"
-        >
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <Sparkles className="h-3 w-3 text-primary" />
-            <span className="text-[10px] font-semibold text-primary">{t('landing.illus_ai_included')}</span>
-          </div>
-          <div className="space-y-1">
-            <div className="h-1.5 rounded bg-primary/20 w-full" />
-            <div className="h-1.5 rounded bg-primary/20 w-4/5" />
-            <div className="h-1.5 rounded bg-primary/20 w-3/5" />
-          </div>
-        </motion.div>
       </div>
-      {/* Copy badge */}
+
+      {/* Output preview */}
       <motion.div
-        animate={{ y: [0, 6, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-        className="absolute -bottom-3 -right-3 rounded-xl border bg-card shadow-lg px-2.5 py-1.5 flex items-center gap-1.5"
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="rounded-2xl border bg-card shadow-lg shadow-primary/5 overflow-hidden"
       >
-        <Copy className="h-3 w-3 text-primary" />
-        <span className="text-[10px] font-semibold">{t('landing.illus_copied')}</span>
+        <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/40">
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          <span className="text-xs font-semibold text-primary">{t('landing.pipeline_output_label')}</span>
+          <div className="ml-auto flex gap-1.5">
+            {['bg-blue-400/60', 'bg-green-400/60', 'bg-amber-400/60'].map((c, i) => (
+              <motion.div
+                key={i}
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.8 + i * 0.1, type: 'spring', stiffness: 400 }}
+                className={`h-5 rounded-full ${c} px-2 flex items-center`}
+              >
+                <div className="h-1 w-8 rounded bg-white/40" />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+        <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x">
+          {[
+            { tone: t('dashboard.tone_professional'), color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20' },
+            { tone: t('dashboard.tone_friendly'), color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-950/20' },
+            { tone: t('dashboard.tone_direct'), color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/20' },
+          ].map((card, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.9 + i * 0.1 }}
+              className={`p-4 ${card.bg}`}
+            >
+              <p className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${card.color}`}>{card.tone}</p>
+              <div className="space-y-1.5">
+                <div className="h-1.5 rounded-full bg-current opacity-20 w-full" />
+                <div className="h-1.5 rounded-full bg-current opacity-20 w-4/5" />
+                <div className="h-1.5 rounded-full bg-current opacity-20 w-3/5" />
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </motion.div>
     </div>
   )
@@ -476,6 +563,19 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Before / After ── */}
+      <section className="py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+          <FadeUp>
+            <h2 className="text-2xl md:text-3xl font-heading font-bold text-center mb-2">{t('landing.before_after_title')}</h2>
+            <p className="text-center text-sm text-muted-foreground mb-10">{t('landing.before_after_subtitle')}</p>
+          </FadeUp>
+          <FadeUp delay={0.1}>
+            <BeforeAfterIllustration t={t} />
+          </FadeUp>
+        </div>
+      </section>
+
       {/* ── How it works ── */}
       <section id="how-it-works" className="py-20 px-4 bg-muted/30 relative overflow-hidden">
         {/* Decorative line */}
@@ -521,6 +621,19 @@ export default function LandingPage() {
               </FadeUp>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── AI Pipeline ── */}
+      <section className="py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+          <FadeUp>
+            <h2 className="text-2xl md:text-3xl font-heading font-bold text-center mb-2">{t('landing.pipeline_title')}</h2>
+            <p className="text-center text-sm text-muted-foreground mb-12">{t('landing.pipeline_subtitle')}</p>
+          </FadeUp>
+          <FadeUp delay={0.1}>
+            <AIPipelineIllustration t={t} />
+          </FadeUp>
         </div>
       </section>
 
@@ -585,55 +698,6 @@ export default function LandingPage() {
                 </motion.div>
               </FadeUp>
             ))}
-          </div>
-
-          {/* ── Feature illustrations ── */}
-          <div className="mt-16 grid md:grid-cols-2 gap-10 items-center">
-            <FadeUp delay={0.05}>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
-                    <Users className="h-4 w-4 text-primary" />
-                  </div>
-                  <h3 className="font-heading font-bold text-lg">{t('landing.feat_clients')}</h3>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{t('landing.illus_clients_desc')}</p>
-                <ul className="space-y-1.5 text-sm">
-                  {[t('landing.illus_clients_point_1'), t('landing.illus_clients_point_2'), t('landing.illus_clients_point_3')].map((pt) => (
-                    <li key={pt} className="flex items-center gap-2 text-muted-foreground">
-                      <Check className="h-3.5 w-3.5 text-primary shrink-0" />{pt}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </FadeUp>
-            <FadeUp delay={0.15}>
-              <ClientBookIllustration t={t} />
-            </FadeUp>
-          </div>
-
-          <div className="mt-16 grid md:grid-cols-2 gap-10 items-center">
-            <FadeUp delay={0.15} className="order-2 md:order-1">
-              <PropertyCatalogIllustration t={t} />
-            </FadeUp>
-            <FadeUp delay={0.05} className="order-1 md:order-2">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
-                    <Building2 className="h-4 w-4 text-primary" />
-                  </div>
-                  <h3 className="font-heading font-bold text-lg">{t('landing.feat_properties')}</h3>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{t('landing.illus_props_desc')}</p>
-                <ul className="space-y-1.5 text-sm">
-                  {[t('landing.illus_props_point_1'), t('landing.illus_props_point_2'), t('landing.illus_props_point_3')].map((pt) => (
-                    <li key={pt} className="flex items-center gap-2 text-muted-foreground">
-                      <Check className="h-3.5 w-3.5 text-primary shrink-0" />{pt}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </FadeUp>
           </div>
         </div>
       </section>
