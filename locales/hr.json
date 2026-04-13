@@ -155,7 +155,18 @@
     "template_active": "Predložak aktivan — AI će koristiti ovaj kontekst",
     "clear": "Ukloni",
     "save_favorite": "Spremi u favorite",
-    "saved_favorite": "Spremljeno u favorite!"
+    "saved_favorite": "Spremljeno u favorite!",
+    "subtitle": "Generirajte AI odgovore za vaše klijente",
+    "message_label": "Poruka klijenta",
+    "ai_generator": "AI Generator odgovora",
+    "ai_generator_desc": "Zalijepite poruku klijenta, dobijte 3 tona",
+    "client_label": "Klijent",
+    "property_label": "Nekretnina",
+    "generated_replies": "Generirani odgovori",
+    "quick_reply": "Brzi odgovor",
+    "keyboard_shortcuts": "Tipkovni prečaci",
+    "link_client_prompt": "Povežite ovaj odgovor s klijentom za bolji kontekst sljedeći put",
+    "add_client_link": "Dodaj klijenta →"
   },
   "stats": {
     "replies_month": "Odgovora ovaj mjesec",
@@ -201,6 +212,7 @@
   },
   "settings": {
     "title": "Postavke",
+    "subtitle": "Upravljajte profilom i računom",
     "profile_section": "Profil agenta",
     "profile_desc": "Ove informacije personaliziraju svaki generirani odgovor",
     "save_btn": "Spremi promjene",

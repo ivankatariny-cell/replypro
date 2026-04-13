@@ -142,7 +142,7 @@ export default function SettingsPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t('settings.title')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage your profile and account</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('settings.subtitle')}</p>
         </div>
         <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${planColor}`}>{planLabel}</span>
       </div>

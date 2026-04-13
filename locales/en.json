@@ -155,7 +155,18 @@
     "template_active": "Template active — AI will use this context",
     "clear": "Clear",
     "save_favorite": "Save to favorites",
-    "saved_favorite": "Saved to favorites!"
+    "saved_favorite": "Saved to favorites!",
+    "subtitle": "Generate AI-powered replies for your clients",
+    "message_label": "Client Message",
+    "ai_generator": "AI Reply Generator",
+    "ai_generator_desc": "Paste a client message, get 3 tones",
+    "client_label": "Client",
+    "property_label": "Property",
+    "generated_replies": "Generated Replies",
+    "quick_reply": "Quick reply",
+    "keyboard_shortcuts": "Keyboard Shortcuts",
+    "link_client_prompt": "Link this reply to a client for better context next time",
+    "add_client_link": "Add client →"
   },
   "stats": {
     "replies_month": "Replies this month",
@@ -201,6 +212,7 @@
   },
   "settings": {
     "title": "Settings",
+    "subtitle": "Manage your profile and account",
     "profile_section": "Agent Profile",
     "profile_desc": "This information personalizes every generated reply",
     "save_btn": "Save changes",

@@ -193,7 +193,7 @@ function DashboardContent() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{heading}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{t('dashboard.subtitle') || 'Generate AI-powered replies for your clients'}</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('dashboard.subtitle')}</p>
         </div>
         {/* Keyboard shortcut legend — desktop only */}
         <div className="relative hidden md:block" ref={legendRef}>
@@ -206,7 +206,7 @@ function DashboardContent() {
           </button>
           {showShortcuts && (
             <div className="absolute right-0 top-10 z-50 w-64 rounded-xl border bg-card shadow-lg p-4 space-y-2.5">
-              <p className="text-xs font-semibold text-foreground mb-1">Keyboard Shortcuts</p>
+              <p className="text-xs font-semibold text-foreground mb-1">{t('dashboard.keyboard_shortcuts')}</p>
               {[
                 { keys: `${modKey} Enter`, label: 'Generate replies' },
                 { keys: `${modKey} 1`, label: 'Copy professional reply' },
@@ -243,19 +243,19 @@ function DashboardContent() {
             <Sparkles className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <p className="text-sm font-semibold leading-tight">AI Reply Generator</p>
-            <p className="text-[11px] text-muted-foreground">Paste a client message, get 3 tones</p>
+            <p className="text-sm font-semibold leading-tight">{t('dashboard.ai_generator')}</p>
+            <p className="text-[11px] text-muted-foreground">{t('dashboard.ai_generator_desc')}</p>
           </div>
         </div>
 
         <div className="p-5 space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1">
-              <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Client</label>
+              <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">{t('dashboard.client_label')}</label>
               <ClientSelector value={selectedClient} onChange={setSelectedClient} />
             </div>
             <div className="space-y-1">
-              <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Property</label>
+              <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">{t('dashboard.property_label')}</label>
               <PropertySelector value={selectedProperty} onChange={setSelectedProperty} />
             </div>
           </div>
@@ -285,7 +285,7 @@ function DashboardContent() {
 
           <div className="space-y-1">
             <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-              {t('dashboard.message_label') || 'Client Message'}
+              {t('dashboard.message_label')}
             </label>
             <MessageInput value={message} onChange={setMessage} disabled={loading} />
           </div>
@@ -297,7 +297,7 @@ function DashboardContent() {
               className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${quickReply ? 'bg-primary/10 border-primary/20 text-primary' : 'text-muted-foreground hover:bg-accent'}`}
             >
               <Zap className="h-3.5 w-3.5" />
-              {language === 'hr' ? 'Brzi odgovor' : 'Quick reply'}
+              {t('dashboard.quick_reply')}
             </button>
           </div>
           <p className="hidden md:block text-xs text-muted-foreground text-center -mt-1">
@@ -311,7 +311,7 @@ function DashboardContent() {
       {(replies || loading) && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold">Generated Replies</p>
+            <p className="text-sm font-semibold">{t('dashboard.generated_replies')}</p>
             <div className="flex-1 h-px bg-border" />
           </div>
           <ErrorBoundary>
@@ -327,16 +327,14 @@ function DashboardContent() {
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Users className="h-4 w-4 shrink-0" />
                 <span>
-                  {language === 'hr'
-                    ? 'Povežite ovaj odgovor s klijentom za bolji kontekst sljedeći put'
-                    : 'Link this reply to a client for better context next time'}
+                  {t('dashboard.link_client_prompt')}
                 </span>
               </div>
               <Link
                 href="/clients"
                 className="shrink-0 text-xs font-medium text-primary hover:underline cursor-pointer"
               >
-                {language === 'hr' ? 'Dodaj klijenta →' : 'Add client →'}
+                {t('dashboard.add_client_link')}
               </Link>
             </div>
           )}
