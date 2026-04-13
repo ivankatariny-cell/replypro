@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server'
 import { generateReplies } from '@/lib/groq/client'
-import { buildSystemPrompt } from '@/lib/prompts/real-estate'
+import { buildSystemPrompt, buildClientContext, buildPropertyContext } from '@/lib/prompts/real-estate'
 import { sanitizeMessage } from '@/lib/utils/sanitize'
 import { rateLimit } from '@/lib/utils/rate-limit'
 import { sendTrialLowEmail, sendTrialExpiredEmail } from '@/lib/resend/emails'
@@ -82,13 +82,16 @@ export async function POST(req: NextRequest) {
       const { data: client } = await supabase
         .from('rp_clients').select('*').eq('id', body.client_id).single()
       if (client) {
-        clientContext = `\n\nKLIJENT: ${client.full_name}`
-        if (client.city) clientContext += `, ${client.city}`
-        if (client.property_interest) clientContext += `. Traži: ${client.property_interest}`
-        if (client.budget_min || client.budget_max) {
-          clientContext += `. Budžet: ${client.budget_min ? `€${client.budget_min}` : '?'} - ${client.budget_max ? `€${client.budget_max}` : '?'}`
-        }
-        if (client.notes) clientContext += `. Napomene: ${client.notes}`
+        clientContext = buildClientContext({
+          fullName: client.full_name,
+          city: client.city,
+          status: client.status,
+          propertyInterest: client.property_interest,
+          budgetMin: client.budget_min,
+          budgetMax: client.budget_max,
+          tags: client.tags ?? [],
+          notes: client.notes,
+        })
       }
     }
 
@@ -98,13 +101,17 @@ export async function POST(req: NextRequest) {
       const { data: property } = await supabase
         .from('rp_properties').select('*').eq('id', body.property_id).single()
       if (property) {
-        propertyContext = `\n\nNEKRETNINA: ${property.title}`
-        if (property.address) propertyContext += `, ${property.address}`
-        if (property.city) propertyContext += `, ${property.city}`
-        if (property.price) propertyContext += `. Cijena: €${property.price}`
-        if (property.sqm) propertyContext += `, ${property.sqm}m²`
-        if (property.rooms) propertyContext += `, ${property.rooms} soba`
-        if (property.description) propertyContext += `. ${property.description}`
+        propertyContext = buildPropertyContext({
+          title: property.title,
+          address: property.address,
+          city: property.city,
+          price: property.price,
+          sqm: property.sqm,
+          rooms: property.rooms,
+          propertyType: property.property_type,
+          status: property.status,
+          description: property.description,
+        })
       }
     }
 
@@ -116,7 +123,7 @@ export async function POST(req: NextRequest) {
       agentName: profile.full_name,
       agencyName: profile.agency_name,
       city: profile.city,
-      preferredTone: profile.preferred_tone,
+      preferredTone: profile.preferred_tone ?? 'mixed',
     })
 
     // Availability context + booking suggestion — only when message contains a date/time reference
