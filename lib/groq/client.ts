@@ -36,7 +36,7 @@ export async function generateReplies(
           { role: 'system', content: effectivePrompt },
           { role: 'user', content: `PORUKA KLIJENTA:\n${userMessage}` },
         ],
-        model: 'llama-3.3-70b-versatile',
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         temperature: 0.8,
         max_tokens: 2000,
         response_format: { type: 'json_object' },
