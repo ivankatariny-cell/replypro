@@ -1,4 +1,4 @@
-import { MessageSquare, Sparkles, Clock, Users, Star } from 'lucide-react'
+import { Sparkles, Clock, Users, Star } from 'lucide-react'
 import Image from 'next/image'
 
 const stats = [
