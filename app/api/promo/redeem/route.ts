@@ -23,7 +23,8 @@ export async function POST(req: NextRequest) {
     }
 
     const serviceClient = createServiceRoleClient()
-    const { data: rpcResults, error: rpcError } = await serviceClient
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: rpcResults, error: rpcError } = await (serviceClient as any)
       .rpc('redeem_promo_code', { p_user_id: user.id, p_code: code })
 
     if (rpcError || !rpcResults?.[0]) {
