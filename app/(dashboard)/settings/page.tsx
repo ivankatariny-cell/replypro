@@ -15,7 +15,7 @@ import { useToast } from '@/components/ui/toast'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
-import { Loader2, User, Shield, Download, ChevronDown, Trash2, Lock } from 'lucide-react'
+import { Loader2, User, Shield, Download, ChevronDown, Trash2, Lock, Tag, CheckCircle2 } from 'lucide-react'
 
 const schema = z.object({
   full_name: z.string().min(2).max(100),
@@ -62,6 +62,10 @@ export default function SettingsPage() {
   }
 
   const [exporting, setExporting] = useState(false)
+  const [promoCode, setPromoCode] = useState('')
+  const [promoLoading, setPromoLoading] = useState(false)
+  const [promoSuccess, setPromoSuccess] = useState<string | null>(null)
+  const [promoError, setPromoError] = useState<string | null>(null)
 
   const handleExport = async () => {
     setExporting(true)
@@ -84,8 +88,39 @@ export default function SettingsPage() {
     }
   }
 
-  const handleDelete = async () => {
-    if (!user || deleteConfirmEmail !== user.email) return
+  const handlePromoRedeem = async () => {
+    if (!promoCode.trim()) return
+    setPromoLoading(true)
+    setPromoError(null)
+    setPromoSuccess(null)
+    try {
+      const res = await fetch('/api/promo/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCode.trim() }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        const msg = t('promo.success').replace('{{count}}', String(data.generations_granted))
+        setPromoSuccess(msg)
+        setPromoCode('')
+        // Refresh subscription in store
+        const supabase = createClient()
+        const { data: sub } = await supabase.from('rp_subscriptions').select('*').eq('user_id', user!.id).single()
+        if (sub) useAppStore.getState().setSubscription(sub)
+      } else {
+        const errorKey = `promo.error_${data.error}` as const
+        const msg = t(errorKey as Parameters<typeof t>[0]) || t('promo.error_generic')
+        setPromoError(msg)
+      }
+    } catch {
+      setPromoError(t('promo.error_generic'))
+    } finally {
+      setPromoLoading(false)
+    }
+  }
+
+  const handleDelete = async () => {    if (!user || deleteConfirmEmail !== user.email) return
     setDeleting(true)
     try {
       const res = await fetch('/api/user/delete', { method: 'DELETE' })
@@ -304,8 +339,62 @@ export default function SettingsPage() {
           </div>
         </div>
       </motion.div>
-      {/* Danger Zone */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22, duration: 0.25 }}>
+      {/* Promo Code */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18, duration: 0.25 }}>
+        <div className="rounded-2xl border bg-card overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b bg-muted/20">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
+              <Tag className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">{t('promo.section_title')}</p>
+              <p className="text-xs text-muted-foreground">{t('promo.section_desc')}</p>
+            </div>
+          </div>
+          <div className="p-6 space-y-3">
+            <div className="flex gap-2">
+              <Input
+                value={promoCode}
+                onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(null); setPromoSuccess(null) }}
+                onKeyDown={(e) => e.key === 'Enter' && handlePromoRedeem()}
+                placeholder={t('promo.input_placeholder')}
+                className="rounded-lg font-mono tracking-widest uppercase"
+                maxLength={32}
+                disabled={promoLoading}
+              />
+              <button
+                onClick={handlePromoRedeem}
+                disabled={promoLoading || !promoCode.trim()}
+                className="inline-flex items-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors shrink-0"
+              >
+                {promoLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {promoLoading ? t('promo.redeeming') : t('promo.redeem_btn')}
+              </button>
+            </div>
+            {promoSuccess && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/40 px-3 py-2.5"
+              >
+                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
+                <p className="text-sm text-green-700 dark:text-green-400">{promoSuccess}</p>
+              </motion.div>
+            )}
+            {promoError && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2.5"
+              >
+                <p className="text-sm text-destructive">{promoError}</p>
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Danger Zone */}      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22, duration: 0.25 }}>
         <div className="rounded-2xl border border-destructive/30 bg-destructive/5 overflow-hidden">
           <div className="flex items-center gap-3 px-6 py-4 border-b border-destructive/20">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10">

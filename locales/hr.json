@@ -360,6 +360,22 @@
     "appointment_updated": "Termin ažuriran.",
     "appointment_deleted": "Termin obrisan."
   },
+  "promo": {
+    "section_title": "Promo kod",
+    "section_desc": "Imate beta pristupni kod? Unesite ga ovdje za otključavanje besplatnih generacija.",
+    "input_placeholder": "Unesite promo kod",
+    "redeem_btn": "Aktiviraj",
+    "redeeming": "Aktiviranje...",
+    "success": "Kod aktiviran! {{count}} generacija dodano na vaš račun.",
+    "beta_badge": "Beta tester",
+    "error_invalid_code": "Nevažeći promo kod. Provjerite kod i pokušajte ponovo.",
+    "error_code_inactive": "Ovaj promo kod više nije aktivan.",
+    "error_code_expired": "Ovaj promo kod je istekao.",
+    "error_code_exhausted": "Ovaj promo kod je već u potpunosti iskorišten.",
+    "error_already_redeemed": "Već ste aktivirali ovaj kod.",
+    "error_already_pro": "Već ste na Pro planu — promo kod vam nije potreban.",
+    "error_generic": "Aktivacija koda nije uspjela. Pokušajte ponovo."
+  },
   "errors": {
     "trial_expired": "Vaš besplatni period je završio. Nadogradite na Pro.",
     "not_authenticated": "Morate biti prijavljeni.",

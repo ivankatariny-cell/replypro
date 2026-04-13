@@ -51,6 +51,7 @@ export function TrialBanner() {
   const remaining = subscription.trial_generations_limit - subscription.trial_generations_used
   const progress = (subscription.trial_generations_used / subscription.trial_generations_limit) * 100
   const isLow = remaining <= 3
+  const isBetaTester = subscription.trial_generations_limit > 10
 
   if (remaining <= 0) {
     return (
@@ -80,6 +81,11 @@ export function TrialBanner() {
             <span className={`font-bold ${isLow ? 'text-amber-600' : 'text-foreground'}`}>{remaining}</span>
             {' '}{t('dashboard.trial_remaining')}
           </p>
+          {isBetaTester && (
+            <span className="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700/50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-400">
+              {t('promo.beta_badge')}
+            </span>
+          )}
         </div>
         <Link href="/billing?checkout=1" className="text-xs font-medium text-primary hover:underline cursor-pointer">
           {t('dashboard.upgrade_prompt')} →

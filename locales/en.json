@@ -360,6 +360,22 @@
     "appointment_updated": "Appointment updated.",
     "appointment_deleted": "Appointment deleted."
   },
+  "promo": {
+    "section_title": "Promo Code",
+    "section_desc": "Have a beta access code? Enter it here to unlock free generations.",
+    "input_placeholder": "Enter promo code",
+    "redeem_btn": "Redeem",
+    "redeeming": "Redeeming...",
+    "success": "Code redeemed! {{count}} generations added to your account.",
+    "beta_badge": "Beta Tester",
+    "error_invalid_code": "Invalid promo code. Check the code and try again.",
+    "error_code_inactive": "This promo code is no longer active.",
+    "error_code_expired": "This promo code has expired.",
+    "error_code_exhausted": "This promo code has already been fully used.",
+    "error_already_redeemed": "You've already redeemed this code.",
+    "error_already_pro": "You're already on the Pro plan — no need for a promo code.",
+    "error_generic": "Failed to redeem code. Please try again."
+  },
   "errors": {
     "trial_expired": "Your free trial has ended. Upgrade to Pro.",
     "not_authenticated": "You must be logged in.",
