@@ -146,164 +146,336 @@ function HeroIllustration({ t }: { t: (key: string) => string }) {
 
 /* ─── Before / After speed illustration ─── */
 function BeforeAfterIllustration({ t }: { t: (key: string) => string }) {
+  const [playing, setPlaying] = useState(false)
+  const [step, setStep] = useState(0) // 0=idle, 1=msg, 2=thinking, 3=dots, 4=reply, 5=badges, 6=done
+  const [side, setSide] = useState<'before' | 'after'>('before')
   const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-60px' })
+  const inView = useInView(ref, { once: true, margin: '-80px' })
+
+  // Auto-play once in view
+  const hasAutoPlayed = useRef(false)
+  if (inView && !hasAutoPlayed.current) {
+    hasAutoPlayed.current = true
+  }
+
+  const runAnimation = (s: 'before' | 'after') => {
+    setSide(s)
+    setStep(0)
+    setPlaying(true)
+    const delays = s === 'before'
+      ? [0, 600, 1400, 2400, 3600]
+      : [0, 600, 1400, 2000, 2600]
+    delays.forEach((d, i) => setTimeout(() => setStep(i + 1), d))
+    setTimeout(() => setPlaying(false), s === 'before' ? 4200 : 3200)
+  }
+
+  // Auto-play before side on scroll in
+  const autoRef = useRef(false)
+  if (inView && !autoRef.current) {
+    autoRef.current = true
+    setTimeout(() => runAnimation('before'), 400)
+  }
+
+  const tones = [
+    { label: t('dashboard.tone_professional'), color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+    { label: t('dashboard.tone_friendly'), color: 'bg-green-500/20 text-green-400 border-green-500/30' },
+    { label: t('dashboard.tone_direct'), color: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
+  ]
 
   return (
-    <div ref={ref} className="max-w-4xl mx-auto w-full">
-      <div className="relative grid md:grid-cols-2 gap-0 rounded-3xl overflow-hidden border shadow-2xl shadow-black/10">
+    <div ref={ref} className="max-w-5xl mx-auto w-full space-y-6">
 
-        {/* ── LEFT: WITHOUT ── */}
-        <div className="relative bg-gradient-to-br from-red-950/40 via-red-900/20 to-background p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-500/20">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-500/70 to-transparent" />
-          <div className="flex items-center gap-2 mb-5">
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500/20 border border-red-500/30">
-              <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
-            </div>
-            <span className="text-xs font-bold uppercase tracking-widest text-red-400">{t('landing.before_label')}</span>
-          </div>
-          <div className="space-y-3 mb-5">
-            <motion.div
-              initial={{ opacity: 0, x: -12 }}
-              animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: 0.2, duration: 0.4 }}
-              className="flex gap-2.5 items-end"
-            >
-              <div className="h-7 w-7 rounded-full bg-slate-600 shrink-0 flex items-center justify-center text-[10px] font-bold text-white">K</div>
-              <div className="rounded-2xl rounded-bl-sm bg-white/10 border border-white/10 px-3.5 py-2.5 text-xs leading-relaxed text-foreground/80 max-w-[85%]">
-                {t('landing.hero_demo_message')}
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 12 }}
-              animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: 0.5, duration: 0.4 }}
-              className="flex gap-2.5 items-end flex-row-reverse"
-            >
-              <div className="h-7 w-7 rounded-full bg-slate-700 shrink-0 flex items-center justify-center text-[10px] font-bold text-white/60">A</div>
-              <div className="rounded-2xl rounded-br-sm bg-white/5 border border-white/10 px-3.5 py-2.5 text-xs text-muted-foreground/60 italic max-w-[85%]">
-                {t('landing.before_thinking')}
-                <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.2, repeat: Infinity }}>...</motion.span>
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 12 }}
-              animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: 0.8, duration: 0.4 }}
-              className="flex gap-2.5 items-end flex-row-reverse"
-            >
-              <div className="h-7 w-7 rounded-full bg-slate-700 shrink-0 flex items-center justify-center text-[10px] font-bold text-white/60">A</div>
-              <div className="rounded-2xl rounded-br-sm bg-white/5 border border-white/10 px-3.5 py-2.5 max-w-[85%]">
-                <div className="flex gap-1 items-center">
-                  {[0, 0.2, 0.4].map((d, i) => (
-                    <motion.div key={i} animate={{ y: [0, -4, 0] }} transition={{ duration: 0.8, repeat: Infinity, delay: d }}
-                      className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
-                  ))}
+      {/* Tab switcher */}
+      <div className="flex items-center justify-center gap-2">
+        <button
+          onClick={() => !playing && runAnimation('before')}
+          className={`relative flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            side === 'before'
+              ? 'bg-red-500/15 border border-red-500/30 text-red-400 shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent'
+          }`}
+        >
+          <Clock className="h-3.5 w-3.5" />
+          {t('landing.before_label')}
+          {side === 'before' && playing && (
+            <motion.span
+              animate={{ opacity: [1, 0.3, 1] }}
+              transition={{ duration: 0.8, repeat: Infinity }}
+              className="ml-1 h-1.5 w-1.5 rounded-full bg-red-400 inline-block"
+            />
+          )}
+        </button>
+
+        <div className="text-muted-foreground/40 text-xs font-bold">VS</div>
+
+        <button
+          onClick={() => !playing && runAnimation('after')}
+          className={`relative flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            side === 'after'
+              ? 'bg-primary/15 border border-primary/30 text-primary shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent'
+          }`}
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          {t('landing.after_label')}
+          {side === 'after' && playing && (
+            <motion.span
+              animate={{ opacity: [1, 0.3, 1] }}
+              transition={{ duration: 0.8, repeat: Infinity }}
+              className="ml-1 h-1.5 w-1.5 rounded-full bg-primary inline-block"
+            />
+          )}
+        </button>
+      </div>
+
+      {/* Main card */}
+      <div className={`relative rounded-3xl border overflow-hidden shadow-2xl transition-all duration-500 ${
+        side === 'before'
+          ? 'border-red-500/20 shadow-red-500/5'
+          : 'border-primary/20 shadow-primary/8'
+      }`}>
+
+        {/* Gradient bg */}
+        <div className={`absolute inset-0 transition-all duration-500 ${
+          side === 'before'
+            ? 'bg-gradient-to-br from-red-950/30 via-background to-background'
+            : 'bg-gradient-to-br from-primary/10 via-background to-background'
+        }`} />
+
+        {/* Top accent */}
+        <div className={`absolute top-0 left-0 right-0 h-[2px] transition-all duration-500 ${
+          side === 'before'
+            ? 'bg-gradient-to-r from-transparent via-red-500/80 to-transparent'
+            : 'bg-gradient-to-r from-transparent via-primary to-transparent'
+        }`} />
+
+        <div className="relative p-6 md:p-10">
+          {/* Phone mockup */}
+          <div className="max-w-sm mx-auto">
+            {/* Phone chrome */}
+            <div className="rounded-2xl border bg-card/80 backdrop-blur-sm overflow-hidden shadow-xl">
+              {/* Status bar */}
+              <div className={`flex items-center justify-between px-4 py-2.5 border-b transition-colors duration-500 ${
+                side === 'before' ? 'bg-red-950/30' : 'bg-primary/10'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded-full bg-slate-600 flex items-center justify-center text-[9px] font-bold text-white">K</div>
+                  <div>
+                    <p className="text-xs font-semibold leading-none">Klijent</p>
+                    <p className="text-[9px] text-muted-foreground mt-0.5">WhatsApp</p>
+                  </div>
+                </div>
+                <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  side === 'before' ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'
+                }`}>
+                  {side === 'before' ? '● Online' : '● Online'}
                 </div>
               </div>
-            </motion.div>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ delay: 1, duration: 0.5, type: 'spring' }}
-            className="flex flex-col items-center gap-1 py-4 rounded-2xl bg-red-500/10 border border-red-500/20"
-          >
-            <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-red-400" />
-              <motion.span
-                animate={inView ? { opacity: [1, 0.3, 1] } : {}}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="text-4xl font-black tabular-nums text-red-400 tracking-tight"
-              >8:47</motion.span>
-            </div>
-            <p className="text-xs font-semibold text-red-400/80">{t('landing.before_caption')}</p>
-          </motion.div>
-        </div>
 
-        {/* VS badge */}
-        <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-card border-2 border-border shadow-lg text-xs font-black text-muted-foreground">VS</div>
-        </div>
+              {/* Chat area */}
+              <div className="p-4 space-y-3 min-h-[200px]">
+                {/* Client message */}
+                <AnimatePresence>
+                  {step >= 1 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.35, type: 'spring', stiffness: 400 }}
+                      className="flex gap-2 items-end"
+                    >
+                      <div className="h-6 w-6 rounded-full bg-slate-500 shrink-0 flex items-center justify-center text-[9px] font-bold text-white">K</div>
+                      <div className="rounded-2xl rounded-bl-sm bg-muted px-3 py-2 text-xs leading-relaxed max-w-[85%]">
+                        {t('landing.hero_demo_message')}
+                        <p className="text-[9px] text-muted-foreground/60 mt-1 text-right">09:14</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-        {/* ── RIGHT: WITH REPLYPRO ── */}
-        <div className="relative bg-gradient-to-br from-primary/20 via-primary/8 to-background p-6 md:p-8">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent" />
-          <div className="flex items-center gap-2 mb-5">
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 border border-primary/30">
-              <Sparkles className="h-2.5 w-2.5 text-primary" />
+                {/* BEFORE: thinking text */}
+                <AnimatePresence>
+                  {side === 'before' && step >= 2 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex gap-2 items-end flex-row-reverse"
+                    >
+                      <div className="h-6 w-6 rounded-full bg-slate-700 shrink-0 flex items-center justify-center text-[9px] font-bold text-white/50">A</div>
+                      <div className="rounded-2xl rounded-br-sm bg-muted/40 border border-border/50 px-3 py-2 text-xs text-muted-foreground/60 italic max-w-[85%]">
+                        {t('landing.before_thinking')}
+                        <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1, repeat: Infinity }}>...</motion.span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* BEFORE: typing dots */}
+                <AnimatePresence>
+                  {side === 'before' && step >= 3 && step < 5 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="flex gap-2 items-end flex-row-reverse"
+                    >
+                      <div className="h-6 w-6 rounded-full bg-slate-700 shrink-0 flex items-center justify-center text-[9px] font-bold text-white/50">A</div>
+                      <div className="rounded-2xl rounded-br-sm bg-muted/40 border border-border/50 px-4 py-3">
+                        <div className="flex gap-1.5 items-center">
+                          {[0, 0.15, 0.3].map((d, i) => (
+                            <motion.div key={i} animate={{ y: [0, -5, 0] }} transition={{ duration: 0.7, repeat: Infinity, delay: d }}
+                              className="h-2 w-2 rounded-full bg-muted-foreground/50" />
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* AFTER: AI typing indicator */}
+                <AnimatePresence>
+                  {side === 'after' && step >= 2 && step < 4 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="flex gap-2 items-end flex-row-reverse"
+                    >
+                      <div className="h-6 w-6 rounded-full bg-primary shrink-0 flex items-center justify-center">
+                        <Sparkles className="h-3 w-3 text-primary-foreground" />
+                      </div>
+                      <div className="rounded-2xl rounded-br-sm bg-primary/10 border border-primary/20 px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="flex gap-1">
+                            {[0, 0.1, 0.2].map((d, i) => (
+                              <motion.div key={i} animate={{ y: [0, -4, 0] }} transition={{ duration: 0.5, repeat: Infinity, delay: d }}
+                                className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                            ))}
+                          </div>
+                          <span className="text-[10px] text-primary/70 font-medium">AI generira...</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* AFTER: AI reply */}
+                <AnimatePresence>
+                  {side === 'after' && step >= 4 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.4, type: 'spring', stiffness: 350 }}
+                      className="flex gap-2 items-end flex-row-reverse"
+                    >
+                      <div className="h-6 w-6 rounded-full bg-primary shrink-0 flex items-center justify-center shadow-md shadow-primary/30">
+                        <Sparkles className="h-3 w-3 text-primary-foreground" />
+                      </div>
+                      <div className="rounded-2xl rounded-br-sm bg-primary/12 border border-primary/20 px-3 py-2.5 text-xs leading-relaxed max-w-[85%]">
+                        {t('landing.after_reply_preview')}
+                        <p className="text-[9px] text-primary/50 mt-1 text-right">09:14 ✓✓</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* AFTER: tone badges */}
+                <AnimatePresence>
+                  {side === 'after' && step >= 5 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex gap-1.5 flex-wrap pl-8"
+                    >
+                      {tones.map((b, i) => (
+                        <motion.span
+                          key={b.label}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: i * 0.08, type: 'spring', stiffness: 400 }}
+                          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold cursor-default ${b.color}`}
+                        >
+                          {b.label}
+                        </motion.span>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
-            <span className="text-xs font-bold uppercase tracking-widest text-primary">{t('landing.after_label')}</span>
+
+            {/* Timer display */}
+            <motion.div
+              key={side}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className={`mt-4 flex items-center justify-center gap-3 rounded-2xl border py-4 px-6 ${
+                side === 'before'
+                  ? 'bg-red-500/8 border-red-500/20'
+                  : 'bg-primary/8 border-primary/20'
+              }`}
+            >
+              {side === 'before' ? (
+                <Clock className="h-6 w-6 text-red-400 shrink-0" />
+              ) : (
+                <Zap className="h-6 w-6 text-primary shrink-0 fill-primary" />
+              )}
+              <div className="text-center">
+                <motion.p
+                  key={`${side}-${step}`}
+                  initial={{ scale: 1.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className={`text-3xl font-black tabular-nums tracking-tight ${
+                    side === 'before' ? 'text-red-400' : 'text-primary'
+                  }`}
+                >
+                  {side === 'before' ? (
+                    step >= 3 ? (
+                      <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>8:47</motion.span>
+                    ) : '0:00'
+                  ) : (
+                    step >= 4 ? '0:05' : step >= 2 ? '0:03' : '0:00'
+                  )}
+                </motion.p>
+                <p className={`text-[11px] font-medium mt-0.5 ${
+                  side === 'before' ? 'text-red-400/70' : 'text-primary/70'
+                }`}>
+                  {side === 'before' ? t('landing.before_caption') : t('landing.after_caption')}
+                </p>
+              </div>
+            </motion.div>
           </div>
-          <div className="space-y-3 mb-5">
-            <motion.div
-              initial={{ opacity: 0, x: -12 }}
-              animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: 0.3, duration: 0.4 }}
-              className="flex gap-2.5 items-end"
-            >
-              <div className="h-7 w-7 rounded-full bg-slate-600 shrink-0 flex items-center justify-center text-[10px] font-bold text-white">K</div>
-              <div className="rounded-2xl rounded-bl-sm bg-white/10 border border-white/10 px-3.5 py-2.5 text-xs leading-relaxed text-foreground/80 max-w-[85%]">
-                {t('landing.hero_demo_message')}
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 8 }}
-              animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
-              transition={{ delay: 0.7, duration: 0.5, type: 'spring', stiffness: 300 }}
-              className="flex gap-2.5 items-end flex-row-reverse"
-            >
-              <div className="h-7 w-7 rounded-full bg-primary shrink-0 flex items-center justify-center shadow-md shadow-primary/40">
-                <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
-              </div>
-              <div className="rounded-2xl rounded-br-sm bg-primary/15 border border-primary/25 px-3.5 py-2.5 text-xs leading-relaxed text-foreground/90 max-w-[85%]">
-                {t('landing.after_reply_preview')}
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 1.0, duration: 0.4 }}
-              className="flex gap-1.5 flex-wrap pl-9"
-            >
-              {[
-                { label: t('dashboard.tone_professional'), color: 'bg-blue-500/15 text-blue-400 border-blue-500/25' },
-                { label: t('dashboard.tone_friendly'), color: 'bg-green-500/15 text-green-400 border-green-500/25' },
-                { label: t('dashboard.tone_direct'), color: 'bg-amber-500/15 text-amber-400 border-amber-500/25' },
-              ].map((b) => (
-                <span key={b.label} className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${b.color}`}>{b.label}</span>
-              ))}
-            </motion.div>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ delay: 1.1, duration: 0.5, type: 'spring' }}
-            className="flex flex-col items-center gap-1 py-4 rounded-2xl bg-primary/10 border border-primary/20"
-          >
-            <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary fill-primary" />
-              <span className="text-4xl font-black tabular-nums text-primary tracking-tight">0:05</span>
-            </div>
-            <p className="text-xs font-semibold text-primary/80">{t('landing.after_caption')}</p>
-          </motion.div>
         </div>
       </div>
 
-      {/* Bottom stat bar */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ delay: 1.3, duration: 0.5 }}
-        className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground"
-      >
-        <TrendingDown className="h-4 w-4 text-red-400" />
-        <span className="font-semibold text-red-400">8:47</span>
-        <span>→</span>
-        <span className="font-semibold text-primary">0:05</span>
-        <TrendingUp className="h-4 w-4 text-primary" />
-        <span className="ml-1 rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-xs font-bold text-primary">100× {t('landing.strip_faster')}</span>
-      </motion.div>
+      {/* Replay + stat row */}
+      <div className="flex items-center justify-between gap-4 px-1">
+        <button
+          onClick={() => !playing && runAnimation(side)}
+          disabled={playing}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <motion.div
+            animate={playing ? { rotate: 360 } : {}}
+            transition={{ duration: 1, repeat: playing ? Infinity : 0, ease: 'linear' }}
+          >
+            <Repeat className="h-3.5 w-3.5" />
+          </motion.div>
+          {playing ? t('dashboard.generating') : 'Replay'}
+        </button>
+
+        <div className="flex items-center gap-2 text-sm">
+          <span className="font-bold text-red-400 tabular-nums">8:47</span>
+          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="font-bold text-primary tabular-nums">0:05</span>
+          <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-xs font-bold text-primary">
+            100× {t('landing.strip_faster')}
+          </span>
+        </div>
+      </div>
     </div>
   )
 }
