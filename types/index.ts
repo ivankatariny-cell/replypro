@@ -49,6 +49,17 @@ export interface ApiError {
   code: string
 }
 
+export interface ImportResult {
+  title: string
+  address: string | null
+  city: string | null
+  price: number | null
+  sqm: number | null
+  rooms: number | null
+  description: string | null
+  property_type: PropertyType
+}
+
 // ── Convenience union types ───────────────────────────────────────────────────
 import type { ClientRow, PropertyRow, TemplateRow } from '@/types/supabase'
 

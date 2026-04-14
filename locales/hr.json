@@ -309,7 +309,17 @@
     "empty_cta": "Dodaj prvu nekretninu",
     "edit": "Uredi",
     "save_changes": "Spremi promjene",
-    "updated": "Nekretnina ažurirana!"
+    "updated": "Nekretnina ažurirana!",
+    "import_url_label": "Uvezi s URL-a",
+    "import_url_placeholder": "https://www.njuskalo.hr/...",
+    "import_url_btn": "Uvezi",
+    "import_url_importing": "Uvoz u tijeku...",
+    "import_url_success": "Obrazac popunjen iz oglasa. Pregledajte i spremite.",
+    "import_url_invalid": "Unesite valjani URL (mora počinjati s https://)",
+    "import_url_error_scrape": "Nije moguće dohvatiti oglas. Provjerite URL i pokušajte ponovo.",
+    "import_url_error_extract": "Nije moguće izvući detalje nekretnine. Ispunite obrazac ručno.",
+    "import_url_error_rate": "Previše zahtjeva za uvoz. Pričekajte trenutak.",
+    "import_url_error_generic": "Uvoz nije uspio. Pokušajte ponovo."
   },
   "favorites": {
     "empty": "Još nema spremljenih odgovora",

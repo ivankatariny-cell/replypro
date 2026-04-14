@@ -13,7 +13,8 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Plus, X, MapPin, Ruler, DoorOpen, Building2, ChevronDown, Pencil, Check } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import type { Property } from '@/types'
+import { UrlImporter } from '@/components/properties/UrlImporter'
+import type { Property, ImportResult } from '@/types'
 
 type PropertyStatus = Property['status']
 
@@ -166,6 +167,24 @@ export default function PropertiesPage() {
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
             <div className="rounded-2xl border bg-card p-6 space-y-4">
               <p className="text-sm font-semibold">New Property</p>
+              <div className="border-b pb-4">
+                <UrlImporter
+                  onImport={(result: ImportResult) => {
+                    setForm({
+                      title: result.title,
+                      address: result.address ?? '',
+                      city: result.city ?? '',
+                      price: result.price ? String(result.price) : '',
+                      sqm: result.sqm ? String(result.sqm) : '',
+                      rooms: result.rooms ? String(result.rooms) : '',
+                      description: result.description ?? '',
+                      property_type: result.property_type,
+                    })
+                  }}
+                  onExpandForm={() => setShowForm(true)}
+                  formSubmitting={saving}
+                />
+              </div>
               <PropertyFormFields form={form} setForm={setForm} typeLabels={typeLabels} t={t} />
               <div className="flex gap-2 pt-1">
                 <button onClick={handleAdd} disabled={saving || !form.title.trim()} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 cursor-pointer transition-colors">

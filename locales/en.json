@@ -309,7 +309,17 @@
     "empty_cta": "Add first property",
     "edit": "Edit",
     "save_changes": "Save changes",
-    "updated": "Property updated!"
+    "updated": "Property updated!",
+    "import_url_label": "Import from URL",
+    "import_url_placeholder": "https://www.njuskalo.hr/...",
+    "import_url_btn": "Import",
+    "import_url_importing": "Importing...",
+    "import_url_success": "Form pre-filled from listing. Review and save.",
+    "import_url_invalid": "Please enter a valid URL (starting with https://)",
+    "import_url_error_scrape": "Could not fetch the listing. Check the URL and try again.",
+    "import_url_error_extract": "Could not extract property details. Please fill the form manually.",
+    "import_url_error_rate": "Too many import requests. Please wait a moment.",
+    "import_url_error_generic": "Import failed. Please try again."
   },
   "favorites": {
     "empty": "No saved replies yet",
