@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
       }
 
       markdown = await jinaRes.text()
-    } catch (e) {
+    } catch {
       if (jinaController.signal.aborted) {
         return err(504, 'SCRAPE_TIMEOUT', 'Listing fetch timed out')
       }
